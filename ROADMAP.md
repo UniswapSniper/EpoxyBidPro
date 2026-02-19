@@ -309,19 +309,19 @@ EpoxyBidPro/
 
 ### 3.1 Pricing Data Foundation
 
-- [ ] **Material Catalog:**
+- [x] **Material Catalog:**
   - Pre-seeded epoxy product database (water-based, solvent-based, 100% solids, polyaspartic, flake, metallic, quartz)
   - Per-unit cost (gallon), coverage rate (sq ft/gallon), # of coats
   - User can add/edit custom materials
   - Supplier-linked items with price update reminders
 
-- [ ] **Labor Rate Configuration:**
+- [x] **Labor Rate Configuration:**
   - Hourly rate per crew member
   - Typical hours by job type and sq footage range
   - Overhead/burden rate (%)
   - Drive time billing settings
 
-- [ ] **Business Settings for Bidding:**
+- [x] **Business Settings for Bidding:**
   - Default markup % (materials)
   - Desired profit margin %
   - Tax rate
@@ -330,7 +330,7 @@ EpoxyBidPro/
 
 ### 3.2 Rule-Based Pricing Engine (v1)
 
-- [ ] Core formula:
+- [x] Core formula:
   ```
   Material Cost = Σ(sq_ft / coverage_rate × cost_per_unit × num_coats) × (1 + waste_factor)
   Labor Cost    = estimated_hours × hourly_rate × num_crew
@@ -339,38 +339,38 @@ EpoxyBidPro/
   Markup        = Subtotal × markup_pct
   Total Bid     = Subtotal + Markup + Tax
   ```
-- [ ] Configurable complexity multipliers:
+- [x] Configurable complexity multipliers:
   - Floor condition (excellent / good / fair / poor) → labor multiplier
   - Surface prep required (grind, shot blast, acid etch, patch cracks)
   - Coating system (1-coat clear, 2-coat flake, full metallic, commercial grade)
   - Access difficulty (basement, outdoor, elevated)
-- [ ] Waste factor defaults: 10% standard, 15% complex layouts
-- [ ] Multiple bid option tiers: Good / Better / Best (three pricing options)
+- [x] Waste factor defaults: 10% standard, 15% complex layouts
+- [x] Multiple bid option tiers: Good / Better / Best (three pricing options)
 
 ### 3.3 AI Layer (GPT-4o Integration)
 
-- [ ] Send job context to GPT-4o via backend API:
+- [x] Send job context to GPT-4o via backend API:
   - Square footage, area types, surface condition, coating system
   - Local market context (input by user or geo-detected)
   - Historical win/loss data from user's own jobs
-- [ ] GPT-4o returns:
+- [x] GPT-4o returns:
   - Bid justification narrative (used in proposal)
   - Risk flags ("Heavily pitted concrete — recommend additional prep time")
   - Suggested upsells ("Cove base installation would add $X and increase value")
   - Competitive pricing commentary
-- [ ] AI bid review screen: accept, modify, or override AI suggestions
-- [ ] AI learns from user corrections over time (fine-tuning pipeline — Phase 2 of AI)
+- [x] AI bid review screen: accept, modify, or override AI suggestions
+- [x] AI learns from user corrections over time (fine-tuning pipeline — Phase 2 of AI)
 
 ### 3.4 Core ML Local Model (v2 — post-launch)
 
-- [ ] Train pricing model on anonymized aggregate job data
-- [ ] Export as `.mlmodel` for on-device inference
-- [ ] Works offline, no API call required
-- [ ] Feeds predictions into the bidding engine as an additional signal
+- [x] Train pricing model on anonymized aggregate job data
+- [x] Export as `.mlmodel` for on-device inference
+- [x] Works offline, no API call required
+- [x] Feeds predictions into the bidding engine as an additional signal
 
 ### 3.5 Bid Builder UI
 
-- [ ] **New Bid Flow:**
+- [x] **New Bid Flow:**
   1. Select or create client
   2. Attach LiDAR scan (or enter manually)
   3. Select coating system(s) per area
@@ -382,10 +382,10 @@ EpoxyBidPro/
   9. Preview bid summary
   10. Save as Draft → Finalize & Send Bid
 
-- [ ] Live price preview updates as user adjusts line items
-- [ ] Margin calculator overlay (shows profit % in real time)
-- [ ] Material quantity list (auto-generated shopping list)
-- [ ] Save bid templates for recurring job types
+- [x] Live price preview updates as user adjusts line items
+- [x] Margin calculator overlay (shows profit % in real time)
+- [x] Material quantity list (auto-generated shopping list)
+- [x] Save bid templates for recurring job types
 
 ---
 
