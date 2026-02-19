@@ -130,4 +130,92 @@ router.delete(
   }
 );
 
+// ─── POST /notifications/send ─────────────────────────────────────────────────
+// Internal trigger: create a notification record and fan out a push via FCM.
+// Targets: a single userId, or all users in the business (omit userId).
+router.post(
+  '/send',
+  validate(
+    z.object({
+      body: z.object({
+        userId: z.string().uuid().optional(),
+        title: z.string().min(1).max(100),
+        body: z.string().min(1).max(500),
+        type: z.string().min(1),                // e.g. "invoice_overdue" | "quote_viewed"
+        entityType: z.string().optional(),       // e.g. "Invoice" | "Bid" | "Job"
+        entityId: z.string().uuid().optional(),  // ID of the related record
+        data: z.record(z.string()).optional(),   // Extra key-value pairs for deep link
+      }),
+    })
+  ),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const businessId = req.user!.businessId;
+      const { userId, title, body: bodyText, type, entityType, entityId, data } = req.body as {
+        userId?: string;
+        title: string;
+        body: string;
+        type: string;
+        entityType?: string;
+        entityId?: string;
+        data?: Record<string, string>;
+      };
+
+      // Determine target users
+      const userFilter = userId
+        ? { id: userId, businessId }
+        : { businessId };
+
+      const targetUsers = await prisma.user.findMany({
+        where: userFilter,
+        select: { id: true, fcmTokens: true },
+      });
+
+      if (targetUsers.length === 0) throw ApiError.notFound('No target users found');
+
+      // Persist notification records for each target user
+      const created = await prisma.$transaction(
+        targetUsers.map((u) =>
+          prisma.notification.create({
+            data: {
+              businessId,
+              userId: u.id,
+              title,
+              body: bodyText,
+              type,
+              entityType,
+              entityId,
+              sentAt: new Date(),
+            },
+          })
+        )
+      );
+
+      // Fan-out push notifications
+      // TODO: initialize Firebase Admin SDK and call admin.messaging().sendEachForMulticast()
+      // For now we collect all FCM tokens and log the intent.
+      const allTokens = targetUsers.flatMap((u) => u.fcmTokens as string[]);
+      if (allTokens.length > 0) {
+        // Placeholder: replace with real Firebase push call
+        // await admin.messaging().sendEachForMulticast({
+        //   tokens: allTokens,
+        //   notification: { title, body: bodyText },
+        //   data: { type, entityType: entityType ?? '', entityId: entityId ?? '', ...data },
+        // });
+        logger.info(`[FCM] Would push to ${allTokens.length} device(s): "${title}"`);
+      }
+
+      res.status(201).json(
+        successResponse({
+          sent: created.length,
+          deviceCount: allTokens.length,
+          notifications: created.map((n) => ({ id: n.id, userId: n.userId })),
+        })
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 export default router;

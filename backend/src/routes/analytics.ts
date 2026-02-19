@@ -284,7 +284,7 @@ router.get('/crm/lifetime-value', async (req: Request, res: Response, next: Next
       where: { businessId },
       select: {
         id: true, firstName: true, lastName: true, company: true, totalRevenue: true,
-        clientType: true, createdAt: true,
+        type: true, createdAt: true,
         invoices: { select: { amountPaid: true } },
         jobs: { select: { id: true } },
       },
@@ -294,7 +294,7 @@ router.get('/crm/lifetime-value', async (req: Request, res: Response, next: Next
       id: c.id,
       name: `${c.firstName} ${c.lastName}`.trim() || c.company,
       company: c.company,
-      clientType: c.clientType,
+      clientType: c.type,
       totalRevenue: Number(c.totalRevenue),
       jobCount: c.jobs.length,
       avgJobValue: c.jobs.length > 0 ? Number(c.totalRevenue) / c.jobs.length : 0,

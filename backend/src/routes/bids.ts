@@ -261,6 +261,191 @@ router.post('/pricing/preview', validate(pricePreviewSchema), async (req: Reques
   }
 });
 
+// ─── POST /bids/generate ──────────────────────────────────────────────────────
+// Single-shot AI bid generation: compute tiered pricing + run AI suggestions,
+// then persist and return the fully-formed bid.
+const generateBidSchema = z.object({
+  body: z.object({
+    clientId: z.string().uuid().optional(),
+    measurementId: z.string().uuid().optional(),
+    title: z.string().min(1).default('New Bid'),
+    tier: z.enum(['GOOD', 'BETTER', 'BEST']).default('BETTER'),
+    coatingSystem: z.enum(['SINGLE_COAT_CLEAR', 'TWO_COAT_FLAKE', 'FULL_METALLIC', 'QUARTZ', 'POLYASPARTIC', 'COMMERCIAL_GRADE', 'CUSTOM']).optional(),
+    surfaceCondition: z.enum(['EXCELLENT', 'GOOD', 'FAIR', 'POOR']).optional(),
+    totalSqFt: z.number().positive(),
+    estimatedHours: z.number().positive().optional(),
+    crewCount: z.number().int().positive().default(2),
+    prepComplexity: z.enum(['LIGHT', 'STANDARD', 'HEAVY']).optional(),
+    accessDifficulty: z.enum(['EASY', 'NORMAL', 'DIFFICULT']).optional(),
+    isComplexLayout: z.boolean().optional(),
+    materialItems: z.array(z.object({
+      label: z.string().min(1),
+      sqFt: z.number().positive(),
+      coverageRate: z.number().positive(),
+      costPerUnit: z.number().positive(),
+      numCoats: z.number().int().positive().default(1),
+    })).default([]),
+    marketContext: z.string().optional(),
+    validUntil: z.string().datetime().optional(),
+    notes: z.string().optional(),
+  }),
+});
+
+router.post('/generate', validate(generateBidSchema), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const businessId = req.user!.businessId;
+    const {
+      clientId, measurementId, title, tier, coatingSystem, surfaceCondition,
+      totalSqFt, estimatedHours, crewCount, prepComplexity, accessDifficulty,
+      isComplexLayout, materialItems, marketContext, validUntil, notes,
+    } = req.body as {
+      clientId?: string; measurementId?: string; title: string;
+      tier: 'GOOD' | 'BETTER' | 'BEST'; coatingSystem?: string; surfaceCondition?: string;
+      totalSqFt: number; estimatedHours?: number; crewCount: number;
+      prepComplexity?: string; accessDifficulty?: string; isComplexLayout?: boolean;
+      materialItems: Array<{ label: string; sqFt: number; coverageRate: number; costPerUnit: number; numCoats: number }>;
+      marketContext?: string; validUntil?: string; notes?: string;
+    };
+
+    // Load business pricing settings
+    const business = await prisma.business.update({
+      where: { id: businessId },
+      data: { nextBidNum: { increment: 1 } },
+      select: {
+        nextBidNum: true, bidPrefix: true,
+        laborRate: true, overheadRate: true, defaultMarkup: true, defaultMargin: true,
+        taxRate: true, mobilizationFee: true, minimumJobPrice: true,
+        wasteFactorStd: true, wasteFactorCpx: true,
+      },
+    });
+    const bidNumber = `${business.bidPrefix}-${business.nextBidNum - 1}`;
+
+    // Compute tiered pricing
+    const pricing = computeTieredPricing({
+      totalSqFt,
+      estimatedHours: estimatedHours ?? Math.ceil(totalSqFt / 200) * 2,
+      crewCount,
+      tier,
+      coatingSystem: coatingSystem as never,
+      surfaceCondition: surfaceCondition as never,
+      prepComplexity: prepComplexity as never,
+      accessDifficulty: accessDifficulty as never,
+      isComplexLayout,
+      materialItems,
+    }, business);
+
+    // Build line items from pricing breakdown
+    const generatedLineItems = [
+      ...materialItems.map((mat, i) => ({
+        category: 'Material',
+        description: mat.label,
+        quantity: Math.ceil((mat.sqFt / mat.coverageRate) * mat.numCoats),
+        unit: 'gal',
+        unitCost: mat.costPerUnit,
+        markup: business.defaultMarkup,
+        order: i,
+        totalCost: Math.ceil((mat.sqFt / mat.coverageRate) * mat.numCoats) * mat.costPerUnit,
+        totalPrice: Math.ceil((mat.sqFt / mat.coverageRate) * mat.numCoats) * mat.costPerUnit * (1 + business.defaultMarkup),
+        isVisible: true,
+      })),
+      {
+        category: 'Labor',
+        description: 'Installation labor',
+        quantity: estimatedHours ?? Math.ceil(totalSqFt / 200) * 2,
+        unit: 'hr',
+        unitCost: business.laborRate,
+        markup: 0,
+        order: materialItems.length,
+        totalCost: (estimatedHours ?? Math.ceil(totalSqFt / 200) * 2) * business.laborRate,
+        totalPrice: (estimatedHours ?? Math.ceil(totalSqFt / 200) * 2) * business.laborRate,
+        isVisible: true,
+      },
+      ...(business.mobilizationFee > 0 ? [{
+        category: 'Mobilization',
+        description: 'Mobilization & setup fee',
+        quantity: 1,
+        unit: 'ea',
+        unitCost: business.mobilizationFee,
+        markup: 0,
+        order: materialItems.length + 1,
+        totalCost: business.mobilizationFee,
+        totalPrice: business.mobilizationFee,
+        isVisible: true,
+      }] : []),
+    ];
+
+    // Create bid with computed pricing
+    const bid = await prisma.bid.create({
+      data: {
+        businessId,
+        bidNumber,
+        title,
+        tier: tier as never,
+        coatingSystem: coatingSystem as never,
+        surfaceCondition: surfaceCondition as never,
+        totalSqFt,
+        clientId,
+        measurementId,
+        materialCost: pricing.materialCost,
+        laborCost: pricing.laborCost,
+        overheadCost: pricing.overheadCost,
+        mobilizationFee: business.mobilizationFee,
+        subtotal: pricing.selectedTier.subtotal,
+        markup: pricing.selectedTier.markup,
+        taxAmount: pricing.selectedTier.taxAmount,
+        totalPrice: pricing.selectedTier.totalPrice,
+        profitMargin: pricing.selectedTier.profitMargin,
+        estimatedHours: estimatedHours ?? Math.ceil(totalSqFt / 200) * 2,
+        estimatedDays: Math.ceil((estimatedHours ?? Math.ceil(totalSqFt / 200) * 2) / 8),
+        wasteFactorUsed: pricing.wasteFactorUsed,
+        validUntil: validUntil ? new Date(validUntil) : undefined,
+        notes,
+        status: 'DRAFT',
+        lineItems: {
+          create: generatedLineItems,
+        },
+      },
+      include: {
+        lineItems: { orderBy: { order: 'asc' } },
+        client: { select: { id: true, firstName: true, lastName: true, type: true, city: true, state: true } },
+      },
+    });
+
+    // Run AI suggestions asynchronously (best-effort, non-blocking)
+    let suggestions: Awaited<ReturnType<typeof getAiBidSuggestions>> | null = null;
+    try {
+      suggestions = await getAiBidSuggestions({
+        bid: {
+          id: bid.id,
+          totalSqFt,
+          coatingSystem: coatingSystem as never,
+          surfaceCondition: surfaceCondition as never,
+          totalPrice: pricing.totalPrice,
+        },
+        client: bid.client,
+        marketContext,
+      });
+
+      await prisma.bid.update({
+        where: { id: bid.id },
+        data: {
+          aiSuggestions: suggestions as never,
+          aiRiskFlags: suggestions.riskFlags,
+          aiUpsells: suggestions.upsells,
+        },
+      });
+    } catch (aiErr) {
+      logger.warn(`AI suggestions failed for generated bid ${bid.bidNumber}: ${String(aiErr)}`);
+    }
+
+    const result = { ...bid, aiSuggestions: suggestions, pricingBreakdown: pricing };
+    logger.info(`Bid ${bidNumber} generated (AI-assisted) for business ${businessId}`);
+    res.status(201).json(successResponse(result));
+  } catch (error) {
+    next(error);
+  }
+});
+
 // ─── POST /bids ────────────────────────────────────────────────────────────────
 router.post('/', validate(createBidSchema), async (req: Request, res: Response, next: NextFunction) => {
   try {

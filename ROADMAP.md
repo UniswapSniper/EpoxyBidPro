@@ -670,34 +670,46 @@ EpoxyBidPro/
 
 **Estimated Duration:** Concurrent with iOS phases (4–6 weeks total)
 
-### 10.1 Database Schema (PostgreSQL via Prisma)
+### 10.1 Database Schema (PostgreSQL via Prisma) ✅ COMPLETE
+
+> **Status:** All models implemented in `backend/prisma/schema.prisma`.
 
 ```prisma
-// Core models — abbreviated
+// All models implemented — see schema.prisma for full definitions
 
 model User          // Business owner / admin
-model Subscription  // Plan tiers
+model Business      // Company profile & pricing defaults
+model Subscription  // Plan tier, billing period, Stripe IDs
 model Client
 model Lead
 model Measurement   // LiDAR scan data (JSON polygon)
-model Bid
+model Area          // Sub-areas within a Measurement
+model Bid           // Single unified bid/proposal concept
+model BidSignature  // Client e-signature on a bid
 model LineItem
-model Quote
+model Quote         // Legacy / formal proposal linked to a Bid
 model Signature
 model Job
-model JobStage
+model JobStage      // Epoxy workflow stages (Prep → Primer → Topcoat …)
+model CrewAssignment
 model CrewMember
 model TimeEntry
 model Invoice
+model InvoiceLineItem
 model Payment
 model Photo
 model Document
 model Material
 model Template
-model AuditLog
+model ActivityLog   // CRM activity feed
+model AuditLog      // Security & compliance trail (CREATE/UPDATE/DELETE events)
+model Notification  // In-app + push notification records
 ```
 
-### 10.2 API Endpoints
+### 10.2 API Endpoints ✅ COMPLETE
+
+> **Status:** All endpoints implemented in `backend/src/routes/`.
+> Bids are the single unified concept for pricing + proposals — no separate `/quotes` route.
 
 **Auth**
 
@@ -718,9 +730,18 @@ model AuditLog
 
 **Bids**
 
-- `POST /bids/generate` — Trigger AI bid generation
-- `GET/PUT/DELETE /bids/:id`
-- `POST /bids/:id/ai-suggest` — AI suggestions call to OpenAI
+- `POST /bids/generate` — Single-shot AI bid: compute tiered pricing + AI suggestions, persist bid
+- `POST /bids/pricing/preview` — Real-time price preview without creating a record
+- `GET /bids/settings/pricing` / `PUT /bids/settings/pricing` — Business pricing defaults
+- `GET/POST/PUT/DELETE /bids/:id`
+- `POST /bids/:id/send` — Generate PDF proposal & email to client
+- `POST /bids/:id/sign` — Record e-signature, send confirmation email
+- `GET /bids/:id/pdf` — Return or regenerate PDF URL
+- `POST /bids/:id/ai-suggest` — Run AI suggestions on existing bid
+- `POST /bids/:id/viewed` — Mark bid as viewed by client
+- `POST /bids/:id/decline` — Record client decline with reason
+- `POST /bids/:id/convert-to-job` — Convert signed bid → scheduled Job
+- `POST /bids/:id/clone` — Duplicate a bid
 
 **Quotes**
 
@@ -757,8 +778,13 @@ model AuditLog
 
 **Notifications**
 
-- `POST /notifications/register-device` — FCM token
-- `POST /notifications/send` — Internal trigger
+- `GET /notifications` — List notifications (supports `?unreadOnly=true`)
+- `PATCH /notifications/:id/read` — Mark single notification read
+- `POST /notifications/read-all` — Mark all notifications read
+- `DELETE /notifications/:id` — Delete notification
+- `POST /notifications/register-device` — Register iOS FCM token
+- `DELETE /notifications/deregister-device` — Remove FCM token
+- `POST /notifications/send` — Internal trigger: create DB record + fan-out FCM push
 
 ### 10.3 AI Service
 

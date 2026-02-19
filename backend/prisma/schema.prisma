@@ -197,8 +197,32 @@ model Business {
   bids            Bid[]
   quotes          Quote[]
   invoices        Invoice[]
+  subscription    Subscription?
 
   @@map("businesses")
+}
+
+// ─── Subscription ─────────────────────────────────────────────────────────────
+
+model Subscription {
+  id                  String    @id @default(uuid())
+  businessId          String    @unique
+  business            Business  @relation(fields: [businessId], references: [id])
+  plan                Plan      @default(FREE_TRIAL)
+  status              String    @default("active")   // active | canceled | past_due | trialing
+  stripeSubscriptionId String?  @unique
+  stripePriceId       String?
+  stripeCustomerId    String?
+  currentPeriodStart  DateTime?
+  currentPeriodEnd    DateTime?
+  cancelAtPeriodEnd   Boolean   @default(false)
+  trialEnd            DateTime?
+  seatCount           Int       @default(1)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@index([businessId])
+  @@map("subscriptions")
 }
 
 model Client {
@@ -763,6 +787,27 @@ model ActivityLog {
   @@map("activity_logs")
 }
 
+// ─── Audit Log (security & compliance trail) ──────────────────────────────────
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  businessId String
+  userId     String?  // Who performed the action
+  action     String   // "CREATE" | "UPDATE" | "DELETE" | "LOGIN" | "EXPORT" | etc.
+  resource   String   // "Bid" | "Job" | "Invoice" | "User" | "Payment" | etc.
+  resourceId String?  // ID of the affected record
+  oldValues  Json?    // Snapshot before change
+  newValues  Json?    // Snapshot after change
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  @@index([businessId])
+  @@index([resource, resourceId])
+  @@index([userId])
+  @@map("audit_logs")
+}
+
 model Notification {
   id         String   @id @default(uuid())
   businessId String
@@ -773,6 +818,7 @@ model Notification {
   entityType String?
   entityId   String?
   isRead     Boolean  @default(false)
+  readAt     DateTime?
   sentAt     DateTime?
   createdAt  DateTime @default(now())
 
