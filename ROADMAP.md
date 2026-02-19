@@ -31,16 +31,16 @@
 
 **EpoxyBidPro** is a native iOS application built for epoxy flooring contractors and businesses. It eliminates manual measuring, spreadsheet bidding, and juggling multiple apps by delivering:
 
-| Feature Area          | Core Value                                                   |
-|-----------------------|--------------------------------------------------------------|
-| LiDAR Measurement     | Scan a room and get precise sq ft in seconds                 |
-| AI Bidding Engine     | Auto-generate accurate bids based on scope, materials, labor |
-| CRM                   | Track leads, clients, contacts, and job history              |
-| Bid/Proposal Gen      | Professional branded PDF proposals sent in the field         |
-| Job Management        | Scheduling, crew assignment, progress tracking               |
-| Invoicing & Payments  | Send invoices, collect deposits and payments via Stripe      |
-| Photo Documentation   | Before/after photos attached to jobs and proposals           |
-| Analytics             | Revenue, win rates, material costs, crew performance         |
+| Feature Area         | Core Value                                                   |
+| -------------------- | ------------------------------------------------------------ |
+| LiDAR Measurement    | Scan a room and get precise sq ft in seconds                 |
+| AI Bidding Engine    | Auto-generate accurate bids based on scope, materials, labor |
+| CRM                  | Track leads, clients, contacts, and job history              |
+| Bid/Proposal Gen     | Professional branded PDF proposals sent in the field         |
+| Job Management       | Scheduling, crew assignment, progress tracking               |
+| Invoicing & Payments | Send invoices, collect deposits and payments via Stripe      |
+| Photo Documentation  | Before/after photos attached to jobs and proposals           |
+| Analytics            | Revenue, win rates, material costs, crew performance         |
 
 **Target Users:** Epoxy flooring contractors (1-person operations to mid-size companies with crews)
 
@@ -51,25 +51,27 @@
 ## 2. Tech Stack
 
 ### iOS (Frontend)
-| Layer            | Technology                                      |
-|------------------|-------------------------------------------------|
-| Language         | Swift 5.9+                                      |
-| UI Framework     | SwiftUI (with UIKit bridges where needed)       |
-| AR / LiDAR       | ARKit 6, RealityKit 2, SceneKit               |
-| AI On-Device     | Core ML, Create ML                              |
-| Local Database   | SwiftData (iOS 17+) / Core Data fallback        |
-| Networking       | URLSession + async/await, Alamofire (optional)  |
-| PDF Generation   | PDFKit, custom PDF renderer                     |
-| Camera           | AVFoundation                                    |
-| Auth             | Sign in with Apple, Firebase Auth               |
-| Push Notifs      | APNs, Firebase Cloud Messaging                  |
-| Maps/Geo         | MapKit, CoreLocation                            |
-| Charts           | Swift Charts (iOS 16+)                          |
-| State Mgmt       | Combine + @Observable (Swift 5.9 macro)         |
+
+| Layer          | Technology                                     |
+| -------------- | ---------------------------------------------- |
+| Language       | Swift 5.9+                                     |
+| UI Framework   | SwiftUI (with UIKit bridges where needed)      |
+| AR / LiDAR     | ARKit 6, RealityKit 2, SceneKit                |
+| AI On-Device   | Core ML, Create ML                             |
+| Local Database | SwiftData (iOS 17+) / Core Data fallback       |
+| Networking     | URLSession + async/await, Alamofire (optional) |
+| PDF Generation | PDFKit, custom PDF renderer                    |
+| Camera         | AVFoundation                                   |
+| Auth           | Sign in with Apple, Firebase Auth              |
+| Push Notifs    | APNs, Firebase Cloud Messaging                 |
+| Maps/Geo       | MapKit, CoreLocation                           |
+| Charts         | Swift Charts (iOS 16+)                         |
+| State Mgmt     | Combine + @Observable (Swift 5.9 macro)        |
 
 ### Backend
+
 | Layer            | Technology                                      |
-|------------------|-------------------------------------------------|
+| ---------------- | ----------------------------------------------- |
 | Runtime          | Node.js 20 LTS                                  |
 | Framework        | Express.js + TypeScript                         |
 | API Style        | REST + WebSockets (real-time job updates)       |
@@ -81,7 +83,7 @@
 | Auth             | JWT + Apple Sign In verification                |
 | Payments         | Stripe API                                      |
 | Email/SMS        | SendGrid (email), Twilio (SMS)                  |
-| Hosting          | AWS (EC2 + RDS + S3 + CloudFront)              |
+| Hosting          | AWS (EC2 + RDS + S3 + CloudFront)               |
 | CI/CD            | GitHub Actions                                  |
 | Containerization | Docker + Docker Compose                         |
 
@@ -395,38 +397,38 @@ EpoxyBidPro/
 
 ### 4.1 Lead Management
 
-- [ ] Lead capture form (shareable web link for inbound leads)
-- [ ] Lead statuses: `New → Contacted → Site Visit Scheduled → Bid Sent → Won / Lost`
-- [ ] Lead source tracking: referral, Google, Yelp, Facebook, door hanger, other
-- [ ] Lead age indicator (how many days since inquiry)
-- [ ] Bulk lead import (CSV)
-- [ ] Lost reason tracking + analytics
+- [x] Lead capture form (shareable web link for inbound leads)
+- [x] Lead statuses: `New → Contacted → Site Visit Scheduled → Bid Sent → Won / Lost`
+- [x] Lead source tracking: referral, Google, Yelp, Facebook, door hanger, other
+- [x] Lead age indicator (how many days since inquiry)
+- [x] Bulk lead import (CSV)
+- [x] Lost reason tracking + analytics
 
 ### 4.2 Client Profiles
 
-- [ ] Contact info (name, phone, email, address with MapKit preview)
-- [ ] Client type: Residential / Commercial / Multi-Family / Industrial
-- [ ] Full job history (all bids, jobs, invoices linked)
-- [ ] Total lifetime revenue display
-- [ ] Notes & activity log (timestamped)
-- [ ] Photo gallery (all job photos linked to client)
-- [ ] Tags/labels (VIP, Commercial Account, etc.)
+- [x] Contact info (name, phone, email, address with MapKit preview)
+- [x] Client type: Residential / Commercial / Multi-Family / Industrial
+- [x] Full job history (all bids, jobs, invoices linked)
+- [x] Total lifetime revenue display
+- [x] Notes & activity log (timestamped)
+- [x] Photo gallery (all job photos linked to client)
+- [x] Tags/labels (VIP, Commercial Account, etc.)
 
 ### 4.3 Communication
 
-- [ ] One-tap call / text / email from client profile
-- [ ] SMS templates (appointment reminders, bid follow-ups)
-- [ ] Email templates (bid delivery, invoice, follow-up)
-- [ ] Communication log (track outgoing calls/texts/emails)
-- [ ] Appointment reminders (push notification + SMS)
-- [ ] Automated follow-up sequences (Day 1, Day 3, Day 7 after bid sent)
+- [x] One-tap call / text / email from client profile
+- [x] SMS templates (appointment reminders, bid follow-ups)
+- [x] Email templates (bid delivery, invoice, follow-up)
+- [x] Communication log (track outgoing calls/texts/emails)
+- [x] Appointment reminders (push notification + SMS)
+- [x] Automated follow-up sequences (Day 1, Day 3, Day 7 after bid sent)
 
 ### 4.4 Pipeline View
 
-- [ ] Kanban board: visualize leads/clients across pipeline stages
-- [ ] Drag-and-drop stage changes
-- [ ] Revenue at each pipeline stage
-- [ ] Filter by source, date range, value
+- [x] Kanban board: visualize leads/clients across pipeline stages
+- [x] Drag-and-drop stage changes
+- [x] Revenue at each pipeline stage
+- [x] Filter by source, date range, value
 
 ---
 
@@ -698,53 +700,63 @@ model AuditLog
 ### 10.2 API Endpoints
 
 **Auth**
+
 - `POST /auth/apple` — Apple Sign In verification
 - `POST /auth/refresh` — JWT refresh
 - `POST /auth/register` — New business account
 
 **Clients & Leads**
+
 - `GET/POST/PUT/DELETE /clients`
 - `GET/POST/PUT/DELETE /leads`
 - `POST /leads/import` — CSV import
 
 **Measurements**
+
 - `POST /measurements` — Upload scan result
 - `GET /measurements/:jobId`
 
 **Bids**
+
 - `POST /bids/generate` — Trigger AI bid generation
 - `GET/PUT/DELETE /bids/:id`
 - `POST /bids/:id/ai-suggest` — AI suggestions call to OpenAI
 
 **Quotes**
+
 - `GET/POST/PUT/DELETE /quotes`
 - `POST /quotes/:id/send` — Email/SMS delivery
 - `POST /quotes/:id/sign` — Record signature
 - `GET /quotes/:id/pdf` — Generate PDF
 
 **Jobs**
+
 - `GET/POST/PUT/DELETE /jobs`
 - `PUT /jobs/:id/status`
 - `POST /jobs/:id/checklist`
 
 **Invoices & Payments**
+
 - `GET/POST /invoices`
 - `POST /invoices/:id/send`
 - `POST /payments/create-intent` — Stripe PaymentIntent
 - `POST /payments/webhook` — Stripe webhook handler
 
 **Photos / Files**
+
 - `POST /photos/upload-url` — Pre-signed S3 URL
 - `POST /photos/record` — Record photo metadata after upload
 - `DELETE /photos/:id`
 
 **Analytics**
+
 - `GET /analytics/dashboard`
 - `GET /analytics/revenue?range=30d|90d|1y`
 - `GET /analytics/jobs/profitability`
 - `GET /analytics/crm/pipeline`
 
 **Notifications**
+
 - `POST /notifications/register-device` — FCM token
 - `POST /notifications/send` — Internal trigger
 
@@ -891,18 +903,21 @@ model AuditLog
 ## Post-Launch Roadmap
 
 ### v1.1 (Month 1–2 post-launch)
+
 - [ ] Bug fixes from launch feedback
 - [ ] Android / iPad-optimized layout improvements
 - [ ] QuickBooks Online integration
 - [ ] Push notification improvements
 
 ### v1.2 (Month 2–3)
+
 - [ ] AI model fine-tuning (pricing predictions from real job data)
 - [ ] Multi-crew scheduling board
 - [ ] Client portal (web view for clients to track job status)
 - [ ] Referral tracking in CRM
 
 ### v2.0 (Month 4–6)
+
 - [ ] Core ML on-device pricing model (offline AI)
 - [ ] Apple Watch companion (job timer, quick notes)
 - [ ] Android app (React Native rewrite or Flutter)
@@ -910,6 +925,7 @@ model AuditLog
 - [ ] Supplier integrations (live material pricing from Sherwin-Williams, HD Supply)
 
 ### v2.5 (Month 6–9)
+
 - [ ] Marketplace: connect clients to certified EpoxyBidPro contractors
 - [ ] 3D floor plan export (AR Quick Look for client preview)
 - [ ] Custom AR visualizer (show client how coating will look on their floor)
@@ -919,21 +935,21 @@ model AuditLog
 
 ## Milestones Summary
 
-| Milestone                         | Target Duration  | Cumulative  |
-|-----------------------------------|------------------|-------------|
-| Phase 0 — Bootstrap               | Week 1           | Week 1      |
-| Phase 1 — Core iOS Foundation     | Weeks 2–4        | Week 4      |
-| Phase 2 — LiDAR Scanning Engine   | Weeks 3–6        | Week 6      |
-| Phase 3 — AI Bidding Engine       | Weeks 5–8        | Week 8      |
-| Phase 4 — CRM Module              | Weeks 7–9        | Week 9      |
-| Phase 5 — Quote & Proposal Gen    | Weeks 9–10       | Week 10     |
-| Phase 6 — Job Management          | Weeks 10–12      | Week 12     |
-| Phase 7 — Invoicing & Payments    | Weeks 11–12      | Week 12     |
-| Phase 8 — Photo Management        | Weeks 12–13      | Week 13     |
-| Phase 9 — Analytics               | Weeks 13–14      | Week 14     |
-| Phase 10 — Backend (concurrent)   | Weeks 1–14       | Week 14     |
-| Phase 11 — Testing & QA           | Weeks 12–16      | Week 16     |
-| Phase 12 — App Store Launch       | Weeks 17–18      | **Week 18** |
+| Milestone                       | Target Duration | Cumulative  |
+| ------------------------------- | --------------- | ----------- |
+| Phase 0 — Bootstrap             | Week 1          | Week 1      |
+| Phase 1 — Core iOS Foundation   | Weeks 2–4       | Week 4      |
+| Phase 2 — LiDAR Scanning Engine | Weeks 3–6       | Week 6      |
+| Phase 3 — AI Bidding Engine     | Weeks 5–8       | Week 8      |
+| Phase 4 — CRM Module            | Weeks 7–9       | Week 9      |
+| Phase 5 — Quote & Proposal Gen  | Weeks 9–10      | Week 10     |
+| Phase 6 — Job Management        | Weeks 10–12     | Week 12     |
+| Phase 7 — Invoicing & Payments  | Weeks 11–12     | Week 12     |
+| Phase 8 — Photo Management      | Weeks 12–13     | Week 13     |
+| Phase 9 — Analytics             | Weeks 13–14     | Week 14     |
+| Phase 10 — Backend (concurrent) | Weeks 1–14      | Week 14     |
+| Phase 11 — Testing & QA         | Weeks 12–16     | Week 16     |
+| Phase 12 — App Store Launch     | Weeks 17–18     | **Week 18** |
 
 > **Total estimated time to App Store launch: ~18 weeks (4.5 months)**
 > This assumes 1–2 dedicated full-stack iOS developers. Add 20–30% buffer for LiDAR complexity and App Store review cycles.
@@ -944,14 +960,14 @@ model AuditLog
 
 ### Key Technical Risks & Mitigations
 
-| Risk                              | Severity | Mitigation                                              |
-|-----------------------------------|----------|---------------------------------------------------------|
-| LiDAR accuracy on unusual floors  | High     | Manual entry fallback always available                  |
-| App Store rejection (AR/payments) | Medium   | Follow guidelines strictly, thorough privacy manifest   |
-| AI bid accuracy early on          | Medium   | User correction feedback loop, rule-based engine as base|
-| Stripe Connect complexity         | Medium   | Start with standard Stripe, Connect in v1.1             |
-| Offline sync conflicts            | Medium   | Conservative merge strategy, clear UI for conflicts     |
-| SwiftData migration stability     | Low-Med  | Thorough migration tests, Core Data fallback plan       |
+| Risk                              | Severity | Mitigation                                               |
+| --------------------------------- | -------- | -------------------------------------------------------- |
+| LiDAR accuracy on unusual floors  | High     | Manual entry fallback always available                   |
+| App Store rejection (AR/payments) | Medium   | Follow guidelines strictly, thorough privacy manifest    |
+| AI bid accuracy early on          | Medium   | User correction feedback loop, rule-based engine as base |
+| Stripe Connect complexity         | Medium   | Start with standard Stripe, Connect in v1.1              |
+| Offline sync conflicts            | Medium   | Conservative merge strategy, clear UI for conflicts      |
+| SwiftData migration stability     | Low-Med  | Thorough migration tests, Core Data fallback plan        |
 
 ### Coding Standards
 
@@ -973,5 +989,5 @@ release/*     ← release candidate staging
 
 ---
 
-*Last updated: February 18, 2026*
-*Owner: EpoxyBidPro Dev Team*
+_Last updated: February 18, 2026_
+_Owner: EpoxyBidPro Dev Team_
