@@ -4,6 +4,7 @@ struct MainTabView: View {
     enum Tab: Hashable {
         case dashboard
         case crm
+        case bids
         case jobs
         case more
     }
@@ -20,6 +21,10 @@ struct MainTabView: View {
             CRMView()
                 .tabItem { Label("CRM", systemImage: "person.2") }
                 .tag(Tab.crm)
+
+            BidsView()
+                .tabItem { Label("Bids", systemImage: "doc.text.below.ecg") }
+                .tag(Tab.bids)
 
             JobsView()
                 .tabItem { Label("Jobs", systemImage: "briefcase") }

@@ -178,6 +178,8 @@ model Business {
   warrantyText    String?  @db.Text
   aboutText       String?  @db.Text
   quoteFooter     String?
+  bidPrefix       String   @default("BID")
+  nextBidNum      Int      @default(1001)
   quotePrefix     String   @default("Q")
   invoicePrefix   String   @default("INV")
   nextQuoteNum    Int      @default(1001)
@@ -192,6 +194,7 @@ model Business {
   materials       Material[]
   templates       Template[]
   jobs            Job[]
+  bids            Bid[]
   quotes          Quote[]
   invoices        Invoice[]
 
@@ -224,6 +227,7 @@ model Client {
 
   leads        Lead[]
   bids         Bid[]
+  measurements Measurement[]
   quotes       Quote[]
   jobs         Job[]
   invoices     Invoice[]
@@ -306,43 +310,90 @@ model Area {
 // ─── Bidding ─────────────────────────────────────────────────────────────────
 
 model Bid {
-  id              String          @id @default(uuid())
-  businessId      String
-  clientId        String?
-  client          Client?         @relation(fields: [clientId], references: [id])
-  measurementId   String?
-  measurement     Measurement?    @relation(fields: [measurementId], references: [id])
-  title           String          @default("New Bid")
-  tier            BidTier         @default(BETTER)
-  coatingSystem   CoatingSystem   @default(TWO_COAT_FLAKE)
-  surfaceCondition SurfaceCondition @default(GOOD)
-  totalSqFt       Float
-  materialCost    Float           @default(0)
-  laborCost       Float           @default(0)
-  overheadCost    Float           @default(0)
-  mobilizationFee Float           @default(0)
-  subtotal        Float           @default(0)
-  markup          Float           @default(0)
-  taxAmount       Float           @default(0)
-  totalPrice      Float           @default(0)
-  profitMargin    Float           @default(0)
-  estimatedHours  Float           @default(0)
-  estimatedDays   Int             @default(1)
-  aiSuggestions   Json?           // Structured GPT-4o suggestions
-  aiRiskFlags     String[]
-  aiUpsells       String[]
-  wasteFactorUsed Float           @default(0.10)
-  notes           String?         @db.Text
-  isDraft         Boolean         @default(true)
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  id               String           @id @default(uuid())
+  businessId       String
+  business         Business         @relation(fields: [businessId], references: [id])
+  clientId         String?
+  client           Client?          @relation(fields: [clientId], references: [id])
+  measurementId    String?
+  measurement      Measurement?     @relation(fields: [measurementId], references: [id])
 
-  lineItems       LineItem[]
-  quotes          Quote[]
+  // Identity & status
+  bidNumber        String           @default("")
+  version          Int              @default(1)
+  status           QuoteStatus      @default(DRAFT)
+
+  // Bid details
+  title            String           @default("New Bid")
+  tier             BidTier          @default(BETTER)
+  coatingSystem    CoatingSystem    @default(TWO_COAT_FLAKE)
+  surfaceCondition SurfaceCondition @default(GOOD)
+  totalSqFt        Float            @default(0)
+
+  // Pricing
+  materialCost     Float            @default(0)
+  laborCost        Float            @default(0)
+  overheadCost     Float            @default(0)
+  mobilizationFee  Float            @default(0)
+  subtotal         Float            @default(0)
+  markup           Float            @default(0)
+  taxAmount        Float            @default(0)
+  totalPrice       Float            @default(0)
+  profitMargin     Float            @default(0)
+  estimatedHours   Float            @default(0)
+  estimatedDays    Int              @default(1)
+  wasteFactorUsed  Float            @default(0.10)
+
+  // Proposal content
+  executiveSummary String?          @db.Text
+  scopeNotes       String?          @db.Text
+  validUntil       DateTime?
+  notes            String?          @db.Text
+
+  // AI
+  aiSuggestions    Json?
+  aiRiskFlags      String[]
+  aiUpsells        String[]
+
+  // PDF & delivery
+  pdfUrl           String?
+  pdfGeneratedAt   DateTime?
+  sentAt           DateTime?
+  viewedAt         DateTime?
+  signedAt         DateTime?
+  declinedAt       DateTime?
+  declinedReason   String?
+
+  // Template
+  templateId       String?
+  template         Template?        @relation(fields: [templateId], references: [id])
+
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  lineItems        LineItem[]
+  signature        BidSignature?
+  job              Job?
+  quotes           Quote[]          // legacy relation — kept for backward compat
 
   @@index([businessId])
+  @@index([businessId, status])
   @@map("bids")
 }
+
+model BidSignature {
+  id          String   @id @default(uuid())
+  bidId       String   @unique
+  bid         Bid      @relation(fields: [bidId], references: [id], onDelete: Cascade)
+  signerName  String
+  signerEmail String?
+  signerIp    String?
+  signedAt    DateTime @default(now())
+  dataUrl     String   @db.Text  // Base64 PNG or S3 URL
+
+  @@map("bid_signatures")
+}
+
 
 model LineItem {
   id          String   @id @default(uuid())
@@ -430,6 +481,8 @@ model Job {
   client        Client    @relation(fields: [clientId], references: [id])
   quoteId       String?   @unique
   quote         Quote?    @relation(fields: [quoteId], references: [id])
+  bidId         String?   @unique
+  bid           Bid?      @relation(fields: [bidId], references: [id])
   title         String
   status        JobStatus @default(SCHEDULED)
   scheduledDate DateTime?
@@ -686,6 +739,7 @@ model Template {
   updatedAt  DateTime @updatedAt
 
   quotes     Quote[]
+  bids       Bid[]
 
   @@map("templates")
 }

@@ -13,6 +13,7 @@ import crewRoutes from './crew';
 import materialRoutes from './materials';
 import notificationRoutes from './notifications';
 import crmRoutes from './crm';
+import templateRoutes from './templates';
 
 export const router = Router();
 
@@ -35,3 +36,4 @@ router.use('/crew', crewRoutes);
 router.use('/materials', materialRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/crm', crmRoutes);
+router.use('/templates', templateRoutes);
