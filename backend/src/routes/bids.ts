@@ -1,0 +1,410 @@
+import { Router, Request, Response, NextFunction } from 'express';
+import { z } from 'zod';
+import { prisma } from '../utils/prisma';
+import { ApiError, successResponse, paginatedResponse } from '../utils/apiError';
+import { authenticate } from '../middleware/auth';
+import { validate } from '../middleware/validate';
+import { logger } from '../utils/logger';
+
+const router = Router();
+router.use(authenticate);
+
+// ─── Schemas ─────────────────────────────────────────────────────────────────
+
+const createBidSchema = z.object({
+  body: z.object({
+    clientId: z.string().uuid().optional(),
+    measurementId: z.string().uuid().optional(),
+    title: z.string().min(1),
+    tier: z.enum(['GOOD', 'BETTER', 'BEST']).optional(),
+    coatingSystem: z.enum(['SINGLE_COAT_CLEAR', 'TWO_COAT_FLAKE', 'FULL_METALLIC', 'QUARTZ', 'POLYASPARTIC', 'COMMERCIAL_GRADE', 'CUSTOM']).optional(),
+    surfaceCondition: z.enum(['EXCELLENT', 'GOOD', 'FAIR', 'POOR']).optional(),
+    totalSqFt: z.number().nonnegative().optional(),
+    executiveSummary: z.string().optional(),
+    scopeNotes: z.string().optional(),
+    validUntil: z.string().datetime().optional(),
+    notes: z.string().optional(),
+    lineItems: z.array(z.object({
+      areaId: z.string().uuid().optional(),
+      materialId: z.string().uuid().optional(),
+      category: z.string(),
+      description: z.string(),
+      quantity: z.number().positive(),
+      unit: z.string().optional(),
+      unitCost: z.number().nonneg(),
+      markup: z.number().nonneg().optional(),
+      order: z.number().int().optional(),
+      isVisible: z.boolean().optional(),
+    })).optional(),
+  }),
+});
+
+const updateBidSchema = z.object({
+  params: z.object({ id: z.string().uuid() }),
+  body: createBidSchema.shape.body.partial(),
+});
+
+const sendBidSchema = z.object({
+  params: z.object({ id: z.string().uuid() }),
+  body: z.object({
+    deliveryMethod: z.enum(['email', 'sms', 'both']).default('email'),
+    customMessage: z.string().optional(),
+  }),
+});
+
+const signBidSchema = z.object({
+  params: z.object({ id: z.string().uuid() }),
+  body: z.object({
+    signerName: z.string().min(1),
+    signerEmail: z.string().email().optional(),
+    dataUrl: z.string().min(1), // Base64 signature image
+    signerIp: z.string().optional(),
+  }),
+});
+
+const aiSuggestSchema = z.object({
+  params: z.object({ id: z.string().uuid() }),
+  body: z.object({
+    marketContext: z.string().optional(),
+  }),
+});
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+async function assertBidOwner(bidId: string, businessId: string): Promise<void> {
+  const bid = await prisma.bid.findFirst({ where: { id: bidId, businessId } });
+  if (!bid) throw ApiError.notFound('Bid');
+}
+
+function computeBidTotals(lineItems: Array<{
+  unitCost: number; quantity: number; markup: number; totalCost: number; totalPrice: number;
+}>): { materialCost: number; laborCost: number; subtotal: number; markup: number; totalPrice: number } {
+  const subtotal = lineItems.reduce((sum, li) => sum + li.totalCost, 0);
+  const markupTotal = lineItems.reduce((sum, li) => sum + (li.totalPrice - li.totalCost), 0);
+  return {
+    materialCost: 0, // calculated per category in full implementation
+    laborCost: 0,
+    subtotal,
+    markup: markupTotal,
+    totalPrice: subtotal + markupTotal,
+  };
+}
+
+// ─── GET /bids ────────────────────────────────────────────────────────────────
+router.get('/', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { page = '1', limit = '25', status, clientId } = req.query as Record<string, string>;
+    const pageNum = parseInt(page, 10);
+    const limitNum = parseInt(limit, 10);
+
+    const where = {
+      businessId: req.user!.businessId,
+      ...(status && { status: status as never }),
+      ...(clientId && { clientId }),
+    };
+
+    const [bids, total] = await Promise.all([
+      prisma.bid.findMany({
+        where,
+        skip: (pageNum - 1) * limitNum,
+        take: limitNum,
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true, bidNumber: true, version: true, status: true, title: true,
+          tier: true, coatingSystem: true, totalSqFt: true, totalPrice: true,
+          profitMargin: true, sentAt: true, signedAt: true, createdAt: true,
+          client: { select: { id: true, firstName: true, lastName: true, company: true } },
+        },
+      }),
+      prisma.bid.count({ where }),
+    ]);
+
+    res.json(paginatedResponse(bids, total, pageNum, limitNum));
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ─── GET /bids/:id ────────────────────────────────────────────────────────────
+router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const bid = await prisma.bid.findFirst({
+      where: { id: req.params.id, businessId: req.user!.businessId },
+      include: {
+        client: true,
+        measurement: { include: { areas: { orderBy: { order: 'asc' } } } },
+        lineItems: { orderBy: { order: 'asc' }, include: { material: true } },
+        signature: true,
+        job: { select: { id: true, status: true, scheduledDate: true } },
+        template: { select: { id: true, name: true } },
+      },
+    });
+    if (!bid) throw ApiError.notFound('Bid');
+    res.json(successResponse(bid));
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ─── POST /bids ────────────────────────────────────────────────────────────────
+router.post('/', validate(createBidSchema), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const businessId = req.user!.businessId;
+    const { lineItems, ...rest } = req.body as {
+      lineItems?: Array<{
+        areaId?: string; materialId?: string; category: string; description: string;
+        quantity: number; unit?: string; unitCost: number; markup?: number; order?: number; isVisible?: boolean;
+      }>;
+      clientId?: string; measurementId?: string; title: string;
+      tier?: string; coatingSystem?: string; surfaceCondition?: string;
+      totalSqFt?: number; validUntil?: string; notes?: string;
+    };
+
+    // Auto-increment bid number
+    const business = await prisma.business.update({
+      where: { id: businessId },
+      data: { nextBidNum: { increment: 1 } },
+      select: { nextBidNum: true, bidPrefix: true },
+    });
+    const bidNumber = `${business.bidPrefix}-${business.nextBidNum - 1}`;
+
+    const bid = await prisma.bid.create({
+      data: {
+        businessId,
+        bidNumber,
+        ...rest,
+        ...(lineItems && {
+          lineItems: {
+            create: lineItems.map((li, i) => ({
+              ...li,
+              order: li.order ?? i,
+              totalCost: li.quantity * li.unitCost,
+              totalPrice: li.quantity * li.unitCost * (1 + (li.markup ?? 0)),
+            })),
+          },
+        }),
+      },
+      include: { lineItems: { orderBy: { order: 'asc' } } },
+    });
+
+    logger.info(`Bid ${bidNumber} created for business ${businessId}`);
+    res.status(201).json(successResponse(bid));
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ─── PUT /bids/:id ────────────────────────────────────────────────────────────
+router.put('/:id', validate(updateBidSchema), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    await assertBidOwner(req.params.id, req.user!.businessId);
+    const { lineItems, ...rest } = req.body as { lineItems?: unknown[]; [key: string]: unknown };
+    const updated = await prisma.bid.update({
+      where: { id: req.params.id },
+      data: rest as never,
+      include: { lineItems: { orderBy: { order: 'asc' } } },
+    });
+    res.json(successResponse(updated));
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ─── POST /bids/:id/send ──────────────────────────────────────────────────────
+// Delivers the bid as a proposal (PDF via email/SMS) and marks status SENT.
+router.post('/:id/send', validate(sendBidSchema), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    await assertBidOwner(req.params.id, req.user!.businessId);
+    // TODO: invoke PDF generation service + SendGrid/Twilio delivery
+    const bid = await prisma.bid.update({
+      where: { id: req.params.id },
+      data: { status: 'SENT', sentAt: new Date() },
+    });
+    logger.info(`Bid ${bid.bidNumber} sent to client`);
+    res.json(successResponse({ sent: true, bidNumber: bid.bidNumber, sentAt: bid.sentAt }));
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ─── POST /bids/:id/sign ──────────────────────────────────────────────────────
+// Records client signature and marks bid as SIGNED.
+router.post('/:id/sign', validate(signBidSchema), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    await assertBidOwner(req.params.id, req.user!.businessId);
+    const { signerName, signerEmail, dataUrl, signerIp } = req.body as {
+      signerName: string; signerEmail?: string; dataUrl: string; signerIp?: string;
+    };
+
+    const [bid] = await prisma.$transaction([
+      prisma.bid.update({
+        where: { id: req.params.id },
+        data: { status: 'SIGNED', signedAt: new Date() },
+      }),
+      prisma.bidSignature.create({
+        data: {
+          bidId: req.params.id,
+          signerName,
+          signerEmail,
+          dataUrl,
+          signerIp: signerIp ?? req.ip,
+        },
+      }),
+    ]);
+
+    logger.info(`Bid ${req.params.id} signed by ${signerName}`);
+    res.json(successResponse({ signed: true, signedAt: bid.signedAt }));
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ─── GET /bids/:id/pdf ────────────────────────────────────────────────────────
+// Returns the bid PDF URL (generates if not already generated).
+router.get('/:id/pdf', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const bid = await prisma.bid.findFirst({
+      where: { id: req.params.id, businessId: req.user!.businessId },
+      select: { pdfUrl: true, bidNumber: true },
+    });
+    if (!bid) throw ApiError.notFound('Bid');
+    // TODO: trigger PDF generation if pdfUrl is null
+    res.json(successResponse({ pdfUrl: bid.pdfUrl, bidNumber: bid.bidNumber }));
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ─── POST /bids/:id/ai-suggest ────────────────────────────────────────────────
+// Calls OpenAI to generate AI pricing suggestions, risk flags, and upsells.
+router.post('/:id/ai-suggest', validate(aiSuggestSchema), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const bid = await prisma.bid.findFirst({
+      where: { id: req.params.id, businessId: req.user!.businessId },
+      include: {
+        measurement: { include: { areas: true } },
+        lineItems: true,
+        client: { select: { type: true, city: true, state: true } },
+      },
+    });
+    if (!bid) throw ApiError.notFound('Bid');
+
+    // TODO: invoke OpenAI service with bid context
+    // Placeholder response until AI service is wired up
+    const suggestions = {
+      summary: 'AI analysis complete. Review suggested adjustments below.',
+      riskFlags: [
+        'Surface condition marked as FAIR — recommend adding 10-15% to prep labor.',
+      ],
+      upsells: [
+        'Consider offering UV-resistant topcoat upgrade for an additional ~$0.35/sq ft.',
+      ],
+      marketContext: 'Pricing appears competitive for this region and job type.',
+    };
+
+    await prisma.bid.update({
+      where: { id: req.params.id },
+      data: {
+        aiSuggestions: suggestions,
+        aiRiskFlags: suggestions.riskFlags,
+        aiUpsells: suggestions.upsells,
+      },
+    });
+
+    res.json(successResponse({ suggestions }));
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ─── POST /bids/:id/convert-to-job ───────────────────────────────────────────
+// Converts a signed bid into a scheduled job.
+router.post('/:id/convert-to-job', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const bid = await prisma.bid.findFirst({
+      where: { id: req.params.id, businessId: req.user!.businessId },
+    });
+    if (!bid) throw ApiError.notFound('Bid');
+    if (bid.status !== 'SIGNED') {
+      throw ApiError.badRequest('Only a signed bid can be converted to a job');
+    }
+    if (!bid.clientId) throw ApiError.badRequest('Bid must have an associated client');
+
+    const job = await prisma.job.create({
+      data: {
+        businessId: bid.businessId,
+        clientId: bid.clientId,
+        bidId: bid.id,
+        title: bid.title,
+        totalSqFt: bid.totalSqFt,
+        coatingSystem: bid.coatingSystem,
+      },
+    });
+
+    logger.info(`Bid ${bid.bidNumber} converted to job ${job.id}`);
+    res.status(201).json(successResponse(job));
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ─── POST /bids/:id/clone ─────────────────────────────────────────────────────
+router.post('/:id/clone', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const original = await prisma.bid.findFirst({
+      where: { id: req.params.id, businessId: req.user!.businessId },
+      include: { lineItems: true },
+    });
+    if (!original) throw ApiError.notFound('Bid');
+
+    const business = await prisma.business.update({
+      where: { id: req.user!.businessId },
+      data: { nextBidNum: { increment: 1 } },
+      select: { nextBidNum: true, bidPrefix: true },
+    });
+    const newBidNumber = `${business.bidPrefix}-${business.nextBidNum - 1}`;
+
+    const { id, bidNumber, status, sentAt, viewedAt, signedAt, declinedAt, declinedReason,
+            pdfUrl, aiSuggestions, aiRiskFlags, aiUpsells, createdAt, updatedAt,
+            lineItems, ...rest } = original;
+
+    const cloned = await prisma.bid.create({
+      data: {
+        ...rest,
+        bidNumber: newBidNumber,
+        status: 'DRAFT',
+        version: 1,
+        lineItems: {
+          create: lineItems.map(({ id: _id, bidId: _b, createdAt: _c, updatedAt: _u, ...li }) => li),
+        },
+      },
+      include: { lineItems: true },
+    });
+
+    res.status(201).json(successResponse(cloned));
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ─── DELETE /bids/:id ─────────────────────────────────────────────────────────
+router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const bid = await prisma.bid.findFirst({
+      where: { id: req.params.id, businessId: req.user!.businessId },
+    });
+    if (!bid) throw ApiError.notFound('Bid');
+    if (bid.status === 'SIGNED') {
+      throw ApiError.badRequest('Cannot delete a signed bid. Archive it instead.');
+    }
+    await prisma.bid.delete({ where: { id: req.params.id } });
+    res.json(successResponse({ deleted: true }));
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ─── Unused helper to satisfy TS (will expand in pricing service) ─────────────
+void computeBidTotals;
+
+export default router;

@@ -1,0 +1,121 @@
+# ============================================================
+# EpoxyBidPro .gitignore
+# ============================================================
+
+# ─── macOS ───────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ─── Xcode / iOS ─────────────────────────────────────────────
+build/
+DerivedData/
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata/
+*.xccheckout
+*.moved-aside
+*.xcuserstate
+*.xcscmblueprint
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+playground.xcworkspace
+.build/
+Pods/
+Carthage/Build/
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
+*.bcsymbolmap
+*.app.dSYM
+iOSInjectionProject/
+
+# ─── Swift Package Manager ───────────────────────────────────
+.swiftpm/
+*.resolved
+
+# ─── Node.js / Backend ───────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn
+*.log
+
+# ─── TypeScript ──────────────────────────────────────────────
+backend/dist/
+backend/*.tsbuildinfo
+
+# ─── Environment Files ───────────────────────────────────────
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+# Keep .env.example files (they hold no secrets)
+!.env.example
+
+# ─── Prisma ──────────────────────────────────────────────────
+# migrations are committed, but generated client is not
+backend/node_modules/.prisma/
+
+# ─── Docker ──────────────────────────────────────────────────
+.docker/
+
+# ─── Python / ML ─────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+.eggs/
+.mypy_cache/
+.pytest_cache/
+.venv/
+venv/
+env/
+ML/pricing_model/data/raw/
+ML/pricing_model/data/processed/
+*.pkl
+*.joblib
+*.h5
+
+# ─── IDE / Editor ────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ─── Testing ─────────────────────────────────────────────────
+coverage/
+.nyc_output/
+junit.xml
+
+# ─── AWS / Cloud ─────────────────────────────────────────────
+.aws/
+*.pem
+*.key
+*.crt
+
+# ─── Misc ────────────────────────────────────────────────────
+*.bak
+*.tmp
+*.orig

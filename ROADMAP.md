@@ -14,7 +14,7 @@
 6. [Phase 2 — LiDAR Scanning Engine](#phase-2--lidar-scanning-engine)
 7. [Phase 3 — AI Bidding Engine](#phase-3--ai-bidding-engine)
 8. [Phase 4 — CRM Module](#phase-4--crm-module)
-9. [Phase 5 — Quote & Proposal Generation](#phase-5--quote--proposal-generation)
+9. [Phase 5 — Bid & Proposal Generation](#phase-5--bid--proposal-generation)
 10. [Phase 6 — Job Management & Scheduling](#phase-6--job-management--scheduling)
 11. [Phase 7 — Invoicing & Payments](#phase-7--invoicing--payments)
 12. [Phase 8 — Photo & Document Management](#phase-8--photo--document-management)
@@ -36,7 +36,7 @@
 | LiDAR Measurement     | Scan a room and get precise sq ft in seconds                 |
 | AI Bidding Engine     | Auto-generate accurate bids based on scope, materials, labor |
 | CRM                   | Track leads, clients, contacts, and job history              |
-| Quote/Proposal Gen    | Professional branded PDF proposals sent in the field         |
+| Bid/Proposal Gen      | Professional branded PDF proposals sent in the field         |
 | Job Management        | Scheduling, crew assignment, progress tracking               |
 | Invoicing & Payments  | Send invoices, collect deposits and payments via Stripe      |
 | Photo Documentation   | Before/after photos attached to jobs and proposals           |
@@ -98,7 +98,7 @@ EpoxyBidPro/
 │   │   ├── LiDARScanner/
 │   │   ├── BidEngine/
 │   │   ├── CRM/
-│   │   ├── Quotes/
+│   │   ├── Bids/
 │   │   ├── Jobs/
 │   │   ├── Invoicing/
 │   │   ├── Photos/
@@ -226,16 +226,16 @@ EpoxyBidPro/
 @Model Lead         // Pre-client inquiry
 @Model Measurement  // LiDAR scan result
 @Model Area         // Sub-area within a measurement
-@Model Bid          // Generated bid
-@Model LineItem     // Bid line item
-@Model Quote        // Finalized proposal
+@Model Bid          // Bid (pricing + finalized proposal in one)
+@Model BidLineItem  // Line item within a bid
+@Model BidSignature // E-signature record
 @Model Job          // Scheduled/active job
 @Model Invoice      // Invoice linked to job
 @Model Payment      // Payment record
 @Model Photo        // Attached photo
 @Model CrewMember   // Team member
 @Model Material     // Material catalog item
-@Model Template     // Quote/proposal template
+@Model Template     // Bid/proposal template
 ```
 
 ---
@@ -378,7 +378,7 @@ EpoxyBidPro/
   7. Edit/override any line item
   8. Choose Good/Better/Best tier
   9. Preview bid summary
-  10. Save as Draft → Convert to Quote
+  10. Save as Draft → Finalize & Send Bid
 
 - [ ] Live price preview updates as user adjusts line items
 - [ ] Margin calculator overlay (shows profit % in real time)
@@ -406,7 +406,7 @@ EpoxyBidPro/
 
 - [ ] Contact info (name, phone, email, address with MapKit preview)
 - [ ] Client type: Residential / Commercial / Multi-Family / Industrial
-- [ ] Full job history (all quotes, jobs, invoices linked)
+- [ ] Full job history (all bids, jobs, invoices linked)
 - [ ] Total lifetime revenue display
 - [ ] Notes & activity log (timestamped)
 - [ ] Photo gallery (all job photos linked to client)
@@ -415,11 +415,11 @@ EpoxyBidPro/
 ### 4.3 Communication
 
 - [ ] One-tap call / text / email from client profile
-- [ ] SMS templates (appointment reminders, quote follow-ups)
-- [ ] Email templates (quote delivery, invoice, follow-up)
+- [ ] SMS templates (appointment reminders, bid follow-ups)
+- [ ] Email templates (bid delivery, invoice, follow-up)
 - [ ] Communication log (track outgoing calls/texts/emails)
 - [ ] Appointment reminders (push notification + SMS)
-- [ ] Automated follow-up sequences (Day 1, Day 3, Day 7 after quote sent)
+- [ ] Automated follow-up sequences (Day 1, Day 3, Day 7 after bid sent)
 
 ### 4.4 Pipeline View
 
@@ -430,7 +430,7 @@ EpoxyBidPro/
 
 ---
 
-## Phase 5 — Quote & Proposal Generation
+## Phase 5 — Bid & Proposal Generation
 
 **Goal:** Generate polished, branded PDF proposals that wow clients and win jobs — produced in the field in under 2 minutes.
 
@@ -439,7 +439,7 @@ EpoxyBidPro/
 ### 5.1 Proposal Builder
 
 - [ ] Pull from bid data automatically
-- [ ] Cover page: company logo, client name, property address, date, quote number
+- [ ] Cover page: company logo, client name, property address, date, bid number
 - [ ] Executive summary (AI-generated or user-defined)
 - [ ] Scope of Work section:
   - Per-area breakdown with sq footage
@@ -468,16 +468,16 @@ EpoxyBidPro/
 - [ ] **E-signature integration** (DocuSign API or native drawing canvas)
   - Client signs on contractor's device in person
   - Or receives link via email/SMS to sign remotely
-- [ ] Quote status tracking: Draft → Sent → Viewed → Signed → Declined
-- [ ] View receipt (opens push notification when client opens quote PDF)
+- [ ] Bid status tracking: Draft → Sent → Viewed → Signed → Declined
+- [ ] View receipt (opens push notification when client opens bid PDF)
 
-### 5.4 Quote Management
+### 5.4 Bid Management
 
-- [ ] Quote list with status badges
+- [ ] Bid list with status badges
 - [ ] Expiration date (auto-reminder 24h before expiry)
-- [ ] One-tap "Convert Quote to Job" on acceptance
-- [ ] Quote versioning (v1, v2 if revised)
-- [ ] Clone quote for similar jobs
+- [ ] One-tap "Convert Bid to Job" on acceptance
+- [ ] Bid versioning (v1, v2 if revised)
+- [ ] Clone bid for similar jobs
 
 ---
 
@@ -543,8 +543,8 @@ EpoxyBidPro/
 
 ### 7.1 Invoice Generation
 
-- [ ] Auto-generate invoice from completed job (pulls all data from quote/bid)
-- [ ] Invoice line items (match quote or allow final adjustments)
+- [ ] Auto-generate invoice from completed job (pulls all data from bid)
+- [ ] Invoice line items (match bid or allow final adjustments)
 - [ ] Deposit invoice (% of total, sent at booking)
 - [ ] Progress billing (milestone-based)
 - [ ] Final invoice
