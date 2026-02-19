@@ -4,7 +4,7 @@ struct DashboardView: View {
 
     @StateObject private var vm = AnalyticsViewModel()
 
-    private var greeting: String {
+    private var greeting: LocalizedStringKey {
         let h = Calendar.current.component(.hour, from: Date())
         if h < 12 { return "Good morning" }
         if h < 17 { return "Good afternoon" }

@@ -5,12 +5,18 @@ import SwiftData
 struct EpoxyBidProApp: App {
     @StateObject private var authStore = AuthStore()
     @StateObject private var reachabilityMonitor = ReachabilityMonitor()
+    @AppStorage("appLanguage") private var appLanguageRawValue = AppLanguage.english.rawValue
+
+    private var appLanguage: AppLanguage {
+        AppLanguage(rawValue: appLanguageRawValue) ?? .english
+    }
 
     var body: some Scene {
         WindowGroup {
             RootView()
                 .environmentObject(authStore)
                 .environmentObject(reachabilityMonitor)
+                .environment(\.locale, appLanguage.locale)
                 .preferredColorScheme(nil)
         }
         .modelContainer(for: [
