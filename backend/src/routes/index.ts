@@ -12,6 +12,7 @@ import analyticsRoutes from './analytics';
 import crewRoutes from './crew';
 import materialRoutes from './materials';
 import notificationRoutes from './notifications';
+import crmRoutes from './crm';
 
 export const router = Router();
 
@@ -33,3 +34,4 @@ router.use('/analytics', analyticsRoutes);
 router.use('/crew', crewRoutes);
 router.use('/materials', materialRoutes);
 router.use('/notifications', notificationRoutes);
+router.use('/crm', crmRoutes);
