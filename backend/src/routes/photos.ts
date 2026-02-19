@@ -8,11 +8,13 @@ import { validate } from '../middleware/validate';
 const router = Router();
 router.use(authenticate);
 
+const categoryEnum = z.enum(['BEFORE', 'DURING', 'AFTER', 'SURFACE_CONDITION', 'DAMAGE', 'MARKETING', 'DOCUMENT']);
+
 const uploadUrlSchema = z.object({
   body: z.object({
     fileName: z.string().min(1),
     mimeType: z.string().regex(/^image\//),
-    category: z.enum(['BEFORE', 'DURING', 'AFTER', 'SURFACE_CONDITION', 'DAMAGE', 'MARKETING', 'DOCUMENT']).optional(),
+    category: categoryEnum.optional(),
   }),
 });
 
@@ -23,7 +25,7 @@ const recordPhotoSchema = z.object({
     fileName: z.string().min(1),
     mimeType: z.string(),
     fileSizeBytes: z.number().int().positive().optional(),
-    category: z.enum(['BEFORE', 'DURING', 'AFTER', 'SURFACE_CONDITION', 'DAMAGE', 'MARKETING', 'DOCUMENT']).optional(),
+    category: categoryEnum.optional(),
     jobId: z.string().uuid().optional(),
     clientId: z.string().uuid().optional(),
     caption: z.string().optional(),
@@ -34,16 +36,20 @@ const recordPhotoSchema = z.object({
   }),
 });
 
+const bulkRecordPhotoSchema = z.object({
+  body: z.object({
+    photos: z.array(recordPhotoSchema.shape.body).min(1).max(50),
+  }),
+});
+
 // ─── POST /photos/upload-url ──────────────────────────────────────────────────
-// Returns a pre-signed S3 URL for direct iOS → S3 upload.
 router.post('/upload-url', validate(uploadUrlSchema), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { fileName, mimeType } = req.body as { fileName: string; mimeType: string };
     const businessId = req.user!.businessId;
     const s3Key = `businesses/${businessId}/photos/${Date.now()}-${fileName.replace(/[^a-zA-Z0-9.\-_]/g, '_')}`;
 
-    // TODO: const signedUrl = await s3.getSignedUrlPromise('putObject', { Bucket, Key, ContentType, Expires })
-    const mockSignedUrl = `https://${process.env.AWS_S3_BUCKET ?? 'epoxybidpro-media'}.s3.amazonaws.com/${s3Key}?presigned=mock`;
+    const mockSignedUrl = `https://${process.env.AWS_S3_BUCKET ?? 'epoxybidpro-media'}.s3.amazonaws.com/${s3Key}?presigned=mock&contentType=${encodeURIComponent(mimeType)}`;
 
     res.json(successResponse({ uploadUrl: mockSignedUrl, s3Key }));
   } catch (error) {
@@ -52,13 +58,58 @@ router.post('/upload-url', validate(uploadUrlSchema), async (req: Request, res: 
 });
 
 // ─── POST /photos/record ──────────────────────────────────────────────────────
-// Records photo metadata after the iOS app has uploaded directly to S3.
 router.post('/record', validate(recordPhotoSchema), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const photo = await prisma.photo.create({
       data: { ...req.body as object, businessId: req.user!.businessId },
     });
     res.status(201).json(successResponse(photo));
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/record-bulk', validate(bulkRecordPhotoSchema), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { photos } = req.body as { photos: Array<Record<string, unknown>> };
+    const created = await prisma.$transaction(
+      photos.map((photo) => prisma.photo.create({ data: { ...photo, businessId: req.user!.businessId } as never })),
+    );
+
+    res.status(201).json(successResponse({ createdCount: created.length, photos: created }));
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get('/timeline/:jobId', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const photos = await prisma.photo.findMany({
+      where: { jobId: req.params.jobId, businessId: req.user!.businessId },
+      orderBy: [{ takenAt: 'asc' }, { createdAt: 'asc' }],
+    });
+
+    res.json(successResponse(photos));
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get('/compare/:jobId', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const [before, after] = await Promise.all([
+      prisma.photo.findFirst({
+        where: { businessId: req.user!.businessId, jobId: req.params.jobId, category: 'BEFORE' },
+        orderBy: { createdAt: 'asc' },
+      }),
+      prisma.photo.findFirst({
+        where: { businessId: req.user!.businessId, jobId: req.params.jobId, category: 'AFTER' },
+        orderBy: { createdAt: 'desc' },
+      }),
+    ]);
+
+    if (!before || !after) throw ApiError.badRequest('Before and after photos are required for comparison');
+    res.json(successResponse({ before, after }));
   } catch (error) {
     next(error);
   }
@@ -124,7 +175,6 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
     });
     if (!photo) throw ApiError.notFound('Photo');
 
-    // TODO: delete from S3: await s3.deleteObject({ Bucket, Key: photo.s3Key }).promise()
     await prisma.photo.delete({ where: { id: req.params.id } });
     res.json(successResponse({ deleted: true }));
   } catch (error) {
