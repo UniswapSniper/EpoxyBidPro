@@ -5,6 +5,8 @@ import { ApiError, successResponse, paginatedResponse } from '../utils/apiError'
 import { authenticate } from '../middleware/auth';
 import { validate } from '../middleware/validate';
 import { logger } from '../utils/logger';
+import { computeTieredPricing } from '../services/bidPricingEngine';
+import { getAiBidSuggestions } from '../services/aiBidService';
 
 const router = Router();
 router.use(authenticate);
@@ -69,6 +71,43 @@ const aiSuggestSchema = z.object({
   }),
 });
 
+const pricePreviewSchema = z.object({
+  body: z.object({
+    totalSqFt: z.number().nonnegative(),
+    estimatedHours: z.number().nonnegative().default(8),
+    crewCount: z.number().int().positive().default(1),
+    tier: z.enum(['GOOD', 'BETTER', 'BEST']).default('BETTER'),
+    coatingSystem: z.enum(['SINGLE_COAT_CLEAR', 'TWO_COAT_FLAKE', 'FULL_METALLIC', 'QUARTZ', 'POLYASPARTIC', 'COMMERCIAL_GRADE', 'CUSTOM']).optional(),
+    surfaceCondition: z.enum(['EXCELLENT', 'GOOD', 'FAIR', 'POOR']).optional(),
+    prepComplexity: z.enum(['LIGHT', 'STANDARD', 'HEAVY']).optional(),
+    accessDifficulty: z.enum(['EASY', 'NORMAL', 'DIFFICULT']).optional(),
+    isComplexLayout: z.boolean().optional(),
+    materialItems: z.array(
+      z.object({
+        label: z.string().min(1),
+        sqFt: z.number().positive(),
+        coverageRate: z.number().positive(),
+        costPerUnit: z.number().positive(),
+        numCoats: z.number().int().positive().default(1),
+      })
+    ).default([]),
+  }),
+});
+
+const biddingSettingsSchema = z.object({
+  body: z.object({
+    laborRate: z.number().nonnegative().optional(),
+    overheadRate: z.number().nonnegative().optional(),
+    defaultMarkup: z.number().nonnegative().optional(),
+    defaultMargin: z.number().nonnegative().optional(),
+    taxRate: z.number().nonnegative().optional(),
+    mobilizationFee: z.number().nonnegative().optional(),
+    minimumJobPrice: z.number().nonnegative().optional(),
+    wasteFactorStd: z.number().nonnegative().optional(),
+    wasteFactorCpx: z.number().nonnegative().optional(),
+  }),
+});
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 async function assertBidOwner(bidId: string, businessId: string): Promise<void> {
@@ -126,7 +165,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
 });
 
 // ─── GET /bids/:id ────────────────────────────────────────────────────────────
-router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/:id([0-9a-fA-F-]{36})', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const bid = await prisma.bid.findFirst({
       where: { id: req.params.id, businessId: req.user!.businessId },
@@ -141,6 +180,80 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
     });
     if (!bid) throw ApiError.notFound('Bid');
     res.json(successResponse(bid));
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ─── GET /bids/settings/pricing ──────────────────────────────────────────────
+router.get('/settings/pricing', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const business = await prisma.business.findUnique({
+      where: { id: req.user!.businessId },
+      select: {
+        laborRate: true,
+        overheadRate: true,
+        defaultMarkup: true,
+        defaultMargin: true,
+        taxRate: true,
+        mobilizationFee: true,
+        minimumJobPrice: true,
+        wasteFactorStd: true,
+        wasteFactorCpx: true,
+      },
+    });
+    if (!business) throw ApiError.notFound('Business');
+    res.json(successResponse(business));
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ─── PUT /bids/settings/pricing ──────────────────────────────────────────────
+router.put('/settings/pricing', validate(biddingSettingsSchema), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const updated = await prisma.business.update({
+      where: { id: req.user!.businessId },
+      data: req.body,
+      select: {
+        laborRate: true,
+        overheadRate: true,
+        defaultMarkup: true,
+        defaultMargin: true,
+        taxRate: true,
+        mobilizationFee: true,
+        minimumJobPrice: true,
+        wasteFactorStd: true,
+        wasteFactorCpx: true,
+      },
+    });
+    res.json(successResponse(updated));
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ─── POST /bids/pricing/preview ───────────────────────────────────────────────
+router.post('/pricing/preview', validate(pricePreviewSchema), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const business = await prisma.business.findUnique({
+      where: { id: req.user!.businessId },
+      select: {
+        laborRate: true,
+        overheadRate: true,
+        defaultMarkup: true,
+        defaultMargin: true,
+        taxRate: true,
+        mobilizationFee: true,
+        minimumJobPrice: true,
+        wasteFactorStd: true,
+        wasteFactorCpx: true,
+      },
+    });
+    if (!business) throw ApiError.notFound('Business');
+
+    const pricing = computeTieredPricing(req.body, business);
+    res.json(successResponse(pricing));
   } catch (error) {
     next(error);
   }
@@ -289,18 +402,17 @@ router.post('/:id/ai-suggest', validate(aiSuggestSchema), async (req: Request, r
     });
     if (!bid) throw ApiError.notFound('Bid');
 
-    // TODO: invoke OpenAI service with bid context
-    // Placeholder response until AI service is wired up
-    const suggestions = {
-      summary: 'AI analysis complete. Review suggested adjustments below.',
-      riskFlags: [
-        'Surface condition marked as FAIR — recommend adding 10-15% to prep labor.',
-      ],
-      upsells: [
-        'Consider offering UV-resistant topcoat upgrade for an additional ~$0.35/sq ft.',
-      ],
-      marketContext: 'Pricing appears competitive for this region and job type.',
-    };
+    const suggestions = await getAiBidSuggestions({
+      bid: {
+        id: bid.id,
+        totalSqFt: bid.totalSqFt,
+        coatingSystem: bid.coatingSystem,
+        surfaceCondition: bid.surfaceCondition,
+        totalPrice: bid.totalPrice,
+      },
+      client: bid.client,
+      marketContext: req.body.marketContext,
+    });
 
     await prisma.bid.update({
       where: { id: req.params.id },
