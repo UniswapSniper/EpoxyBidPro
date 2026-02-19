@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 @main
 struct EpoxyBidProApp: App {
@@ -12,5 +13,21 @@ struct EpoxyBidProApp: App {
                 .environmentObject(reachabilityMonitor)
                 .preferredColorScheme(nil)
         }
+        .modelContainer(for: [
+            Client.self,
+            Lead.self,
+            Measurement.self,
+            Area.self,
+            Bid.self,
+            BidLineItem.self,
+            BidSignature.self,
+            Job.self,
+            Invoice.self,
+            Payment.self,
+            Photo.self,
+            CrewMember.self,
+            Material.self,
+            Template.self,
+        ])
     }
 }
