@@ -66,10 +66,10 @@ struct RevenueChartView: View {
                         }
                     }
                     .ebpCard()
+                    .ebpHPadding()
                 }
 
                 // ── Chart Mode Picker ───────────────────────────────────────
-                Picker("Chart", selection: $chartMode) {
                     ForEach(ChartMode.allCases, id: \.self) { Text($0.rawValue).tag($0) }
                 }
                 .pickerStyle(.segmented)
@@ -166,11 +166,3 @@ extension Double {
     }
 }
 
-extension View {
-    func ebpCard() -> some View {
-        self
-            .padding(EBPSpacing.md)
-            .background(EBPColor.surface, in: RoundedRectangle(cornerRadius: 14))
-            .padding(.horizontal, EBPSpacing.md)
-    }
-}

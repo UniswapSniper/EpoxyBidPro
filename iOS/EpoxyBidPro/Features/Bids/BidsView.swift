@@ -41,6 +41,18 @@ struct BidsView: View {
             }
         }
 
+        switch sortOrder {
+        case .newestFirst:
+            result.sort { $0.createdAt > $1.createdAt }
+        case .highestValue:
+            result.sort { ($0.totalPrice as Decimal) > ($1.totalPrice as Decimal) }
+        case .clientName:
+            result.sort { ($0.client?.displayName ?? "") < ($1.client?.displayName ?? "") }
+        case .status:
+            let order = ["SIGNED", "SENT", "VIEWED", "DRAFT", "DECLINED", "EXPIRED"]
+            result.sort { (order.firstIndex(of: $0.status) ?? 99) < (order.firstIndex(of: $1.status) ?? 99) }
+        }
+
         return result
     }
 
@@ -154,6 +166,7 @@ struct BidsView: View {
                     } label: {
                         BidCardView(bid: bid)
                     }
+                    .buttonStyle(.pressScale)
                     .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
                     .listRowSeparator(.hidden)
                     .listRowBackground(Color.clear)
@@ -213,16 +226,33 @@ struct BidsView: View {
 
     // MARK: - Sort Menu
 
+    @State private var sortOrder: SortOrder = .newestFirst
+
+    enum SortOrder: String, CaseIterable {
+        case newestFirst  = "Newest First"
+        case highestValue = "Highest Value"
+        case clientName   = "Client Name"
+        case status       = "Status"
+    }
+
     private var sortMenu: some View {
         Menu {
-            Button("Newest First") {}     // default — already sorted desc
-            Button("Highest Value") {}
-            Button("Client Name") {}
-            Button("Status") {}
+            ForEach(SortOrder.allCases, id: \.self) { order in
+                Button {
+                    withAnimation(EBPAnimation.smooth) { sortOrder = order }
+                } label: {
+                    if sortOrder == order {
+                        Label(order.rawValue, systemImage: "checkmark")
+                    } else {
+                        Text(order.rawValue)
+                    }
+                }
+            }
         } label: {
             Image(systemName: "line.3.horizontal.decrease.circle")
         }
     }
+
 
     // MARK: - New Bid Sheet
 
@@ -266,25 +296,30 @@ struct FilterChip: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
-            HStack(spacing: 4) {
+        Button {
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            action()
+        } label: {
+            HStack(spacing: 5) {
                 Text(title)
                     .font(.subheadline.weight(isSelected ? .semibold : .regular))
                 if count > 0 {
                     Text("\(count)")
                         .font(.caption2.weight(.bold))
-                        .padding(.horizontal, 5)
+                        .padding(.horizontal, 6)
                         .padding(.vertical, 1)
-                        .background(isSelected ? Color.white.opacity(0.3) : Color(.systemGray5))
+                        .background(isSelected ? Color.white.opacity(0.30) : Color(.systemGray5))
                         .clipShape(Capsule())
                 }
             }
             .padding(.horizontal, EBPSpacing.md)
-            .padding(.vertical, EBPSpacing.sm)
+            .padding(.vertical, 9)
             .background(isSelected ? EBPColor.primary : Color(.systemGray6))
             .foregroundStyle(isSelected ? .white : .primary)
             .clipShape(Capsule())
         }
         .buttonStyle(.plain)
+        .animation(EBPAnimation.snappy, value: isSelected)
     }
 }
+
