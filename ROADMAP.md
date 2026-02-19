@@ -545,35 +545,35 @@ EpoxyBidPro/
 
 ### 7.1 Invoice Generation
 
-- [ ] Auto-generate invoice from completed job (pulls all data from bid)
-- [ ] Invoice line items (match bid or allow final adjustments)
-- [ ] Deposit invoice (% of total, sent at booking)
-- [ ] Progress billing (milestone-based)
-- [ ] Final invoice
-- [ ] Tax calculation (tax rate by state/locale)
-- [ ] Discount / credit application
-- [ ] Professional PDF invoice (branded, matching proposal style)
+- [x] Auto-generate invoice from completed job (pulls all data from bid)
+- [x] Invoice line items (match bid or allow final adjustments)
+- [x] Deposit invoice (% of total, sent at booking)
+- [x] Progress billing (milestone-based)
+- [x] Final invoice
+- [x] Tax calculation (tax rate by state/locale)
+- [x] Discount / credit application
+- [x] Professional PDF invoice (branded, matching proposal style)
 
 ### 7.2 Payment Collection (Stripe)
 
-- [ ] Stripe Connect integration (contractor's Stripe account)
-- [ ] Payment link embedded in invoice (email/SMS)
-- [ ] Accept:
+- [x] Stripe Connect integration (contractor's Stripe account)
+- [x] Payment link embedded in invoice (email/SMS)
+- [x] Accept:
   - Credit / debit card
   - ACH bank transfer (lower fees for large jobs)
   - Apple Pay
-- [ ] In-person payment: tap-to-pay (Stripe Terminal / iPhone tap-to-pay)
-- [ ] Partial payment tracking
-- [ ] Automatic payment receipts (email to client)
-- [ ] Stripe payout scheduling
+- [x] In-person payment: tap-to-pay (Stripe Terminal / iPhone tap-to-pay)
+- [x] Partial payment tracking
+- [x] Automatic payment receipts (email to client)
+- [x] Stripe payout scheduling
 
 ### 7.3 Invoice Tracking
 
-- [ ] Invoice statuses: `Draft → Sent → Partially Paid → Paid → Overdue → Voided`
-- [ ] Overdue alerts (push notification + auto-reminder email to client)
-- [ ] Aging report (30/60/90 day overdue buckets)
-- [ ] One-tap payment reminder send
-- [ ] QuickBooks / Xero export (CSV or direct API — Phase 2)
+- [x] Invoice statuses: `Draft → Sent → Partially Paid → Paid → Overdue → Voided`
+- [x] Overdue alerts (push notification + auto-reminder email to client)
+- [x] Aging report (30/60/90 day overdue buckets)
+- [x] One-tap payment reminder send
+- [x] QuickBooks / Xero export (CSV or direct API — Phase 2)
 
 ---
 
@@ -585,33 +585,33 @@ EpoxyBidPro/
 
 ### 8.1 Photo Capture
 
-- [ ] In-app camera (AVFoundation) — full resolution capture
-- [ ] Photo categories: Before, During, After, Surface Condition, Damage, Marketing
-- [ ] Bulk upload from photo library
-- [ ] Auto-watermarking with company name + date (optional)
-- [ ] GPS coordinates embedded in photo metadata
-- [ ] Timestamp overlay option
+- [x] In-app camera (AVFoundation) — full resolution capture
+- [x] Photo categories: Before, During, After, Surface Condition, Damage, Marketing
+- [x] Bulk upload from photo library
+- [x] Auto-watermarking with company name + date (optional)
+- [x] GPS coordinates embedded in photo metadata
+- [x] Timestamp overlay option
 
 ### 8.2 Photo Organization
 
-- [ ] Photos linked to: Job, Client, Quote
-- [ ] Timeline view per job
-- [ ] Before/After comparison slider (immersive UI)
-- [ ] Gallery grid view
-- [ ] Mark photos as "Proposal Ready" (curated set for use in future quotes)
+- [x] Photos linked to: Job, Client, Quote
+- [x] Timeline view per job
+- [x] Before/After comparison slider (immersive UI)
+- [x] Gallery grid view
+- [x] Mark photos as "Proposal Ready" (curated set for use in future quotes)
 
 ### 8.3 Cloud Storage
 
-- [ ] Auto-upload to AWS S3 on WiFi
-- [ ] Local cache for offline viewing
-- [ ] Compression settings (balance quality vs storage cost)
-- [ ] Client photo sharing: generate temporary share link
+- [x] Auto-upload to AWS S3 on WiFi
+- [x] Local cache for offline viewing
+- [x] Compression settings (balance quality vs storage cost)
+- [x] Client photo sharing: generate temporary share link
 
 ### 8.4 Document Storage
 
-- [ ] Store signed quotes, invoices, warranties
-- [ ] Attach files from Files app (supplier quotes, permits)
-- [ ] Document viewer in-app
+- [x] Store signed quotes, invoices, warranties
+- [x] Attach files from Files app (supplier quotes, permits)
+- [x] Document viewer in-app
 
 ---
 

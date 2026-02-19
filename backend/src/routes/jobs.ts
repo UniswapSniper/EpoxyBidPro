@@ -153,6 +153,58 @@ router.put('/:id/status', validate(updateStatusSchema), async (req: Request, res
     if (notes) data.fieldNotes = notes;
 
     const updated = await prisma.job.update({ where: { id: req.params.id }, data });
+
+    if (status === 'COMPLETE') {
+      const existingInvoice = await prisma.invoice.findFirst({ where: { jobId: updated.id } });
+      if (!existingInvoice) {
+        const [business, detailedJob] = await Promise.all([
+          prisma.business.update({
+            where: { id: req.user!.businessId },
+            data: { nextInvoiceNum: { increment: 1 } },
+            select: { nextInvoiceNum: true, invoicePrefix: true, taxRate: true },
+          }),
+          prisma.job.findUnique({
+            where: { id: updated.id },
+            include: { bid: { include: { lineItems: { orderBy: { order: 'asc' } } } }, client: true },
+          }),
+        ]);
+
+        if (detailedJob) {
+          const subtotal = detailedJob.bid?.totalPrice ?? 0;
+          const taxAmount = subtotal * business.taxRate;
+          const total = subtotal + taxAmount;
+
+          await prisma.invoice.create({
+            data: {
+              businessId: req.user!.businessId,
+              clientId: detailedJob.clientId,
+              jobId: detailedJob.id,
+              invoiceNumber: `${business.invoicePrefix}-${business.nextInvoiceNum - 1}`,
+              status: 'DRAFT',
+              subtotal,
+              taxRate: business.taxRate,
+              taxAmount,
+              totalAmount: total,
+              amountDue: total,
+              dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+              notes: 'Auto-generated when job marked complete',
+              lineItems: {
+                create: (detailedJob.bid?.lineItems ?? []).map((li: { id: string; description: string; quantity: number; unit: string; unitPrice: number; totalPrice: number }, idx: number) => ({
+                  lineItemId: li.id,
+                  description: li.description,
+                  quantity: li.quantity,
+                  unit: li.unit,
+                  unitPrice: li.unitPrice,
+                  totalPrice: li.totalPrice,
+                  order: idx,
+                })),
+              },
+            },
+          });
+        }
+      }
+    }
+
     res.json(successResponse(updated));
   } catch (error) {
     next(error);
