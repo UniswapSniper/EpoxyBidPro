@@ -1,289 +1,798 @@
 import SwiftUI
+import SwiftData
 
 // ─── CRMView ──────────────────────────────────────────────────────────────────
-// Lead & client management with a horizontal pipeline kanban and top-client list.
+// Full local CRM with SwiftData-driven Kanban pipeline, client profiles, and
+// lead management. Replaces the analytics-only stub.
 
 struct CRMView: View {
 
-    @StateObject private var vm = AnalyticsViewModel()
+    @Environment(\.modelContext) private var modelContext
+    @EnvironmentObject private var workflowRouter: WorkflowRouter
+    @Query(sort: \Lead.createdAt, order: .reverse) private var allLeads: [Lead]
+    @Query(sort: \Bid.createdAt, order: .reverse) private var workflowBids: [Bid]
+    @Query(sort: \Job.createdAt, order: .reverse) private var workflowJobs: [Job]
+    @Query(sort: \Invoice.createdAt, order: .reverse) private var workflowInvoices: [Invoice]
+    @Query(sort: \Measurement.scanDate, order: .reverse) private var workflowMeasurements: [Measurement]
+    @Query(sort: \Client.firstName) private var allClients: [Client]
+
     @State private var selectedSection: CRMSection = .pipeline
-    @State private var appeared = false
+    @State private var showAddLead = false
+    @State private var showAddClient = false
+    @State private var searchText = ""
+    @State private var selectedLead: Lead? = nil
+    @State private var selectedClient: Client? = nil
+    @State private var draggedLeadId: UUID? = nil
 
     enum CRMSection: String, CaseIterable {
-        case pipeline = "Pipeline"
-        case clients  = "Top Clients"
-        case insights = "Insights"
+        case pipeline = "pipeline"
+        case clients  = "crm.clients"
+        case insights = "insights"
+        
+        var localizedName: String {
+            NSLocalizedString(self.rawValue, comment: "")
+        }
+    }
+
+    private var workflowSnapshot: WorkflowKPISnapshot {
+        WorkflowKPIService.snapshot(
+            leads: allLeads,
+            bids: workflowBids,
+            jobs: workflowJobs,
+            invoices: workflowInvoices,
+            measurements: workflowMeasurements
+        )
+    }
+
+    private var nextAction: WorkflowNextAction {
+        WorkflowKPIService.nextBestAction(from: workflowSnapshot)
     }
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
+            ZStack {
+                EBPDynamicBackground()
+                
+                VStack(spacing: EBPSpacing.md) {
+                    crmHeader
 
-                // ── Section Picker ─────────────────────────────────────────
-                Picker("Section", selection: $selectedSection) {
-                    ForEach(CRMSection.allCases, id: \.self) { Text($0.rawValue).tag($0) }
-                }
-                .pickerStyle(.segmented)
-                .padding(EBPSpacing.md)
-                .background(Color(.systemBackground))
+                    WorkflowKPIBanner(snapshot: workflowSnapshot)
+                        .padding(.horizontal, EBPSpacing.md)
 
-                Divider()
-
-                // ── Content ────────────────────────────────────────────────
-                ZStack {
-                    if vm.isLoading && vm.crmPipeline == nil {
-                        ProgressView("Loading CRM…")
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    } else {
-                        switch selectedSection {
-                        case .pipeline:  pipelineSection
-                        case .clients:   topClientsSection
-                        case .insights:  insightsSection
-                        }
-                    }
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-            .background(Color(.systemGroupedBackground))
-            .navigationTitle("CRM")
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        // TODO: Add lead sheet
-                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                    } label: {
-                        Image(systemName: "person.badge.plus")
-                    }
-                }
-            }
-        }
-        .task { await vm.loadCRMPipeline() }
-    }
-
-    // MARK: - Pipeline Section
-
-    private var pipelineSection: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: EBPSpacing.lg) {
-
-                // Horizontal pipeline stages
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(alignment: .top, spacing: EBPSpacing.sm) {
-                        ForEach(LeadStage.allCases) { stage in
-                            pipelineColumn(stage: stage)
-                        }
+                    WorkflowNextActionBanner(action: nextAction) { target in
+                        workflowRouter.navigate(to: target, handoffMessage: nextAction.title)
                     }
                     .padding(.horizontal, EBPSpacing.md)
-                    .padding(.vertical, EBPSpacing.sm)
-                }
 
-                // Lost Reasons breakdown
-                if let pipeline = vm.crmPipeline, !pipeline.lostReasons.isEmpty {
-                    VStack(alignment: .leading, spacing: EBPSpacing.sm) {
-                        EBPSectionHeader(title: "Lost Reasons")
-                            .ebpHPadding()
+                    Picker("Section", selection: $selectedSection) {
+                        ForEach(CRMSection.allCases, id: \.self) { Text($0.localizedName).tag($0) }
+                    }
+                    .pickerStyle(.segmented)
+                    .padding(.horizontal, EBPSpacing.md)
+                    .padding(.top, EBPSpacing.xs)
 
-                        VStack(spacing: 0) {
-                            ForEach(pipeline.lostReasons.prefix(5)) { reason in
-                                HStack {
-                                    Image(systemName: "xmark.circle")
-                                        .font(.caption)
-                                        .foregroundStyle(EBPColor.danger)
-                                        .frame(width: 24)
-                                    Text(reason.lostReason ?? "Unknown")
-                                        .font(.subheadline)
-                                    Spacer()
-                                    Text("\(reason._count.lostReason)")
-                                        .font(.subheadline.weight(.semibold))
-                                        .foregroundStyle(.secondary)
-                                }
-                                .padding(.horizontal, EBPSpacing.md)
-                                .padding(.vertical, 10)
-                                Divider().padding(.leading, EBPSpacing.xl + EBPSpacing.sm)
-                            }
+                    Group {
+                        switch selectedSection {
+                        case .pipeline: pipelineView
+                        case .clients:  clientsView
+                        case .insights: insightsView
                         }
-                        .background(EBPColor.surface, in: RoundedRectangle(cornerRadius: EBPRadius.md))
-                        .ebpShadowSubtle()
-                        .ebpHPadding()
+                    }
+                    .id(selectedSection)
+                    .transition(.opacity.combined(with: .move(edge: .trailing)))
+                    .animation(EBPAnimation.sectionSwitch, value: selectedSection)
+                }
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .searchable(text: $searchText, prompt: NSLocalizedString("search.crm", comment: ""))
+            .toolbarBackground(.hidden, for: .navigationBar)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        Button {
+                            showAddLead = true
+                        } label: {
+                            Label(NSLocalizedString("new.lead", comment: ""), systemImage: "person.badge.plus")
+                        }
+                        Button {
+                            showAddClient = true
+                        } label: {
+                            Label(NSLocalizedString("new.client", comment: ""), systemImage: "person.crop.circle.badge.plus")
+                        }
+                    } label: {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.title2)
+                            .foregroundStyle(EBPColor.accent)
+                            .ebpNeonGlow(radius: 4, intensity: 0.5)
                     }
                 }
-
-                Spacer(minLength: EBPSpacing.xxxl)
             }
-            .padding(.vertical, EBPSpacing.md)
+            .sheet(isPresented: $showAddLead) {
+                AddLeadSheet()
+            }
+            .sheet(isPresented: $showAddClient) {
+                AddClientSheet()
+            }
+            .sheet(item: $selectedLead) { lead in
+                LeadDetailSheet(lead: lead)
+            }
+            .sheet(item: $selectedClient) { client in
+                ClientDetailSheet(client: client)
+            }
         }
     }
 
-    private func pipelineColumn(stage: LeadStage) -> some View {
-        let leads = vm.crmPipeline?.leadsByStatus.filter { $0.status == stage.rawValue } ?? []
-        let count = leads.first?._count.status ?? 0
-        let value = leads.first?._sum.estimatedValue ?? 0
+    private var crmHeader: some View {
+        let openPipelineValue = allLeads
+            .filter { !["WON", "LOST"].contains($0.status) }
+            .reduce(0.0) { $0 + $1.estimatedValue }
 
         return VStack(alignment: .leading, spacing: EBPSpacing.sm) {
-            // Column Header
+            HStack(alignment: .center) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("CRM")
+                        .font(.system(size: 30, weight: .black, design: .rounded))
+                        .foregroundStyle(.white)
+                    Text("Leads, clients, and follow-up health")
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.7))
+                }
+
+                Spacer()
+
+                Image(systemName: "person.3.sequence.fill")
+                    .font(.system(size: 24, weight: .bold))
+                    .foregroundStyle(EBPColor.accent)
+                    .padding(12)
+                    .background(.ultraThinMaterial)
+                    .clipShape(RoundedRectangle(cornerRadius: EBPRadius.md))
+            }
+
+            HStack(spacing: EBPSpacing.sm) {
+                EBPBadge(text: "\(allLeads.count) leads", color: EBPColor.accent)
+                EBPBadge(text: "\(allClients.count) clients", color: EBPColor.primary)
+                EBPBadge(text: formatCurrency(openPipelineValue), color: EBPColor.success)
+            }
+        }
+        .padding(EBPSpacing.md)
+        .ebpGlassmorphism(cornerRadius: EBPRadius.lg)
+        .padding(.horizontal, EBPSpacing.md)
+        .padding(.top, EBPSpacing.xs)
+    }
+
+    // MARK: - Pipeline (Kanban)
+
+    private var pipelineView: some View {
+        ScrollView {
+            VStack(spacing: EBPSpacing.md) {
+                GeometryReader { geo in
+                    Color.clear
+                        .preference(
+                            key: VerticalScrollOffsetKey.self,
+                            value: geo.frame(in: .named("crmScroll")).minY
+                        )
+                }
+                .frame(height: 0)
+
+                pipelineSummaryBar
+                followUpAutomationQueue
+
+                ForEach(CRMLeadStage.allCases) { stage in
+                    kanbanColumn(stage: stage)
+                }
+            }
+            .padding(.horizontal, EBPSpacing.md)
+            .padding(.bottom, EBPSpacing.xl)
+        }
+        .coordinateSpace(name: "crmScroll")
+        .onPreferenceChange(VerticalScrollOffsetKey.self) { offset in
+            workflowRouter.setDockCompact(offset < -30, for: .crm)
+        }
+    }
+
+    private var followUpAutomationQueue: some View {
+        VStack(alignment: .leading, spacing: EBPSpacing.sm) {
+            HStack {
+                Label("AI Follow-Up Queue", systemImage: "brain")
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(.white)
+                Spacer()
+                Text("\(actionableLeads.count) next")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(.white.opacity(0.7))
+            }
+
+            if actionableLeads.isEmpty {
+                Text("No urgent follow-ups. Your pipeline is clear right now.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .padding(.vertical, EBPSpacing.xs)
+            } else {
+                ForEach(actionableLeads) { lead in
+                    HStack(spacing: EBPSpacing.sm) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(lead.displayName)
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.white)
+                                .lineLimit(1)
+
+                            Text(followUpSuggestion(for: lead))
+                                .font(.caption2)
+                                .foregroundStyle(.white.opacity(0.75))
+                                .lineLimit(2)
+
+                            Text("Close probability: \(EpoxyAIWorkflowAdvisor.leadCloseProbability(lead))%")
+                                .font(.caption2.weight(.semibold))
+                                .foregroundStyle(EBPColor.accent)
+                        }
+
+                        Spacer()
+
+                        Button {
+                            completeFollowUp(lead)
+                        } label: {
+                            Text("Done")
+                                .font(.caption2.weight(.bold))
+                                .foregroundStyle(.black)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 6)
+                                .background(EBPColor.accent, in: Capsule())
+                        }
+                        .buttonStyle(.pressScale)
+
+                        Button {
+                            snoozeFollowUp(lead)
+                        } label: {
+                            Text("+1d")
+                                .font(.caption2.weight(.bold))
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 6)
+                                .background(Color.white.opacity(0.15), in: Capsule())
+                        }
+                        .buttonStyle(.pressScale)
+                    }
+                    .padding(EBPSpacing.sm)
+                    .background(Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: EBPRadius.sm))
+                    .onTapGesture {
+                        selectedLead = lead
+                    }
+                }
+            }
+        }
+        .padding(EBPSpacing.md)
+        .ebpGlassmorphism(cornerRadius: EBPRadius.md)
+        .animation(EBPAnimation.sectionSwitch, value: actionableLeads.count)
+    }
+
+    private var pipelineSummaryBar: some View {
+        let newCount = allLeads.filter { $0.status == "NEW" }.count
+        let totalValue = allLeads
+            .filter { !["WON", "LOST"].contains($0.status) }
+            .reduce(0.0) { $0 + $1.estimatedValue }
+        let wonCount = allLeads.filter { $0.status == "WON" }.count
+        let overdue = overdueFollowUps
+
+        return LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: EBPSpacing.sm) {
+            EBPStatCard(
+                title: NSLocalizedString("total.leads", comment: ""),
+                value: "\(allLeads.count)",
+                icon: "person.2.fill",
+                tint: EBPColor.accent
+            )
+
+            EBPStatCard(
+                title: NSLocalizedString("new", comment: ""),
+                value: "\(newCount)",
+                icon: "sparkles",
+                tint: .blue
+            )
+
+            EBPStatCard(
+                title: NSLocalizedString("won", comment: ""),
+                value: "\(wonCount)",
+                icon: "checkmark.seal.fill",
+                tint: EBPColor.success
+            )
+
+            EBPStatCard(
+                title: overdue > 0 ? NSLocalizedString("overdue.followups", comment: "") : NSLocalizedString("pipeline", comment: ""),
+                value: overdue > 0 ? "\(overdue)" : formatCurrency(totalValue),
+                icon: overdue > 0 ? "calendar.badge.exclamationmark" : "dollarsign.circle.fill",
+                tint: overdue > 0 ? EBPColor.warning : EBPColor.primary,
+                isAlert: overdue > 0
+            )
+        }
+    }
+
+    private func kanbanColumn(stage: CRMLeadStage) -> some View {
+        let leads = filteredLeads(for: stage)
+        let totalValue = leads.reduce(0.0) { $0 + $1.estimatedValue }
+
+        return VStack(alignment: .leading, spacing: EBPSpacing.sm) {
             HStack(spacing: EBPSpacing.xs) {
                 Circle()
                     .fill(stage.color)
                     .frame(width: 8, height: 8)
                 Text(stage.label)
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(.primary)
+                    .font(.subheadline.weight(.bold))
                 Spacer()
-                Text("\(count)")
-                    .font(.caption2.weight(.bold))
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(stage.color.opacity(0.15))
+                EBPBadge(text: "\(leads.count)", color: stage.color)
+            }
+
+            if totalValue > 0 {
+                Text(formatCurrency(totalValue))
+                    .font(.caption.weight(.semibold))
                     .foregroundStyle(stage.color)
-                    .clipShape(Capsule())
             }
 
-            // Value
-            if value > 0 {
-                Text(value.currencyFormatted)
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-            }
-
-            // Placeholder cards
-            if count == 0 {
-                Text("Empty")
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
-                    .frame(width: 140, height: 44)
-                    .background(Color(.systemFill), in: RoundedRectangle(cornerRadius: EBPRadius.sm))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: EBPRadius.sm)
-                            .strokeBorder(Color(.separator).opacity(0.5), style: StrokeStyle(lineWidth: 1, dash: [4]))
-                    )
+            if leads.isEmpty {
+                emptyColumnPlaceholder(stage: stage)
             } else {
-                ForEach(0..<min(count, 3), id: \.self) { _ in
-                    RoundedRectangle(cornerRadius: EBPRadius.sm)
-                        .fill(EBPColor.surface)
-                        .frame(width: 140, height: 56)
-                        .overlay(
-                            HStack(spacing: EBPSpacing.xs) {
-                                Circle()
-                                    .fill(stage.color.opacity(0.25))
-                                    .frame(width: 28, height: 28)
-                                VStack(alignment: .leading, spacing: 2) {
-                                    RoundedRectangle(cornerRadius: 2)
-                                        .fill(Color(.systemFill))
-                                        .frame(width: 70, height: 8)
-                                    RoundedRectangle(cornerRadius: 2)
-                                        .fill(Color(.systemFill))
-                                        .frame(width: 50, height: 6)
-                                }
-                                Spacer()
-                            }
-                            .padding(.horizontal, EBPSpacing.sm)
-                        )
-                        .ebpShadowSubtle()
-                }
-                if count > 3 {
-                    Text("+\(count - 3) more")
-                        .font(.caption2)
-                        .foregroundStyle(stage.color)
-                        .padding(.horizontal, EBPSpacing.sm)
+                ForEach(leads) { lead in
+                    leadCard(lead, stage: stage)
                 }
             }
         }
         .padding(EBPSpacing.sm)
-        .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: EBPRadius.md))
-        .frame(width: 156, alignment: .topLeading)
+        .ebpGlassmorphism(cornerRadius: EBPRadius.md)
+        .frame(maxWidth: .infinity, alignment: .topLeading)
     }
 
-    // MARK: - Top Clients Section
+    private func leadCard(_ lead: Lead, stage: CRMLeadStage) -> some View {
+        Button {
+            selectedLead = lead
+        } label: {
+            VStack(alignment: .leading, spacing: EBPSpacing.xs) {
+                HStack {
+                    Text(lead.displayName)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.primary)
+                        .lineLimit(1)
+                    Spacer()
+                    if lead.estimatedValue > 0 {
+                        Text(formatCurrency(lead.estimatedValue))
+                            .font(.caption2.weight(.bold))
+                            .foregroundStyle(stage.color)
+                    }
+                }
 
-    private var topClientsSection: some View {
-        ScrollView {
-            VStack(spacing: EBPSpacing.sm) {
-                if vm.ltvClients.isEmpty {
-                    EBPEmptyState(
-                        icon: "person.2.slash",
-                        title: "No Client Data",
-                        subtitle: "Complete jobs to see lifetime value analytics."
-                    )
-                    .padding(.top, EBPSpacing.xl)
-                } else {
-                    ForEach(Array(vm.ltvClients.prefix(10).enumerated()), id: \.element.id) { idx, client in
-                        topClientRow(rank: idx + 1, client: client)
+                if !lead.company.isEmpty {
+                    Text(lead.company)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+
+                HStack(spacing: EBPSpacing.xs) {
+                    if !lead.source.isEmpty {
+                        EBPPillTag(text: lead.source.capitalized, color: .secondary)
+                    }
+
+                    if let followUp = lead.followUpDate {
+                        HStack(spacing: 2) {
+                            Image(systemName: followUp < Date() ? "exclamationmark.triangle.fill" : "calendar")
+                                .font(.system(size: 8))
+                                .foregroundStyle(followUp < Date() ? EBPColor.danger : .secondary)
+                            Text(followUp.formatted(date: .abbreviated, time: .omitted))
+                                .font(.caption2)
+                                .foregroundStyle(followUp < Date() ? EBPColor.danger : .secondary)
+                        }
                     }
                 }
             }
-            .padding(EBPSpacing.md)
+            .padding(EBPSpacing.sm)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .ebpGlassmorphism(cornerRadius: EBPRadius.sm)
+        }
+        .buttonStyle(.plain)
+        .contextMenu {
+            ForEach(CRMLeadStage.allCases) { s in
+                if s.rawValue != lead.status {
+                    Button {
+                        moveLead(lead, to: s)
+                    } label: {
+                        Label(String(format: NSLocalizedString("move.to", comment: ""), s.label), systemImage: "arrow.right.circle")
+                    }
+                }
+            }
+            Divider()
+            Button {
+                convertLeadToClient(lead)
+            } label: {
+                Label("Convert to Client", systemImage: "person.crop.circle.badge.checkmark")
+            }
+            Divider()
+            Button(role: .destructive) {
+                modelContext.delete(lead)
+                try? modelContext.save()
+            } label: {
+                Label("Delete", systemImage: "trash")
+            }
         }
     }
 
-    private func topClientRow(rank: Int, client: LTVClient) -> some View {
-        HStack(spacing: EBPSpacing.md) {
-            // Rank badge
-            ZStack {
-                Circle()
-                    .fill(rank <= 3 ? EBPColor.gold.opacity(0.15) : EBPColor.surface)
-                    .frame(width: 36, height: 36)
-                Text("\(rank)")
-                    .font(.subheadline.weight(.bold))
-                    .foregroundStyle(rank <= 3 ? EBPColor.gold : .secondary)
-            }
-
-            VStack(alignment: .leading, spacing: 3) {
-                Text(client.name.isEmpty ? client.company : client.name)
-                    .font(.subheadline.weight(.semibold))
-                    .lineLimit(1)
-                Text("\(client.jobCount) jobs • avg \(client.avgJobValue.currencyFormatted)")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-
-            Spacer()
-
-            VStack(alignment: .trailing, spacing: 3) {
-                Text(client.totalRevenue.currencyFormatted)
-                    .font(.subheadline.weight(.bold))
-                    .foregroundStyle(EBPColor.primary)
-                Text("LTV")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-            }
+    private func emptyColumnPlaceholder(stage: CRMLeadStage) -> some View {
+        VStack(spacing: EBPSpacing.xs) {
+            Image(systemName: "tray")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(stage.color.opacity(0.8))
+            Text(NSLocalizedString("no.leads", comment: ""))
+                .font(.caption2)
+                .foregroundStyle(.secondary)
         }
-        .padding(EBPSpacing.md)
-        .background(EBPColor.surface, in: RoundedRectangle(cornerRadius: EBPRadius.md))
-        .ebpShadowSubtle()
+            .frame(height: 56)
+            .frame(maxWidth: .infinity)
+            .background(Color.white.opacity(0.05), in: RoundedRectangle(cornerRadius: EBPRadius.sm))
+            .overlay(
+                RoundedRectangle(cornerRadius: EBPRadius.sm)
+                    .strokeBorder(Color.white.opacity(0.15), style: StrokeStyle(lineWidth: 1, dash: [4]))
+            )
     }
 
-    // MARK: - Insights Section
+    // MARK: - Clients View
 
-    private var insightsSection: some View {
+    private var clientsView: some View {
         ScrollView {
             VStack(spacing: EBPSpacing.md) {
+                GeometryReader { geo in
+                    Color.clear
+                        .preference(
+                            key: VerticalScrollOffsetKey.self,
+                            value: geo.frame(in: .named("crmClientsScroll")).minY
+                        )
+                }
+                .frame(height: 0)
+
+                let thisMonthClients = allClients.filter {
+                    Calendar.current.isDate($0.createdAt, equalTo: Date(), toGranularity: .month)
+                }.count
+
+                HStack(spacing: EBPSpacing.sm) {
+                    EBPStatCard(
+                        title: NSLocalizedString("crm.clients", comment: ""),
+                        value: "\(allClients.count)",
+                        icon: "person.2.fill",
+                        tint: EBPColor.accent
+                    )
+                    EBPStatCard(
+                        title: NSLocalizedString("new", comment: ""),
+                        value: "\(thisMonthClients)",
+                        icon: "plus.circle.fill",
+                        tint: EBPColor.success
+                    )
+                }
+
+                LazyVStack(spacing: EBPSpacing.sm) {
+                if filteredClients.isEmpty {
+                    EBPEmptyState(
+                        icon: "person.2.slash",
+                        title: NSLocalizedString("no.clients.yet", comment: ""),
+                        subtitle: NSLocalizedString("no.clients.hint", comment: "")
+                    )
+                    .padding(.top, EBPSpacing.xl)
+                } else {
+                    ForEach(filteredClients) { client in
+                        clientRow(client)
+                    }
+                }
+            }
+            }
+            .padding(EBPSpacing.md)
+            .padding(.bottom, EBPSpacing.xl)
+        }
+        .coordinateSpace(name: "crmClientsScroll")
+        .onPreferenceChange(VerticalScrollOffsetKey.self) { offset in
+            workflowRouter.setDockCompact(offset < -30, for: .crm)
+        }
+    }
+
+    private func clientRow(_ client: Client) -> some View {
+        Button {
+            selectedClient = client
+        } label: {
+            HStack(spacing: EBPSpacing.md) {
+                ZStack {
+                    Circle()
+                        .fill(EBPColor.primaryGradient)
+                        .frame(width: 44, height: 44)
+                    Text(String(client.displayName.prefix(1)).uppercased())
+                        .font(.headline.weight(.bold))
+                        .foregroundStyle(.white)
+                }
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(client.displayName)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.primary)
+                        .lineLimit(1)
+                    HStack(spacing: EBPSpacing.xs) {
+                        if !client.company.isEmpty {
+                            Text(client.company)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        Text("• \(client.clientType.capitalized)")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                Spacer()
+
+                VStack(alignment: .trailing, spacing: 3) {
+                    let bidCount = client.bids.count
+                    Text(String(format: NSLocalizedString("count.bids", comment: ""), bidCount, bidCount == 1 ? "" : "s"))
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(EBPColor.primary)
+
+                    let total = client.bids.reduce(Decimal(0)) { $0 + $1.totalPrice }
+                    if total > 0 {
+                        Text(total, format: .currency(code: "USD"))
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                Image(systemName: "chevron.right")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.tertiary)
+            }
+            .padding(EBPSpacing.md)
+            .ebpGlassmorphism(cornerRadius: EBPRadius.md)
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Insights View
+
+    private var insightsView: some View {
+        ScrollView {
+            VStack(spacing: EBPSpacing.md) {
+                GeometryReader { geo in
+                    Color.clear
+                        .preference(
+                            key: VerticalScrollOffsetKey.self,
+                            value: geo.frame(in: .named("crmInsightsScroll")).minY
+                        )
+                }
+                .frame(height: 0)
+
+                // Win rate stat
+                let wonLeads = allLeads.filter { $0.status == "WON" }.count
+                let decidedLeads = allLeads.filter { ["WON", "LOST"].contains($0.status) }.count
+                let winRate = decidedLeads > 0 ? Int(Double(wonLeads) / Double(decidedLeads) * 100) : 0
+
+                HStack(spacing: EBPSpacing.md) {
+                    insightStatCard(value: "\(winRate)%", label: NSLocalizedString("win.rate", comment: ""), icon: "trophy.fill", tint: EBPColor.gold)
+                    let avgDays = averageDaysToClose
+                    insightStatCard(value: "\(avgDays)d", label: NSLocalizedString("avg.close", comment: ""), icon: "clock.fill", tint: .blue)
+                }
+                .ebpHPadding()
+
+                HStack(spacing: EBPSpacing.md) {
+                    insightStatCard(value: "\(allClients.count)", label: NSLocalizedString("crm.clients", comment: ""), icon: "person.2.fill", tint: EBPColor.accent)
+                    let monthLeads = allLeads.filter {
+                        Calendar.current.isDate($0.createdAt, equalTo: Date(), toGranularity: .month)
+                    }.count
+                    insightStatCard(value: "\(monthLeads)", label: NSLocalizedString("new.lead", comment: ""), icon: "arrow.up.right", tint: EBPColor.success)
+                }
+                .ebpHPadding()
+
+                // Source breakdown
+                sourceBreakdown
+
+                // Actionable insights
                 insightCard(
                     icon: "arrow.up.right.circle.fill",
                     tint: EBPColor.success,
-                    title: "Win More Bids",
+                    title: NSLocalizedString("win.more.bids", comment: ""),
                     body: "Follow up on 'SITE_VISIT' leads within 24 hours — data shows win rates are 3× higher."
                 )
                 insightCard(
                     icon: "calendar.badge.exclamationmark",
                     tint: EBPColor.warning,
-                    title: "Schedule Follow-Ups",
-                    body: "Set follow-up dates on all open leads. Leads with scheduled follow-ups close 40% more often."
+                    title: NSLocalizedString("overdue.followups", comment: ""),
+                    body: String(format: "You have %d leads with past-due follow-up dates. Update them now.", overdueFollowUps)
                 )
                 insightCard(
                     icon: "star.fill",
                     tint: EBPColor.gold,
-                    title: "Reward Top Clients",
+                    title: NSLocalizedString("reward.top.clients", comment: ""),
                     body: "Your top 20% of clients generate 80% of revenue. Consider a VIP referral programme."
                 )
-                insightCard(
-                    icon: "megaphone.fill",
-                    tint: Color.indigo,
-                    title: "Track Lead Sources",
-                    body: "Tag every lead with a source (Referral, Google, Door Hanger) to see what marketing is actually working."
-                )
             }
-            .padding(EBPSpacing.md)
+            .padding(.vertical, EBPSpacing.md)
+        }
+        .coordinateSpace(name: "crmInsightsScroll")
+        .onPreferenceChange(VerticalScrollOffsetKey.self) { offset in
+            workflowRouter.setDockCompact(offset < -30, for: .crm)
+        }
+    }
+
+    // MARK: - Helpers
+
+    private func filteredLeads(for stage: CRMLeadStage) -> [Lead] {
+        let stageLeads = allLeads.filter { $0.status == stage.rawValue }
+        if searchText.isEmpty { return stageLeads }
+        let lower = searchText.lowercased()
+        return stageLeads.filter {
+            $0.displayName.lowercased().contains(lower) ||
+            $0.company.lowercased().contains(lower)
+        }
+    }
+
+    private var filteredClients: [Client] {
+        if searchText.isEmpty { return Array(allClients) }
+        let lower = searchText.lowercased()
+        return allClients.filter {
+            $0.displayName.lowercased().contains(lower) ||
+            $0.company.lowercased().contains(lower) ||
+            $0.email.lowercased().contains(lower)
+        }
+    }
+
+    private func moveLead(_ lead: Lead, to stage: CRMLeadStage) {
+        lead.status = stage.rawValue
+        if stage == .won {
+            lead.convertedAt = Date()
+        }
+        try? modelContext.save()
+    }
+
+    private func convertLeadToClient(_ lead: Lead) {
+        let client = Client()
+        client.firstName = lead.firstName
+        client.lastName = lead.lastName
+        client.email = lead.email
+        client.phone = lead.phone
+        client.company = lead.company
+        client.address = lead.address
+        client.clientType = "residential"
+        modelContext.insert(client)
+
+        lead.status = "WON"
+        lead.convertedAt = Date()
+        try? modelContext.save()
+    }
+
+    private var averageDaysToClose: Int {
+        let closed = allLeads.filter { $0.status == "WON" && $0.convertedAt != nil }
+        guard !closed.isEmpty else { return 0 }
+        let totalDays = closed.reduce(0.0) {
+            $0 + ($1.convertedAt?.timeIntervalSince($1.createdAt) ?? 0) / 86400
+        }
+        return Int(totalDays / Double(closed.count))
+    }
+
+    private var overdueFollowUps: Int {
+        allLeads.filter { ($0.followUpDate ?? .distantFuture) < Date() && !["WON", "LOST"].contains($0.status) }.count
+    }
+
+    private var actionableLeads: [Lead] {
+        allLeads
+            .filter { !["WON", "LOST"].contains($0.status) }
+            .sorted {
+                EpoxyAIWorkflowAdvisor.followUpPriorityScore($0) > EpoxyAIWorkflowAdvisor.followUpPriorityScore($1)
+            }
+            .prefix(4)
+            .map { $0 }
+    }
+
+    private func followUpSuggestion(for lead: Lead) -> String {
+        EpoxyAIWorkflowAdvisor.nextBestAction(for: lead)
+    }
+
+    private func completeFollowUp(_ lead: Lead) {
+        AppHaptics.trigger(.medium)
+
+        let previousStatus = lead.status
+
+        switch lead.status {
+        case "NEW":
+            lead.status = "CONTACTED"
+        case "CONTACTED":
+            lead.status = "SITE_VISIT"
+        case "SITE_VISIT":
+            lead.status = "BID_SENT"
+        default:
+            break
+        }
+
+        lead.followUpDate = Calendar.current.date(byAdding: .day, value: 2, to: Date())
+        try? modelContext.save()
+
+        if previousStatus == "SITE_VISIT" || lead.status == "BID_SENT" {
+            workflowRouter.navigate(
+                to: .bids,
+                handoffMessage: "Lead ready for proposal — opening Bids"
+            )
+        }
+    }
+
+    private func snoozeFollowUp(_ lead: Lead) {
+        AppHaptics.trigger(.light)
+        let base = lead.followUpDate ?? Date()
+        lead.followUpDate = Calendar.current.date(byAdding: .day, value: 1, to: base)
+        try? modelContext.save()
+    }
+
+    private func formatCurrency(_ value: Double) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = "USD"
+        formatter.maximumFractionDigits = 0
+        return formatter.string(from: NSNumber(value: value)) ?? "$0"
+    }
+
+    private func summaryCell(value: String, label: String, color: Color = .primary) -> some View {
+        VStack(spacing: 2) {
+            Text(value)
+                .font(.subheadline.weight(.bold))
+                .foregroundStyle(color)
+            Text(label)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private func insightStatCard(value: String, label: String, icon: String, tint: Color) -> some View {
+        HStack(spacing: EBPSpacing.sm) {
+            ZStack {
+                RoundedRectangle(cornerRadius: EBPRadius.sm)
+                    .fill(tint.opacity(0.12))
+                    .frame(width: 40, height: 40)
+                Image(systemName: icon)
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(tint)
+            }
+            VStack(alignment: .leading, spacing: 2) {
+                Text(value)
+                    .font(.title3.weight(.black))
+                Text(label)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+        }
+        .padding(EBPSpacing.md)
+        .ebpGlassmorphism(cornerRadius: EBPRadius.md)
+    }
+
+    private var sourceBreakdown: some View {
+        let sources = Dictionary(grouping: allLeads, by: { $0.source.isEmpty ? "Unknown" : $0.source })
+            .map { (source: $0.key, count: $0.value.count) }
+            .sorted { $0.count > $1.count }
+
+        return VStack(alignment: .leading, spacing: EBPSpacing.sm) {
+            Text(NSLocalizedString("lead.sources", comment: ""))
+                .font(.headline)
+                .ebpHPadding()
+
+            if sources.isEmpty {
+                Text("No lead data yet.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .ebpHPadding()
+            } else {
+                VStack(spacing: 0) {
+                    ForEach(sources.prefix(6), id: \.source) { item in
+                        HStack {
+                            Text(item.source.capitalized)
+                                .font(.subheadline)
+                            Spacer()
+                            Text("\(item.count)")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(EBPColor.primary)
+                        }
+                        .padding(.horizontal, EBPSpacing.md)
+                        .padding(.vertical, 10)
+                    }
+                }
+                .ebpGlassmorphism(cornerRadius: EBPRadius.md)
+                .ebpHPadding()
+            }
         }
     }
 
@@ -297,7 +806,6 @@ struct CRMView: View {
                     .font(.system(size: 20, weight: .semibold))
                     .foregroundStyle(tint)
             }
-
             VStack(alignment: .leading, spacing: EBPSpacing.xs) {
                 Text(title)
                     .font(.subheadline.weight(.bold))
@@ -308,14 +816,14 @@ struct CRMView: View {
             }
         }
         .padding(EBPSpacing.md)
-        .background(EBPColor.surface, in: RoundedRectangle(cornerRadius: EBPRadius.md))
-        .ebpShadowSubtle()
+        .ebpGlassmorphism(cornerRadius: EBPRadius.md)
+        .ebpHPadding()
     }
 }
 
-// ─── Lead Stage ───────────────────────────────────────────────────────────────
+// ─── Lead Stages ─────────────────────────────────────────────────────────────
 
-private enum LeadStage: String, CaseIterable, Identifiable {
+enum CRMLeadStage: String, CaseIterable, Identifiable {
     case new        = "NEW"
     case contacted  = "CONTACTED"
     case siteVisit  = "SITE_VISIT"
@@ -327,25 +835,16 @@ private enum LeadStage: String, CaseIterable, Identifiable {
 
     var label: String {
         switch self {
-        case .new:       return "New"
-        case .contacted: return "Contacted"
-        case .siteVisit: return "Site Visit"
-        case .bidSent:   return "Bid Sent"
-        case .won:       return "Won"
-        case .lost:      return "Lost"
+        case .new:       return NSLocalizedString("new", comment: "")
+        case .contacted: return NSLocalizedString("contacted", comment: "")
+        case .siteVisit: return NSLocalizedString("site.visit", comment: "")
+        case .bidSent:   return NSLocalizedString("bid.sent", comment: "")
+        case .won:       return NSLocalizedString("won", comment: "")
+        case .lost:      return NSLocalizedString("lost", comment: "")
         }
     }
 
     var color: Color {
-        switch self {
-        case .new:       return .blue
-        case .contacted: return Color.indigo
-        case .siteVisit: return EBPColor.warning
-        case .bidSent:   return EBPColor.primary
-        case .won:       return EBPColor.success
-        case .lost:      return EBPColor.danger
-        }
+        WorkflowStatusPalette.lead(rawValue)
     }
 }
-
-

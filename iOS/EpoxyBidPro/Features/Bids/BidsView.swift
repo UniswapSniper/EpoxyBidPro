@@ -10,7 +10,12 @@ struct BidsView: View {
     // MARK: - Environment
 
     @Environment(\.modelContext) private var modelContext
+    @EnvironmentObject private var workflowRouter: WorkflowRouter
+    @Query(sort: \Lead.createdAt, order: .reverse) private var workflowLeads: [Lead]
     @Query(sort: \Bid.createdAt, order: .reverse) private var allBids: [Bid]
+    @Query(sort: \Job.createdAt, order: .reverse) private var workflowJobs: [Job]
+    @Query(sort: \Invoice.createdAt, order: .reverse) private var workflowInvoices: [Invoice]
+    @Query(sort: \Measurement.scanDate, order: .reverse) private var allMeasurements: [Measurement]
 
     // MARK: - View Model
 
@@ -19,9 +24,11 @@ struct BidsView: View {
     // MARK: - State
 
     @State private var isPresentingNewBid = false
+    @State private var isPresentingScan = false
     @State private var searchText = ""
     @State private var selectedFilter: BidViewModel.BidStatusFilter = .all
     @State private var selectedBid: Bid? = nil
+    @State private var measurementForBidBuilder: Measurement? = nil
 
     // MARK: - Computed
 
@@ -56,24 +63,61 @@ struct BidsView: View {
         return result
     }
 
+    private var latestMeasurement: Measurement? {
+        allMeasurements.first
+    }
+
+    private var workflowSnapshot: WorkflowKPISnapshot {
+        WorkflowKPIService.snapshot(
+            leads: workflowLeads,
+            bids: allBids,
+            jobs: workflowJobs,
+            invoices: workflowInvoices,
+            measurements: allMeasurements
+        )
+    }
+
+    private var nextAction: WorkflowNextAction {
+        WorkflowKPIService.nextBestAction(from: workflowSnapshot)
+    }
+
     // MARK: - Body
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                summaryBar
-                filterChips
-                bidList
+            ZStack {
+                EBPDynamicBackground()
+                
+                VStack(spacing: 0) {
+                    WorkflowKPIBanner(snapshot: workflowSnapshot)
+                        .padding(.horizontal, EBPSpacing.md)
+                        .padding(.bottom, EBPSpacing.sm)
+
+                    WorkflowNextActionBanner(action: nextAction) { target in
+                        workflowRouter.navigate(to: target, handoffMessage: nextAction.title)
+                    }
+                    .padding(.horizontal, EBPSpacing.md)
+                    .padding(.bottom, EBPSpacing.sm)
+
+                    workflowCommandDeck
+                    summaryBar
+                    filterChips
+                    bidList
+                }
             }
             .navigationTitle("Bids & Proposals")
+            .navigationBarTitleDisplayMode(.large)
             .searchable(text: $searchText, prompt: "Search bid number, client, title…")
+            .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         isPresentingNewBid = true
                     } label: {
-                        Image(systemName: "plus")
-                            .font(.body.weight(.semibold))
+                        Image(systemName: "plus.circle.fill")
+                            .font(.title2)
+                            .foregroundStyle(EBPColor.accent)
+                            .ebpNeonGlow(radius: 4, intensity: 0.5)
                     }
                 }
 
@@ -81,13 +125,108 @@ struct BidsView: View {
                     sortMenu
                 }
             }
-            .sheet(isPresented: $isPresentingNewBid) {
-                newBidSheet
+            .fullScreenCover(isPresented: $isPresentingNewBid) {
+                BidBuilderView()
+            }
+            .fullScreenCover(isPresented: $isPresentingScan) {
+                if #available(iOS 16.0, *) {
+                    AutoScanView()
+                } else {
+                    ScanView()
+                }
+            }
+            .fullScreenCover(item: $measurementForBidBuilder) { measurement in
+                BidBuilderView(initialMeasurement: measurement)
             }
             .navigationDestination(item: $selectedBid) { bid in
                 BidDetailView(bid: bid)
             }
         }
+    }
+
+    // MARK: - Workflow Command Deck
+
+    private var workflowCommandDeck: some View {
+        VStack(alignment: .leading, spacing: EBPSpacing.sm) {
+            HStack(spacing: EBPSpacing.xs) {
+                Image(systemName: "sparkles.rectangle.stack")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(EBPColor.accent)
+                Text("Estimation Workflow")
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(.white)
+                Spacer()
+                Text("Scan → AI → Bid")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(.white.opacity(0.65))
+            }
+
+            if let latestMeasurement {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(latestMeasurement.label.isEmpty ? "Latest measurement" : latestMeasurement.label)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.white.opacity(0.85))
+
+                    HStack {
+                        Label("\(Int(latestMeasurement.totalSqFt)) sq ft", systemImage: "ruler.fill")
+                            .font(.caption2)
+                            .foregroundStyle(EBPColor.accent)
+                        Spacer()
+                        Text(latestMeasurement.scanDate.relativeFormatted)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Text(aiEstimateHint(for: latestMeasurement.totalSqFt))
+                        .font(.caption2)
+                        .foregroundStyle(.white.opacity(0.75))
+                        .lineLimit(2)
+                }
+                .padding(EBPSpacing.sm)
+                .background(Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: EBPRadius.sm))
+            } else {
+                Text("Run a LiDAR/AR scan first to auto-fill measurements and AI pricing guidance.")
+                    .font(.caption)
+                    .foregroundStyle(.white.opacity(0.75))
+                    .padding(EBPSpacing.sm)
+                    .background(Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: EBPRadius.sm))
+            }
+
+            HStack(spacing: EBPSpacing.sm) {
+                Button {
+                    isPresentingScan = true
+                } label: {
+                    Label("Scan Space", systemImage: "ruler")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.black)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
+                        .background(EBPColor.accent, in: RoundedRectangle(cornerRadius: EBPRadius.sm))
+                }
+                .buttonStyle(.plain)
+
+                Button {
+                    if let latestMeasurement {
+                        measurementForBidBuilder = latestMeasurement
+                        workflowRouter.navigate(to: .bids, handoffMessage: "Prefilling bid from latest scan")
+                    } else {
+                        isPresentingNewBid = true
+                    }
+                } label: {
+                    Label(latestMeasurement == nil ? "New Bid" : "Build From Scan", systemImage: "doc.text.fill")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
+                        .background(EBPColor.primaryGradient, in: RoundedRectangle(cornerRadius: EBPRadius.sm))
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(EBPSpacing.md)
+        .ebpGlassmorphism(cornerRadius: EBPRadius.lg)
+        .padding(.horizontal, EBPSpacing.md)
+        .padding(.bottom, EBPSpacing.sm)
     }
 
     // MARK: - Summary Bar
@@ -104,13 +243,12 @@ struct BidsView: View {
             Divider().frame(height: 36)
             summaryCell(value: "\(signed)", label: "Signed", color: .green)
             Divider().frame(height: 36)
-            summaryCell(value: total.formatted(.currency(code: "USD")), label: "Pipeline", color: EBPColor.primary)
+            summaryCell(value: total.formatted(.currency(code: "USD")), label: "Pipeline", color: EBPColor.accent)
         }
-        .padding(.vertical, EBPSpacing.sm)
-        .background(Color(.secondarySystemBackground))
+        .ebpGlassmorphism(cornerRadius: 0)
     }
 
-    private func summaryCell(value: String, label: String, color: Color = .primary) -> some View {
+    private func summaryCell(value: String, label: String, color: Color = .white) -> some View {
         VStack(spacing: 2) {
             Text(value)
                 .font(.subheadline.weight(.bold))
@@ -135,7 +273,7 @@ struct BidsView: View {
                         count: count(for: filter),
                         isSelected: selectedFilter == filter
                     ) {
-                        withAnimation(.easeInOut(duration: 0.2)) {
+                        withAnimation(EBPAnimation.sectionSwitch) {
                             selectedFilter = filter
                         }
                     }
@@ -215,8 +353,9 @@ struct BidsView: View {
         } actions: {
             if selectedFilter == .all {
                 Button("Create First Bid") { isPresentingNewBid = true }
-                    .buttonStyle(.borderedProminent)
-                    .tint(EBPColor.primary)
+                .buttonStyle(.borderedProminent)
+                .tint(EBPColor.accent)
+                .foregroundStyle(.black)
             } else {
                 Button("Show All") { selectedFilter = .all }
             }
@@ -253,38 +392,11 @@ struct BidsView: View {
         }
     }
 
-
-    // MARK: - New Bid Sheet
-
-    private var newBidSheet: some View {
-        NavigationStack {
-            Form {
-                Section("Bid Details") {
-                    Text("New bid creation will be connected to the Bid Builder in a future sprint.")
-                        .foregroundStyle(.secondary)
-                }
-                Section {
-                    Button("Create Draft Bid") {
-                        let draft = vm.createDraftBid(context: modelContext)
-                        isPresentingNewBid = false
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                            selectedBid = draft
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
-                    .buttonStyle(.borderedProminent)
-                    .tint(EBPColor.primary)
-                }
-            }
-            .navigationTitle("New Bid")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { isPresentingNewBid = false }
-                }
-            }
-        }
+    private func aiEstimateHint(for sqFt: Double) -> String {
+        "AI hint: \(EpoxyAIWorkflowAdvisor.bidGuidance(forSqFt: sqFt))"
     }
+
+
 }
 
 // ─── FilterChip ───────────────────────────────────────────────────────────────
@@ -297,7 +409,7 @@ struct FilterChip: View {
 
     var body: some View {
         Button {
-            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            AppHaptics.trigger(.light)
             action()
         } label: {
             HStack(spacing: 5) {
@@ -308,15 +420,18 @@ struct FilterChip: View {
                         .font(.caption2.weight(.bold))
                         .padding(.horizontal, 6)
                         .padding(.vertical, 1)
-                        .background(isSelected ? Color.white.opacity(0.30) : Color(.systemGray5))
+                        .background(isSelected ? Color.black.opacity(0.20) : EBPColor.surface.opacity(0.8))
                         .clipShape(Capsule())
                 }
             }
             .padding(.horizontal, EBPSpacing.md)
             .padding(.vertical, 9)
-            .background(isSelected ? EBPColor.primary : Color(.systemGray6))
-            .foregroundStyle(isSelected ? .white : .primary)
+            .background(isSelected ? EBPColor.accent : EBPColor.surface)
+            .foregroundStyle(isSelected ? .black : .white)
             .clipShape(Capsule())
+            .overlay(
+                Capsule().stroke(isSelected ? EBPColor.accent : EBPColor.silver.opacity(0.3), lineWidth: 1)
+            )
         }
         .buttonStyle(.plain)
         .animation(EBPAnimation.snappy, value: isSelected)

@@ -81,8 +81,8 @@ struct BidCardView: View {
             }
             .padding(EBPSpacing.md)
         }
-        .background(EBPColor.surface, in: RoundedRectangle(cornerRadius: EBPRadius.md))
-        .ebpShadowSubtle()
+        .padding(EBPSpacing.md)
+        .ebpGlassmorphism(cornerRadius: EBPRadius.md)
     }
 
     private func tierColor(_ tier: String) -> Color {
@@ -128,15 +128,7 @@ struct BidStatusBadge: View {
     }
 
     private var color: Color {
-        switch status {
-        case "DRAFT":    return Color(.systemGray3)
-        case "SENT":     return .blue
-        case "VIEWED":   return EBPColor.warning
-        case "SIGNED":   return EBPColor.success
-        case "DECLINED": return EBPColor.danger
-        case "EXPIRED":  return Color(.systemGray4)
-        default:         return .secondary
-        }
+        WorkflowStatusPalette.bid(status)
     }
 }
 
@@ -144,24 +136,8 @@ struct BidStatusBadge: View {
 
 extension Bid {
     var statusColor: Color {
-        switch status {
-        case "DRAFT":    return Color(.systemGray3)
-        case "SENT":     return .blue
-        case "VIEWED":   return EBPColor.warning
-        case "SIGNED":   return EBPColor.success
-        case "DECLINED": return EBPColor.danger
-        case "EXPIRED":  return Color(.systemGray4)
-        default:         return EBPColor.primary
-        }
+        WorkflowStatusPalette.bid(status)
     }
 }
 
-// ─── Date helpers ─────────────────────────────────────────────────────────────
 
-extension Date {
-    var relativeFormatted: String {
-        let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .abbreviated
-        return formatter.localizedString(for: self, relativeTo: Date())
-    }
-}

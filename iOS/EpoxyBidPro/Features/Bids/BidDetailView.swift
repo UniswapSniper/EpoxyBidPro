@@ -282,7 +282,7 @@ struct BidDetailView: View {
     private func lineItemRow(_ item: BidLineItem) -> some View {
         HStack(alignment: .top, spacing: EBPSpacing.sm) {
             VStack(alignment: .leading, spacing: 2) {
-                Text(item.description.isEmpty ? "Item" : item.description)
+                Text(item.itemDescription.isEmpty ? "Item" : item.itemDescription)
                     .font(.subheadline.weight(.medium))
             Text("\(item.quantity.formatted()) × \(item.unitPrice.formatted(.currency(code: "USD")))")
                     .font(.caption)
@@ -545,14 +545,6 @@ private extension String {
         self.lowercased()
             .replacingOccurrences(of: "_", with: " ")
             .capitalized
-    }
-}
-
-private extension Date {
-    var relativeFormatted: String {
-        let f = RelativeDateTimeFormatter()
-        f.unitsStyle = .abbreviated
-        return f.localizedString(for: self, relativeTo: Date())
     }
 }
 

@@ -153,7 +153,7 @@ final class AnalyticsViewModel: ObservableObject {
     @Published var showingExportShare = false
 
     private let baseURL = "https://api.epoxybidpro.com"
-    private var token: String { KeychainHelper.shared.token ?? "" }
+    private var token: String { KeychainHelper.readToken() ?? "" }
 
     // MARK: Load All
     func loadAll() async {
@@ -275,15 +275,20 @@ final class AnalyticsViewModel: ObservableObject {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         // Server wraps payload in { success, data }
-        struct Envelope<P: Decodable>: Decodable { let data: P }
-        return try decoder.decode(Envelope<T>.self, from: data).data
+        return try decoder.decode(APIEnvelope<T>.self, from: data).data
     }
 }
 
-// MARK: - KeychainHelper stub (reuse from BidViewModel if present)
+// MARK: - API Response Envelope
+
+private struct APIEnvelope<T: Decodable>: Decodable {
+    let data: T
+}
+
+// MARK: - KeychainHelper stub
+
 private enum KeychainHelper {
-    static let shared = KeychainHelperInstance()
-    final class KeychainHelperInstance {
-        var token: String? { UserDefaults.standard.string(forKey: "auth_token") }
+    static func readToken() -> String? {
+        UserDefaults.standard.string(forKey: "ebp_access_token")
     }
 }

@@ -70,6 +70,7 @@ struct RevenueChartView: View {
                 }
 
                 // ── Chart Mode Picker ───────────────────────────────────────
+                Picker("Chart Mode", selection: $chartMode) {
                     ForEach(ChartMode.allCases, id: \.self) { Text($0.rawValue).tag($0) }
                 }
                 .pickerStyle(.segmented)

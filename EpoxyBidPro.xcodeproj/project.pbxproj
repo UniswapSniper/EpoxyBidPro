@@ -1,0 +1,727 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		06769687E85B91A28B1E214B /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CB132FC600D27BC010A3034 /* RootView.swift */; };
+		09F5F1AAF0D757EBA235980E /* AppIcon2x76.png in Resources */ = {isa = PBXBuildFile; fileRef = 53B774C67D535CBA3D24825B /* AppIcon2x76.png */; };
+		0A4BA0CE4F3DEC7BEDB7B518 /* ARKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 372E53CF92AC2515CF75C43C /* ARKit.framework */; };
+		2019890D2E84D239D0A267B1 /* BidViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98ABE198A1E6326AA174B667 /* BidViewModel.swift */; };
+		223B8C6FD69401E0511D5B4D /* JobsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B202AD97DD03408300C5DBC /* JobsView.swift */; };
+		244879217CFEBD85ADE7E2DD /* AdditionalModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A19EA74218731157A859D6D /* AdditionalModels.swift */; };
+		2D87A1C8484093A6B4975843 /* EpoxyBidProApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3DCC4D5B8B5F365E2456B65 /* EpoxyBidProApp.swift */; };
+		3D62B100ECEC363EEBD5D234 /* BidsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBEC58CFEC337AFCE2F19476 /* BidsView.swift */; };
+		40D2F7320E0BEC5E59C2516C /* BidBuilderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF437396C48892A5B99B056 /* BidBuilderViewModel.swift */; };
+		41C2CF6A2423672D1F606728 /* DesignTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 623AFCAA35446E3E3160F98D /* DesignTokens.swift */; };
+		420A0EF88B3507A8B6E3387F /* BusinessSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD13CF086B9262B3D85C6101 /* BusinessSetupView.swift */; };
+		45F952A81DC96B578ED3C6FA /* InvoicingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87433FB77F3B199854DF26B7 /* InvoicingView.swift */; };
+		47DA7F9348753338EF261AAC /* AutoScanManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCC78523594C2AD4EACC8C4 /* AutoScanManager.swift */; };
+		49CAA7430FAE15340A2B699F /* ScanResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BB286853EC7F5121A6B1333 /* ScanResultView.swift */; };
+		4B1C2C2EFDB81C86B98ECDBF /* CRMSheets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9541B295B649BA504CB924B8 /* CRMSheets.swift */; };
+		4CA4665F7729384CE8270CF5 /* SignatureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 130FE8447CB24AA6C35DDB74 /* SignatureView.swift */; };
+		4F5491A3AD4B8FA7876BC9B9 /* BidBuilderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E00F9DAA443294F4CA3047FD /* BidBuilderView.swift */; };
+		55A928663F4D7A4B941F4329 /* icon_1024.png in Resources */ = {isa = PBXBuildFile; fileRef = 30C0F118E97992E3755EB124 /* icon_1024.png */; };
+		6B75C0A3D7D003AA425BF570 /* AuthStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C158EDBBC2874D4C2A4A58B /* AuthStore.swift */; };
+		7715AD85A83404BA7CBA6D80 /* CRMView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D52AF7E5D88CCF9B1B4743D /* CRMView.swift */; };
+		796630140B8B887A62597C28 /* BidBuilderSteps3_4.swift in Sources */ = {isa = PBXBuildFile; fileRef = 645E9E8C6336D0B85C6FEF0F /* BidBuilderSteps3_4.swift */; };
+		7B23B316BBB016B4008DA889 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874A9E5B03019F77AE33896B /* OnboardingView.swift */; };
+		7C3EC1B9C13A20C2799096E6 /* RealityKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE437B9A1E98A461ABC4C7D1 /* RealityKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		7D3A8D874B3814A96293CEAA /* AnalyticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ECE42082A36D3C533118815 /* AnalyticsView.swift */; };
+		82104B8825057BB58DA87AB3 /* CRMAnalyticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00FDF29A3375830AB7B7304C /* CRMAnalyticsView.swift */; };
+		87D0943ED5641D8E67D1F962 /* RoomTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 351CA546258AF85D5B73131B /* RoomTest.swift */; };
+		8A571789DE9C78EC16B9F6D7 /* RoomPlan.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 479FE022B76DE03DF3D4B5A9 /* RoomPlan.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		8CF472BA84838CD35EA1FBA8 /* ScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3394DB4CD0C89D817B988644 /* ScanView.swift */; };
+		8E370C886DE4A60A5E26E0E2 /* PerimeterRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F7F1284168DFC3743EB8136 /* PerimeterRenderer.swift */; };
+		93FFB610C883D0E397E94ACB /* AppLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6F50F1FE1B81A3E902B4AE /* AppLanguage.swift */; };
+		A37BCE70E68210A58FBFBD9B /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6230CE7F787EF666C98046CE /* Localizable.strings */; };
+		A41B14821F84C3BF7C93EF5A /* AutoScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08FBA7AA38FE105B34FCB369 /* AutoScanView.swift */; };
+		A53F1D2287DE69334E9B6E69 /* BidCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95DE1879E8D073DB5CD621F1 /* BidCardView.swift */; };
+		A5F8AA3110723139AF867A49 /* BidBuilderSteps5_Pricing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BACFF7679D4B52E9AD9450E /* BidBuilderSteps5_Pricing.swift */; };
+		A69BB284B51C766104B48642 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAEE74BD9A7BA2A889405CAB /* MainTabView.swift */; };
+		AFD68F891FDB47AEBE5CB43C /* EBPComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73D1344769F0B1B8AE81E83B /* EBPComponents.swift */; };
+		B0E5FB3782D6EC60FDD16A46 /* MoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82ADBA811FCDBC164E47972E /* MoreView.swift */; };
+		B43421F8B043118A83015B62 /* BidBuilderSteps8_Review.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DC5885753ACBEB678C2AEAE /* BidBuilderSteps8_Review.swift */; };
+		B518756A0EFE7BB2A0B2C173 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C55ABAE68094FF52AE5DDF8 /* DashboardView.swift */; };
+		B5BEA33282ADCCE06109957E /* BidBuilderSteps6_7.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC48C0E511E9C75BA04A129 /* BidBuilderSteps6_7.swift */; };
+		B871DD2E63DAB8316ED865C7 /* SalesAnalyticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BAA4A770175AC871F67B6FA /* SalesAnalyticsView.swift */; };
+		B90EADD611305FA6C51A5741 /* ScanSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E7DBCF7A91F03E7E7195632 /* ScanSessionManager.swift */; };
+		BF017F8F460182D6624186CA /* JobProfitabilityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB92521F2EBB56AD448EAD23 /* JobProfitabilityView.swift */; };
+		C87BC7B6D3CA0925AB3D1BAD /* JobSheets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145239BB1FD776F3C8987232 /* JobSheets.swift */; };
+		CC1F190B15731FA8691E299C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D49401074204DDF4D794A59D /* Assets.xcassets */; };
+		D7C4459C3DAFCE782F54269F /* FloorMeshProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F14031A1293BC14E1765F5C8 /* FloorMeshProcessor.swift */; };
+		D8B9AF0B03BB479008A0B426 /* AnalyticsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC1B12D1F1A5250470D9B3F2 /* AnalyticsViewModel.swift */; };
+		DABD7264185CDC8F4C0ED549 /* ReachabilityMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0121FBCDE2DEF01F9FE46B28 /* ReachabilityMonitor.swift */; };
+		DB0F873535FFBDB75097F6B3 /* SyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D91E1AC3E1321DF1EC47473 /* SyncManager.swift */; };
+		DF32544426725C1871BEBFB1 /* RevenueChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1A16DA7EB4CA9763823E90E /* RevenueChartView.swift */; };
+		EBF1233476919DD81870CD43 /* AppIcon2x60.png in Resources */ = {isa = PBXBuildFile; fileRef = F36515FC408B7953FF4A499E /* AppIcon2x60.png */; };
+		F6F5B59DC999EE629F331EE5 /* InvoiceSheets.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6B7A9486587821C196F01F5 /* InvoiceSheets.swift */; };
+		F790DDE0C55860FB81BE4C81 /* ARViewContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8400C500F9EA7FBD15513C2E /* ARViewContainer.swift */; };
+		F8D920FFAE1ADB8A2CAFB6DE /* BidBuilderSteps1_2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 635B969438D5C5FB7CA91760 /* BidBuilderSteps1_2.swift */; };
+		F91CC52130FE2BD367EAA00E /* CoreModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC6A75058F51627B6E68898A /* CoreModels.swift */; };
+		FA70FE5FC00DBF5AB4941EEE /* BidDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35EDB633806E5EE604267FCB /* BidDetailView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		00FDF29A3375830AB7B7304C /* CRMAnalyticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CRMAnalyticsView.swift; sourceTree = "<group>"; };
+		0121FBCDE2DEF01F9FE46B28 /* ReachabilityMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReachabilityMonitor.swift; sourceTree = "<group>"; };
+		08FBA7AA38FE105B34FCB369 /* AutoScanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoScanView.swift; sourceTree = "<group>"; };
+		130FE8447CB24AA6C35DDB74 /* SignatureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignatureView.swift; sourceTree = "<group>"; };
+		145239BB1FD776F3C8987232 /* JobSheets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobSheets.swift; sourceTree = "<group>"; };
+		1BACFF7679D4B52E9AD9450E /* BidBuilderSteps5_Pricing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BidBuilderSteps5_Pricing.swift; sourceTree = "<group>"; };
+		1BB286853EC7F5121A6B1333 /* ScanResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanResultView.swift; sourceTree = "<group>"; };
+		1C55ABAE68094FF52AE5DDF8 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		1DC5885753ACBEB678C2AEAE /* BidBuilderSteps8_Review.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BidBuilderSteps8_Review.swift; sourceTree = "<group>"; };
+		2C158EDBBC2874D4C2A4A58B /* AuthStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthStore.swift; sourceTree = "<group>"; };
+		2CCC78523594C2AD4EACC8C4 /* AutoScanManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoScanManager.swift; sourceTree = "<group>"; };
+		2E7DBCF7A91F03E7E7195632 /* ScanSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanSessionManager.swift; sourceTree = "<group>"; };
+		2F7F1284168DFC3743EB8136 /* PerimeterRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerimeterRenderer.swift; sourceTree = "<group>"; };
+		30C0F118E97992E3755EB124 /* icon_1024.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_1024.png; sourceTree = "<group>"; };
+		3394DB4CD0C89D817B988644 /* ScanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanView.swift; sourceTree = "<group>"; };
+		351CA546258AF85D5B73131B /* RoomTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomTest.swift; sourceTree = "<group>"; };
+		35BD59888579575B36AC6805 /* EpoxyBidPro.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = EpoxyBidPro.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		35EDB633806E5EE604267FCB /* BidDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BidDetailView.swift; sourceTree = "<group>"; };
+		372E53CF92AC2515CF75C43C /* ARKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ARKit.framework; path = System/Library/Frameworks/ARKit.framework; sourceTree = SDKROOT; };
+		3B202AD97DD03408300C5DBC /* JobsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobsView.swift; sourceTree = "<group>"; };
+		3EDA5C9EF68A3D84A5762A8B /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
+		479FE022B76DE03DF3D4B5A9 /* RoomPlan.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RoomPlan.framework; path = System/Library/Frameworks/RoomPlan.framework; sourceTree = SDKROOT; };
+		49604944FA4F37FB7101AA90 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		4BAA4A770175AC871F67B6FA /* SalesAnalyticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalesAnalyticsView.swift; sourceTree = "<group>"; };
+		53B774C67D535CBA3D24825B /* AppIcon2x76.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AppIcon2x76.png; sourceTree = "<group>"; };
+		5D91E1AC3E1321DF1EC47473 /* SyncManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncManager.swift; sourceTree = "<group>"; };
+		623AFCAA35446E3E3160F98D /* DesignTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignTokens.swift; sourceTree = "<group>"; };
+		635B969438D5C5FB7CA91760 /* BidBuilderSteps1_2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BidBuilderSteps1_2.swift; sourceTree = "<group>"; };
+		645E9E8C6336D0B85C6FEF0F /* BidBuilderSteps3_4.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BidBuilderSteps3_4.swift; sourceTree = "<group>"; };
+		6A19EA74218731157A859D6D /* AdditionalModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdditionalModels.swift; sourceTree = "<group>"; };
+		6ECE42082A36D3C533118815 /* AnalyticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsView.swift; sourceTree = "<group>"; };
+		73D1344769F0B1B8AE81E83B /* EBPComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EBPComponents.swift; sourceTree = "<group>"; };
+		82ADBA811FCDBC164E47972E /* MoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreView.swift; sourceTree = "<group>"; };
+		8400C500F9EA7FBD15513C2E /* ARViewContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ARViewContainer.swift; sourceTree = "<group>"; };
+		87433FB77F3B199854DF26B7 /* InvoicingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoicingView.swift; sourceTree = "<group>"; };
+		874A9E5B03019F77AE33896B /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		8CF437396C48892A5B99B056 /* BidBuilderViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BidBuilderViewModel.swift; sourceTree = "<group>"; };
+		9541B295B649BA504CB924B8 /* CRMSheets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CRMSheets.swift; sourceTree = "<group>"; };
+		95DE1879E8D073DB5CD621F1 /* BidCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BidCardView.swift; sourceTree = "<group>"; };
+		98ABE198A1E6326AA174B667 /* BidViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BidViewModel.swift; sourceTree = "<group>"; };
+		9CB132FC600D27BC010A3034 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		9D52AF7E5D88CCF9B1B4743D /* CRMView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CRMView.swift; sourceTree = "<group>"; };
+		AB92521F2EBB56AD448EAD23 /* JobProfitabilityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobProfitabilityView.swift; sourceTree = "<group>"; };
+		BAEE74BD9A7BA2A889405CAB /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		BC1B12D1F1A5250470D9B3F2 /* AnalyticsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsViewModel.swift; sourceTree = "<group>"; };
+		BD13CF086B9262B3D85C6101 /* BusinessSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BusinessSetupView.swift; sourceTree = "<group>"; };
+		C02C25EE5927A8FCEDB383BB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		C6B7A9486587821C196F01F5 /* InvoiceSheets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceSheets.swift; sourceTree = "<group>"; };
+		CCC48C0E511E9C75BA04A129 /* BidBuilderSteps6_7.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BidBuilderSteps6_7.swift; sourceTree = "<group>"; };
+		D1A16DA7EB4CA9763823E90E /* RevenueChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RevenueChartView.swift; sourceTree = "<group>"; };
+		D49401074204DDF4D794A59D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		DBEC58CFEC337AFCE2F19476 /* BidsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BidsView.swift; sourceTree = "<group>"; };
+		E00F9DAA443294F4CA3047FD /* BidBuilderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BidBuilderView.swift; sourceTree = "<group>"; };
+		E3DCC4D5B8B5F365E2456B65 /* EpoxyBidProApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EpoxyBidProApp.swift; sourceTree = "<group>"; };
+		EF6F50F1FE1B81A3E902B4AE /* AppLanguage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLanguage.swift; sourceTree = "<group>"; };
+		F14031A1293BC14E1765F5C8 /* FloorMeshProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloorMeshProcessor.swift; sourceTree = "<group>"; };
+		F36515FC408B7953FF4A499E /* AppIcon2x60.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AppIcon2x60.png; sourceTree = "<group>"; };
+		FC6A75058F51627B6E68898A /* CoreModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreModels.swift; sourceTree = "<group>"; };
+		FE437B9A1E98A461ABC4C7D1 /* RealityKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RealityKit.framework; path = System/Library/Frameworks/RealityKit.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		736D19464DB289523BA62818 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0A4BA0CE4F3DEC7BEDB7B518 /* ARKit.framework in Frameworks */,
+				7C3EC1B9C13A20C2799096E6 /* RealityKit.framework in Frameworks */,
+				8A571789DE9C78EC16B9F6D7 /* RoomPlan.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0397BC70FC9282C92E719200 /* EpoxyBidPro */ = {
+			isa = PBXGroup;
+			children = (
+				A796D883FC39869D69FFBC94 /* App */,
+				31EA129E6FE2C223AC96B05E /* Core */,
+				9AAB91FDB2201D401814ED3B /* Features */,
+				4462F47592091C745CB5495A /* Resources */,
+				C02C25EE5927A8FCEDB383BB /* Info.plist */,
+			);
+			path = EpoxyBidPro;
+			sourceTree = "<group>";
+		};
+		06A96F2C4A55C2DE14D211FF /* Analytics */ = {
+			isa = PBXGroup;
+			children = (
+				6ECE42082A36D3C533118815 /* AnalyticsView.swift */,
+				BC1B12D1F1A5250470D9B3F2 /* AnalyticsViewModel.swift */,
+				00FDF29A3375830AB7B7304C /* CRMAnalyticsView.swift */,
+				AB92521F2EBB56AD448EAD23 /* JobProfitabilityView.swift */,
+				D1A16DA7EB4CA9763823E90E /* RevenueChartView.swift */,
+				4BAA4A770175AC871F67B6FA /* SalesAnalyticsView.swift */,
+			);
+			path = Analytics;
+			sourceTree = "<group>";
+		};
+		082429D0C79BAE3595445E73 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				372E53CF92AC2515CF75C43C /* ARKit.framework */,
+				FE437B9A1E98A461ABC4C7D1 /* RealityKit.framework */,
+				479FE022B76DE03DF3D4B5A9 /* RoomPlan.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		0BA9096E4E4BF774F61C44BA /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				2C158EDBBC2874D4C2A4A58B /* AuthStore.swift */,
+				BD13CF086B9262B3D85C6101 /* BusinessSetupView.swift */,
+				874A9E5B03019F77AE33896B /* OnboardingView.swift */,
+			);
+			path = Auth;
+			sourceTree = "<group>";
+		};
+		0CE3E0565C1803143E6890C9 /* Persistence */ = {
+			isa = PBXGroup;
+			children = (
+				6A19EA74218731157A859D6D /* AdditionalModels.swift */,
+				FC6A75058F51627B6E68898A /* CoreModels.swift */,
+			);
+			path = Persistence;
+			sourceTree = "<group>";
+		};
+		196EE05266C6188B0E11F63F /* Jobs */ = {
+			isa = PBXGroup;
+			children = (
+				145239BB1FD776F3C8987232 /* JobSheets.swift */,
+				3B202AD97DD03408300C5DBC /* JobsView.swift */,
+			);
+			path = Jobs;
+			sourceTree = "<group>";
+		};
+		2DE426243D27DAD887EBAE73 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				35BD59888579575B36AC6805 /* EpoxyBidPro.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		31EA129E6FE2C223AC96B05E /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				84E4AA21774F59DB7B53DF89 /* DesignSystem */,
+				48D20119895C84178023D2E6 /* Navigation */,
+				0CE3E0565C1803143E6890C9 /* Persistence */,
+				AC4BF552D0A2FD5CB127B87E /* Services */,
+				8E7E881F7C614250B0B96C03 /* Utilities */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		3BB7633AF9CA7E75F7E906FF /* Scan */ = {
+			isa = PBXGroup;
+			children = (
+				8400C500F9EA7FBD15513C2E /* ARViewContainer.swift */,
+				2CCC78523594C2AD4EACC8C4 /* AutoScanManager.swift */,
+				08FBA7AA38FE105B34FCB369 /* AutoScanView.swift */,
+				F14031A1293BC14E1765F5C8 /* FloorMeshProcessor.swift */,
+				2F7F1284168DFC3743EB8136 /* PerimeterRenderer.swift */,
+				351CA546258AF85D5B73131B /* RoomTest.swift */,
+				1BB286853EC7F5121A6B1333 /* ScanResultView.swift */,
+				2E7DBCF7A91F03E7E7195632 /* ScanSessionManager.swift */,
+				3394DB4CD0C89D817B988644 /* ScanView.swift */,
+			);
+			path = Scan;
+			sourceTree = "<group>";
+		};
+		4462F47592091C745CB5495A /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				F36515FC408B7953FF4A499E /* AppIcon2x60.png */,
+				53B774C67D535CBA3D24825B /* AppIcon2x76.png */,
+				D49401074204DDF4D794A59D /* Assets.xcassets */,
+				30C0F118E97992E3755EB124 /* icon_1024.png */,
+				6230CE7F787EF666C98046CE /* Localizable.strings */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		48D20119895C84178023D2E6 /* Navigation */ = {
+			isa = PBXGroup;
+			children = (
+				BAEE74BD9A7BA2A889405CAB /* MainTabView.swift */,
+			);
+			path = Navigation;
+			sourceTree = "<group>";
+		};
+		5B767FFBEEE5146E83DEBFF0 /* BidBuilder */ = {
+			isa = PBXGroup;
+			children = (
+				635B969438D5C5FB7CA91760 /* BidBuilderSteps1_2.swift */,
+				645E9E8C6336D0B85C6FEF0F /* BidBuilderSteps3_4.swift */,
+				1BACFF7679D4B52E9AD9450E /* BidBuilderSteps5_Pricing.swift */,
+				CCC48C0E511E9C75BA04A129 /* BidBuilderSteps6_7.swift */,
+				1DC5885753ACBEB678C2AEAE /* BidBuilderSteps8_Review.swift */,
+				E00F9DAA443294F4CA3047FD /* BidBuilderView.swift */,
+				8CF437396C48892A5B99B056 /* BidBuilderViewModel.swift */,
+			);
+			path = BidBuilder;
+			sourceTree = "<group>";
+		};
+		84E4AA21774F59DB7B53DF89 /* DesignSystem */ = {
+			isa = PBXGroup;
+			children = (
+				623AFCAA35446E3E3160F98D /* DesignTokens.swift */,
+				73D1344769F0B1B8AE81E83B /* EBPComponents.swift */,
+			);
+			path = DesignSystem;
+			sourceTree = "<group>";
+		};
+		8E7E881F7C614250B0B96C03 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				EF6F50F1FE1B81A3E902B4AE /* AppLanguage.swift */,
+				0121FBCDE2DEF01F9FE46B28 /* ReachabilityMonitor.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		9AAB91FDB2201D401814ED3B /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				06A96F2C4A55C2DE14D211FF /* Analytics */,
+				0BA9096E4E4BF774F61C44BA /* Auth */,
+				F583EBC65CEEACDB2B8C56AE /* Bids */,
+				D062527DE4FF0BD67162F34B /* CRM */,
+				DFA2609D23CBB7A9B5BB155C /* Dashboard */,
+				E4AF2080E5BFE8340E2AC503 /* Invoicing */,
+				196EE05266C6188B0E11F63F /* Jobs */,
+				D7702EB3310784F3A1532830 /* More */,
+				3BB7633AF9CA7E75F7E906FF /* Scan */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		A796D883FC39869D69FFBC94 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				E3DCC4D5B8B5F365E2456B65 /* EpoxyBidProApp.swift */,
+				9CB132FC600D27BC010A3034 /* RootView.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		AC4BF552D0A2FD5CB127B87E /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				5D91E1AC3E1321DF1EC47473 /* SyncManager.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		D062527DE4FF0BD67162F34B /* CRM */ = {
+			isa = PBXGroup;
+			children = (
+				9541B295B649BA504CB924B8 /* CRMSheets.swift */,
+				9D52AF7E5D88CCF9B1B4743D /* CRMView.swift */,
+			);
+			path = CRM;
+			sourceTree = "<group>";
+		};
+		D5CD3ECB1CCEA5CEBB6FE84A = {
+			isa = PBXGroup;
+			children = (
+				FBA8F3A721E83B92C2BCD8D3 /* iOS */,
+				082429D0C79BAE3595445E73 /* Frameworks */,
+				2DE426243D27DAD887EBAE73 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		D7702EB3310784F3A1532830 /* More */ = {
+			isa = PBXGroup;
+			children = (
+				82ADBA811FCDBC164E47972E /* MoreView.swift */,
+			);
+			path = More;
+			sourceTree = "<group>";
+		};
+		DFA2609D23CBB7A9B5BB155C /* Dashboard */ = {
+			isa = PBXGroup;
+			children = (
+				1C55ABAE68094FF52AE5DDF8 /* DashboardView.swift */,
+			);
+			path = Dashboard;
+			sourceTree = "<group>";
+		};
+		E4AF2080E5BFE8340E2AC503 /* Invoicing */ = {
+			isa = PBXGroup;
+			children = (
+				C6B7A9486587821C196F01F5 /* InvoiceSheets.swift */,
+				87433FB77F3B199854DF26B7 /* InvoicingView.swift */,
+			);
+			path = Invoicing;
+			sourceTree = "<group>";
+		};
+		F583EBC65CEEACDB2B8C56AE /* Bids */ = {
+			isa = PBXGroup;
+			children = (
+				5B767FFBEEE5146E83DEBFF0 /* BidBuilder */,
+				95DE1879E8D073DB5CD621F1 /* BidCardView.swift */,
+				35EDB633806E5EE604267FCB /* BidDetailView.swift */,
+				DBEC58CFEC337AFCE2F19476 /* BidsView.swift */,
+				98ABE198A1E6326AA174B667 /* BidViewModel.swift */,
+				130FE8447CB24AA6C35DDB74 /* SignatureView.swift */,
+			);
+			path = Bids;
+			sourceTree = "<group>";
+		};
+		FBA8F3A721E83B92C2BCD8D3 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				0397BC70FC9282C92E719200 /* EpoxyBidPro */,
+			);
+			path = iOS;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		8874907E5B259CAD4D3C1B47 /* EpoxyBidPro */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 19AB573DEE81ADCFE4913B2C /* Build configuration list for PBXNativeTarget "EpoxyBidPro" */;
+			buildPhases = (
+				7F53258C19BD2D26B19EB4DA /* Sources */,
+				24CDD9FABFD5FC2B1E969E64 /* Resources */,
+				736D19464DB289523BA62818 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = EpoxyBidPro;
+			packageProductDependencies = (
+			);
+			productName = EpoxyBidPro;
+			productReference = 35BD59888579575B36AC6805 /* EpoxyBidPro.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		244B89BC4E0F9CE12CA5046E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					8874907E5B259CAD4D3C1B47 = {
+						DevelopmentTeam = HR82BNYZHV;
+					};
+				};
+			};
+			buildConfigurationList = DE8BDC32B8B32024DC86BFA9 /* Build configuration list for PBXProject "EpoxyBidPro" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+				es,
+			);
+			mainGroup = D5CD3ECB1CCEA5CEBB6FE84A;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				8874907E5B259CAD4D3C1B47 /* EpoxyBidPro */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		24CDD9FABFD5FC2B1E969E64 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EBF1233476919DD81870CD43 /* AppIcon2x60.png in Resources */,
+				09F5F1AAF0D757EBA235980E /* AppIcon2x76.png in Resources */,
+				CC1F190B15731FA8691E299C /* Assets.xcassets in Resources */,
+				A37BCE70E68210A58FBFBD9B /* Localizable.strings in Resources */,
+				55A928663F4D7A4B941F4329 /* icon_1024.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		7F53258C19BD2D26B19EB4DA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F790DDE0C55860FB81BE4C81 /* ARViewContainer.swift in Sources */,
+				244879217CFEBD85ADE7E2DD /* AdditionalModels.swift in Sources */,
+				7D3A8D874B3814A96293CEAA /* AnalyticsView.swift in Sources */,
+				D8B9AF0B03BB479008A0B426 /* AnalyticsViewModel.swift in Sources */,
+				93FFB610C883D0E397E94ACB /* AppLanguage.swift in Sources */,
+				6B75C0A3D7D003AA425BF570 /* AuthStore.swift in Sources */,
+				47DA7F9348753338EF261AAC /* AutoScanManager.swift in Sources */,
+				A41B14821F84C3BF7C93EF5A /* AutoScanView.swift in Sources */,
+				F8D920FFAE1ADB8A2CAFB6DE /* BidBuilderSteps1_2.swift in Sources */,
+				796630140B8B887A62597C28 /* BidBuilderSteps3_4.swift in Sources */,
+				A5F8AA3110723139AF867A49 /* BidBuilderSteps5_Pricing.swift in Sources */,
+				B5BEA33282ADCCE06109957E /* BidBuilderSteps6_7.swift in Sources */,
+				B43421F8B043118A83015B62 /* BidBuilderSteps8_Review.swift in Sources */,
+				4F5491A3AD4B8FA7876BC9B9 /* BidBuilderView.swift in Sources */,
+				40D2F7320E0BEC5E59C2516C /* BidBuilderViewModel.swift in Sources */,
+				A53F1D2287DE69334E9B6E69 /* BidCardView.swift in Sources */,
+				FA70FE5FC00DBF5AB4941EEE /* BidDetailView.swift in Sources */,
+				2019890D2E84D239D0A267B1 /* BidViewModel.swift in Sources */,
+				3D62B100ECEC363EEBD5D234 /* BidsView.swift in Sources */,
+				420A0EF88B3507A8B6E3387F /* BusinessSetupView.swift in Sources */,
+				82104B8825057BB58DA87AB3 /* CRMAnalyticsView.swift in Sources */,
+				4B1C2C2EFDB81C86B98ECDBF /* CRMSheets.swift in Sources */,
+				7715AD85A83404BA7CBA6D80 /* CRMView.swift in Sources */,
+				F91CC52130FE2BD367EAA00E /* CoreModels.swift in Sources */,
+				B518756A0EFE7BB2A0B2C173 /* DashboardView.swift in Sources */,
+				41C2CF6A2423672D1F606728 /* DesignTokens.swift in Sources */,
+				AFD68F891FDB47AEBE5CB43C /* EBPComponents.swift in Sources */,
+				2D87A1C8484093A6B4975843 /* EpoxyBidProApp.swift in Sources */,
+				D7C4459C3DAFCE782F54269F /* FloorMeshProcessor.swift in Sources */,
+				F6F5B59DC999EE629F331EE5 /* InvoiceSheets.swift in Sources */,
+				45F952A81DC96B578ED3C6FA /* InvoicingView.swift in Sources */,
+				BF017F8F460182D6624186CA /* JobProfitabilityView.swift in Sources */,
+				C87BC7B6D3CA0925AB3D1BAD /* JobSheets.swift in Sources */,
+				223B8C6FD69401E0511D5B4D /* JobsView.swift in Sources */,
+				A69BB284B51C766104B48642 /* MainTabView.swift in Sources */,
+				B0E5FB3782D6EC60FDD16A46 /* MoreView.swift in Sources */,
+				7B23B316BBB016B4008DA889 /* OnboardingView.swift in Sources */,
+				8E370C886DE4A60A5E26E0E2 /* PerimeterRenderer.swift in Sources */,
+				DABD7264185CDC8F4C0ED549 /* ReachabilityMonitor.swift in Sources */,
+				DF32544426725C1871BEBFB1 /* RevenueChartView.swift in Sources */,
+				87D0943ED5641D8E67D1F962 /* RoomTest.swift in Sources */,
+				06769687E85B91A28B1E214B /* RootView.swift in Sources */,
+				B871DD2E63DAB8316ED865C7 /* SalesAnalyticsView.swift in Sources */,
+				49CAA7430FAE15340A2B699F /* ScanResultView.swift in Sources */,
+				B90EADD611305FA6C51A5741 /* ScanSessionManager.swift in Sources */,
+				8CF472BA84838CD35EA1FBA8 /* ScanView.swift in Sources */,
+				4CA4665F7729384CE8270CF5 /* SignatureView.swift in Sources */,
+				DB0F873535FFBDB75097F6B3 /* SyncManager.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		6230CE7F787EF666C98046CE /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				49604944FA4F37FB7101AA90 /* en */,
+				3EDA5C9EF68A3D84A5762A8B /* es */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		149A125E1755DA2D083248F9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CFBundleIconName = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = HR82BNYZHV;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = iOS/EpoxyBidPro/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "EpoxyBidPro needs camera access to measure floor areas using AR technology.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "EpoxyBidPro uses your location to pre-fill job site addresses.";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.epoxyBidPro.app;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		3D783BD64831D88622D77574 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CFBundleIconName = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = HR82BNYZHV;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = iOS/EpoxyBidPro/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "EpoxyBidPro needs camera access to measure floor areas using AR technology.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "EpoxyBidPro uses your location to pre-fill job site addresses.";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.epoxyBidPro.app;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		85EC8FCEC1A41E371D92C8D1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		AF4177EE21BACD0068598340 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		19AB573DEE81ADCFE4913B2C /* Build configuration list for PBXNativeTarget "EpoxyBidPro" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3D783BD64831D88622D77574 /* Debug */,
+				149A125E1755DA2D083248F9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		DE8BDC32B8B32024DC86BFA9 /* Build configuration list for PBXProject "EpoxyBidPro" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AF4177EE21BACD0068598340 /* Debug */,
+				85EC8FCEC1A41E371D92C8D1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 244B89BC4E0F9CE12CA5046E /* Project object */;
+}

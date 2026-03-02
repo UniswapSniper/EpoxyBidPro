@@ -1,5 +1,6 @@
 "language.english" = "English";
 "language.spanish" = "Spanish";
+"language.system" = "Follow System Settings";
 "setting.appLanguage" = "App Language";
 "setting.languageDescription" = "Choose how text appears throughout the app.";
 "section.language" = "Language";
@@ -42,3 +43,312 @@
 "Save Measurement" = "Save Measurement";
 "Back" = "Back";
 "Measurement Saved!" = "Measurement Saved!";
+
+"save.analysis" = "SAVE ANALYSIS";
+"create.client.bid" = "CREATE CLIENT BID";
+"garage.analysis" = "Garage Analysis";
+"analyzing.garage" = "ANALYZING GARAGE";
+"lidar.perimeter.tracking" = "LiDAR PERIMETER TRACKING";
+"surface.mapping.active" = "SURFACE MAPPING ACTIVE";
+"precise.perimeter" = "PRECISE PERIMETER";
+"surface.mapping" = "SURFACE MAPPING";
+"sq.ft" = "SQ FT";
+"measurements.caps" = "MEASUREMENTS";
+"total.sq.ft.caps" = "TOTAL: %.0f SQ FT";
+"ft2" = "FT²";
+"zone" = "ZONE";
+"finish.mapping" = "FINISH MAPPING";
+"garage.floor" = "Garage Floor";
+"starting.garage.analysis" = "Starting garage floor analysis...";
+"walk.perimeter.slowly" = "Walk the floor perimeter slowly to map the garage";
+"walk.perimeter" = "Walk along the garage perimeter";
+"keep.walking.perimeter" = "Keep walking to expand perimeter detection";
+"scanning.floor.perimeter" = "Scanning floor... walk the entire perimeter";
+"perimeter.detected" = "Perimeter detected — mapping looks solid!";
+"perimeter.mapped" = "Garage perimeter mapped — tap Finish Scan";
+"sq.ft.detected.follow" = "%.0f sq ft detected — follow the perimeter";
+"no.floor.detected" = "No floor detected yet — keep scanning";
+"captured.msg" = "Captured: %@ — %.0f sq ft";
+"analyzing.lidar" = "ANALYZING LiDAR";
+"analyzing.surface" = "ANALYZING SURFACE";
+"initializing.sensors" = "INITIALIZING SENSORS";
+"sensor.ready" = "Sensors ready";
+"SAVE ANALYSIS" = "SAVE ANALYSIS";
+"CREATE CLIENT BID" = "CREATE CLIENT BID";
+"FINISH MAPPING" = "FINISH MAPPING";
+"ZONE" = "ZONE";
+
+"system.performance" = "System Performance";
+"active.jobs" = "Active Jobs";
+"open.bids" = "Open Bids";
+"overdue.invoices" = "Overdue Invoices";
+"analytics" = "Analytics";
+"digital.log" = "Digital Log";
+"monthly.revenue" = "MONTHLY REVENUE";
+"bids.pipeline" = "%d Bids in Pipeline";
+"pro.dashboard" = "PRO DASHBOARD";
+"command.center" = "Command Center";
+"new.scan" = "New Scan";
+"new.bid" = "New Bid";
+"add.client" = "Add Client";
+"invoicing" = "Invoicing";
+"good.morning" = "Good morning";
+"good.afternoon" = "Good afternoon";
+"good.evening" = "Good evening";
+
+"select.client" = "Select a Client";
+"select.client.subtitle" = "Choose an existing client or skip to create a bid without one.";
+"search.clients" = "Search clients…";
+"no.clients.found" = "No clients found";
+"create.new.client" = "Create New Client";
+"skip.client.hint" = "You can skip this step and add a client later.";
+"contact.info" = "Contact Info";
+"first.name" = "First Name";
+"last.name" = "Last Name";
+"email" = "Email";
+"phone" = "Phone";
+"company" = "Company";
+"company.name.optional" = "Company Name (optional)";
+"create.client" = "Create Client";
+"new.client" = "New Client";
+"cancel" = "Cancel";
+"floor.measurement" = "Floor Measurement";
+"measurement.subtitle" = "Attach a LiDAR scan or enter dimensions manually.";
+"lidar.scans" = "LiDAR Scans";
+"manual.entry" = "Manual Entry";
+"no.scans.yet" = "No scans yet";
+"no.scans.hint" = "Use the LiDAR scanner to capture floor measurements first, then attach them here.";
+"untitled.scan" = "Untitled Scan";
+"format.sq.ft" = "%d sq ft";
+"format.areas" = "• %d area%@";
+"area.name.input" = "Area name";
+"add.area" = "Add Area";
+"total.floor.area" = "Total Floor Area";
+"close" = "Close";
+"new.invoice" = "New Invoice";
+"create.invoice" = "Create Invoice";
+"coming.soon" = "Coming Soon";
+"Area" = "Area";
+
+"pipeline" = "Pipeline";
+"crm.clients" = "Clients";
+"insights" = "Insights";
+"search.crm" = "Search leads or clients…";
+"new.lead" = "New Lead";
+"total.leads" = "Total Leads";
+"won" = "Won";
+"move.to" = "Move to %@";
+"convert.client" = "Convert to Client";
+"delete" = "Delete";
+"no.leads" = "No leads";
+"no.clients.yet" = "No Clients Yet";
+"no.clients.hint" = "Add your first client or convert a lead.";
+"count.bids" = "%d bid%@";
+"win.rate" = "Win Rate";
+"avg.close" = "Avg Close";
+"lead.sources" = "Lead Sources";
+"win.more.bids" = "Win More Bids";
+"overdue.followups" = "Overdue Follow-Ups";
+"reward.top.clients" = "Reward Top Clients";
+"contact.information" = "Contact Information";
+"additional.details" = "Additional Details";
+"address" = "Address";
+"lead.source" = "Lead Source";
+"estimated.value" = "Estimated Value";
+"notes" = "Notes";
+"city" = "City";
+"state" = "State";
+"zip" = "ZIP";
+"client.type" = "Client Type";
+"residential" = "Residential";
+"commercial" = "Commercial";
+"save" = "Save";
+
+"CRM" = "CRM";
+"site.visit" = "Site Visit";
+"bid.sent" = "Bid Sent";
+"contacted" = "Contacted";
+"lost" = "Lost";
+"street.address" = "Street Address";
+"lead.details" = "Lead Details";
+"client.details" = "Client Details";
+"done" = "Done";
+"delete.lead.q" = "Delete Lead?";
+"delete.client.q" = "Delete Client?";
+"delete.lead" = "Delete Lead";
+"delete.client" = "Delete Client";
+
+"coating.system" = "Coating System";
+"coating.subtitle" = "Choose the epoxy system for this job.";
+"price.range" = "Price Range";
+"prep.details" = "Surface & Prep Details";
+"prep.subtitle" = "These factors affect labor time and overall bid pricing.";
+"surface.condition" = "Surface Condition";
+"prep.complexity" = "Prep Complexity";
+"access.difficulty" = "Access Difficulty";
+"complex.layout" = "Complex Layout";
+"complex.layout.hint" = "L-shapes, cutouts, pillars — increases waste factor to 15%";
+"crew.hours" = "Crew & Estimated Hours";
+"crew.size" = "Crew Size";
+"est.hours" = "Est. Hours";
+"hrs" = "hrs";
+"auto.estimate" = "Auto-estimate from sq ft";
+"prep.light.desc" = "Light cleaning and minor patching only.";
+"prep.standard.desc" = "Diamond grinding and crack repair.";
+"prep.heavy.desc" = "Shot blasting, moisture mitigation, extensive repairs.";
+
+"coating.single.clear" = "Single Coat Clear";
+"coating.two.flake" = "2-Coat Flake System";
+"coating.metallic" = "Full Metallic";
+"coating.quartz" = "Quartz Broadcast";
+"coating.polyaspartic" = "Polyaspartic";
+"coating.commercial" = "Commercial Grade";
+"coating.custom" = "Custom";
+
+"desc.single.clear" = "Basic clear epoxy. 1 coat over prepped concrete.";
+"desc.two.flake" = "Most popular. Base coat + decorative flake + clear topcoat.";
+"desc.metallic" = "Premium metallic swirl finish. Showroom quality.";
+"desc.quartz" = "Broadcast quartz for commercial/industrial durability.";
+"desc.polyaspartic" = "Fast-cure polyaspartic. Same-day return to service.";
+"desc.commercial" = "Heavy-duty system for warehouses and high traffic.";
+"desc.custom" = "Custom coating system with manual configuration.";
+
+"excellent" = "Excellent";
+"good" = "Good";
+"fair" = "Fair";
+"poor" = "Poor";
+
+"desc.excellent" = "Clean, smooth, no repairs needed";
+"desc.good" = "Minor blemishes, light cleaning";
+"desc.fair" = "Cracks, some patching required";
+"desc.poor" = "Heavy damage, extensive prep";
+
+"light" = "Light";
+"standard" = "Standard";
+"heavy" = "Heavy";
+
+"easy" = "Easy";
+"normal" = "Normal";
+"difficult" = "Difficult";
+
+"pricing.preview" = "Pricing Preview";
+"pricing.subtitle" = "Choose a tier. All prices update in real-time.";
+"calculating" = "Calculating pricing…";
+"cost.breakdown" = "Cost Breakdown";
+"materials" = "Materials";
+"labor" = "Labor";
+"overhead" = "Overhead";
+"markup" = "Markup";
+"tax" = "Tax";
+"total" = "Total";
+"profit.margin" = "Profit Margin";
+"low" = "Low";
+"healthy" = "Healthy";
+"premium" = "Premium";
+"shopping.list" = "Shopping List";
+"auto.generated" = "Auto-generated";
+"margin.label" = "%d%% margin";
+"per.sqft" = "$%.2f / sq ft";
+
+"ai.insights" = "AI Insights";
+"ai.insights.subtitle" = "Review AI-generated suggestions for this bid.";
+"ai.analysis" = "AI Analysis";
+"risk.flags" = "Risk Flags";
+"upsell.opps" = "Upsell Opportunities";
+"no.ai.insights" = "No AI insights available";
+"ai.not.connected" = "AI insights will be generated when connected to the backend.";
+"ai.disclaimer" = "AI suggestions are advisory only. Review all pricing and scope details before sending the bid.";
+"line.items" = "Line Items";
+"line.items.subtitle" = "Review and edit individual line items.";
+"add.line.item" = "Add Line Item";
+"line.items.total" = "Line Items Total";
+"description" = "Description";
+"qty" = "Qty";
+"unit.price" = "Unit Price";
+"unit" = "Unit";
+"amount" = "Amount";
+
+"ai.summary.fmt" = "Based on %d sq ft of %@ flooring with %@ surface condition, this bid is competitively priced for your market.";
+"ai.risk.poor" = "Surface condition is poor — additional grinding time may be needed. Consider adding 20% labor buffer.";
+"ai.risk.large" = "Large area job — ensure adequate material staging and crew capacity.";
+"ai.risk.complex" = "Complex layout detected — waste factor increased to 15%. Verify material quantities.";
+"ai.upsell.metallic" = "Upgrade to metallic finish for %d–%d additional revenue.";
+"ai.upsell.cove" = "Add cove base installation for $%d–$%d additional revenue.";
+"ai.upsell.maint" = "Offer a maintenance plan: $%.2f/year for annual recoating inspection.";
+
+"review.title" = "Review Your Bid";
+"review.subtitle" = "Everything looks good? Save as a draft.";
+"bid.title" = "Bid Title";
+"epoxy.floor" = "Epoxy Floor";
+"no.client.selected" = "No client selected";
+"measurement" = "Measurement";
+"total.sqft.fmt" = "%d sq ft total";
+"coating.prep" = "Coating & Prep";
+"yes.waste" = "Yes (15% waste factor)";
+"pricing.tier.fmt" = "Pricing — %@";
+"items.fmt" = "%d items";
+"risk.flags.fmt" = "%d risk flag(s)";
+"upsell.opps.fmt" = "%d upsell opportunit%@";
+"scope.notes" = "Scope Notes";
+"edit" = "Edit";
+"no.scope.notes" = "No scope notes added.";
+"valid.for" = "Valid For";
+"days.fmt" = "%d days";
+"done" = "Done";
+"client" = "Client";
+
+"revenue" = "Revenue";
+"sales" = "Sales";
+"jobs" = "Jobs";
+"crm" = "CRM";
+"loading.analytics" = "Loading analytics…";
+"analytics.title" = "Analytics";
+"weekly.pdf" = "Weekly PDF Report";
+"revenue.csv" = "Revenue CSV";
+"job.profit.csv" = "Job Profitability CSV";
+"error" = "Error";
+"unknown.error" = "Unknown error";
+"ok" = "OK";
+"activity" = "Activity";
+"report" = "Report";
+
+"more.title" = "More";
+"more.user" = "User";
+"more.pro" = "EpoxyBidPro Pro";
+"more.language" = "Language";
+"more.appLanguage" = "App Language";
+"more.langDesc" = "Choose how text appears throughout the app.";
+"more.business" = "Business";
+"more.companyProfile" = "Company Profile";
+"more.crew" = "Crew Members";
+"more.materials" = "Material Catalogue";
+"more.templates" = "Proposal Templates";
+"more.operations" = "Operations";
+"more.invoicing" = "Invoicing & Payments";
+"more.reports" = "Reports";
+"more.sync" = "Sync Status";
+"more.notifications" = "Notifications";
+"more.support" = "Support";
+"more.faq" = "Help & FAQ";
+"more.contact" = "Contact Support";
+"more.privacy" = "Privacy Policy";
+"more.about" = "About";
+"more.version" = "Version";
+"more.builtFor" = "Built for";
+"more.signOut" = "Sign Out";
+"more.noInvoices" = "No Invoices";
+"more.invoicingComing" = "Invoicing features coming soon";
+"more.ios17" = "iOS 17+";
+
+
+
+
+
+
+
+
+
+
+
+
+

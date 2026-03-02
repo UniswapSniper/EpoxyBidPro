@@ -1,102 +1,219 @@
+// ═══════════════════════════════════════════════════════════════════════════════
+// ScanSessionManager.swift
+// Perimeter-walk scan engine: tracks corners placed by the user as they walk
+// the room boundary, computes area via the Shoelace formula.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+import Foundation
 import ARKit
 import RealityKit
 import Combine
+import UIKit
 
-// ─── Transient captured-area model (in-memory only, not SwiftData) ───────────
+// MARK: - Scan Phase
 
-struct CapturedArea: Identifiable {
-    let id = UUID()
-    var name: String
-    var squareFeet: Double
-    var polygonVerticesJson: String   // [[x,z]] in meters
-    let capturedAt: Date = Date()
+enum ScanPhase: Equatable {
+    case detectingFloor      // Waiting for ARKit to find a horizontal plane
+    case placingStart        // Floor found — user should place the start marker
+    case walking             // Actively tracing the perimeter
+    case complete            // Loop closed — results ready
 }
 
-// ─── ScanSessionManager ───────────────────────────────────────────────────────
-// ARSessionDelegate that processes LiDAR mesh anchors in real time.
-// Works alongside ARViewContainer which owns the ARView + its ARSession.
+// MARK: - Perimeter Point
 
-@MainActor
+struct PerimeterPoint: Identifiable, Equatable {
+    let id = UUID()
+    let worldPosition: SIMD3<Float>            // 3-D world position on the floor
+    var floorXZ: SIMD2<Float> {                // 2-D projection for math
+        SIMD2(worldPosition.x, worldPosition.z)
+    }
+}
+
+// MARK: - ScanSessionManager
+
 final class ScanSessionManager: NSObject, ObservableObject {
 
-    // MARK: - Published state
+    // ── Published state ─────────────────────────────────────────────────────
 
-    @Published var isLiDARAvailable: Bool = false
-    @Published var sessionMessage: String = "Point at the floor and move slowly"
-    @Published var detectedFloorSqFt: Double = 0
-    @Published var capturedAreas: [CapturedArea] = []
-    @Published var sessionError: String? = nil
+    @Published var phase: ScanPhase             = .detectingFloor
+    @Published var perimeterPoints: [PerimeterPoint] = []
+    @Published var totalAreaSqFt: Double        = 0
+    @Published var totalPerimeterFt: Double     = 0
+    @Published var wallLengthsFt: [Double]      = []
+    @Published var currentWallLengthFt: Double  = 0     // live wall being walked
+    @Published var isNearStartPoint: Bool       = false
+    @Published var isLiDARAvailable: Bool       = false
+    @Published var guidanceMessage: String      = "Point your device at the floor"
+    @Published var isSessionReady: Bool         = false
+    @Published var cornerCount: Int             = 0
 
-    // MARK: - Internal state
+    // ── AR references ───────────────────────────────────────────────────────
 
-    private var meshAnchors: [UUID: ARMeshAnchor] = [:]
-    private var updateCallCount: Int = 0
+    weak var arView: ARView?
+    var renderer: PerimeterRenderer?
 
-    // MARK: - Computed
+    // ── Internal state ──────────────────────────────────────────────────────
 
-    var totalCapturedSqFt: Double {
-        capturedAreas.reduce(0) { $0 + $1.squareFeet }
-    }
+    private var floorPlaneAnchor: ARPlaneAnchor?
+    private var floorY: Float                   = 0
+    private var currentFloorPosition: SIMD3<Float>?
+    private var currentDeviceXZ: SIMD2<Float>?
 
-    var hasCaptures: Bool { !capturedAreas.isEmpty }
+    // ── Tuning ──────────────────────────────────────────────────────────────
 
-    // MARK: - Init
+    /// How close (meters) to the start marker to trigger the "snap" indicator.
+    private let snapRadius: Float = 0.50
+    /// Minimum polygon sides for a valid area.
+    private let minSides: Int = 3
 
-    override init() {
-        super.init()
-        isLiDARAvailable = ARWorldTrackingConfiguration.supportsSceneReconstruction(.meshWithClassification)
-    }
+    // MARK: - Session Configuration
 
-    // MARK: - Session configuration
+    func configureSession(for arView: ARView) {
+        self.arView = arView
 
-    /// Returns the ARWorldTrackingConfiguration that ARViewContainer should run.
-    func makeConfiguration() -> ARWorldTrackingConfiguration {
         let config = ARWorldTrackingConfiguration()
-        if isLiDARAvailable {
-            config.sceneReconstruction = .meshWithClassification
-        }
         config.planeDetection = [.horizontal]
-        config.environmentTexturing = .none
-        return config
+        config.environmentTexturing = .automatic
+
+        if ARWorldTrackingConfiguration.supportsSceneReconstruction(.mesh) {
+            config.sceneReconstruction = .mesh
+            isLiDARAvailable = true
+        }
+        if ARWorldTrackingConfiguration.supportsFrameSemantics(.sceneDepth) {
+            config.frameSemantics.insert(.sceneDepth)
+        }
+
+        arView.session.delegate = self
+        arView.session.run(config, options: [.resetTracking, .removeExistingAnchors])
+
+        renderer = PerimeterRenderer(arView: arView)
     }
 
-    // MARK: - Area capture
+    // MARK: - User Actions
 
-    func captureArea(name: String) {
-        guard detectedFloorSqFt > 1 else {
-            sessionMessage = "No floor detected yet — keep scanning"
+    /// Place the first perimeter point at the current device position.
+    func placeStartPoint() {
+        guard phase == .placingStart,
+              let pos = currentFloorPosition else { return }
+
+        let point = PerimeterPoint(worldPosition: pos)
+        perimeterPoints = [point]
+        cornerCount = 1
+        phase = .walking
+        guidanceMessage = "Aim at the next corner and tap ●"
+
+        renderer?.addCornerMarker(at: pos, isStart: true)
+        AppHaptics.trigger(.heavy)
+    }
+
+    /// Mark a new corner at the current position (or close the loop if near start).
+    func markCorner() {
+        guard phase == .walking,
+              let pos = currentFloorPosition else { return }
+
+        // Close loop if user is near start and has enough points
+        if perimeterPoints.count >= minSides, isNearStartPoint {
+            closeLoop()
             return
         }
-        let polygon = FloorMeshProcessor.buildPolygonJson(from: Array(meshAnchors.values))
-        let area = CapturedArea(
-            name: name.isEmpty ? "Area \(capturedAreas.count + 1)" : name,
-            squareFeet: detectedFloorSqFt,
-            polygonVerticesJson: polygon
-        )
-        capturedAreas.append(area)
-        sessionMessage = "Captured: \(area.name) — \(String(format: "%.0f", area.squareFeet)) sq ft"
-    }
 
-    func removeArea(_ area: CapturedArea) {
-        capturedAreas.removeAll { $0.id == area.id }
-    }
+        let point = PerimeterPoint(worldPosition: pos)
+        perimeterPoints.append(point)
+        cornerCount = perimeterPoints.count
 
-    func removeAreas(at offsets: IndexSet) {
-        capturedAreas.remove(atOffsets: offsets)
-    }
-
-    func renameArea(_ area: CapturedArea, to newName: String) {
-        guard let idx = capturedAreas.firstIndex(where: { $0.id == area.id }) else { return }
-        capturedAreas[idx].name = newName
-    }
-
-    // MARK: - Private
-
-    private func recomputeFloorArea() {
-        detectedFloorSqFt = FloorMeshProcessor.computeTotalFloorArea(from: Array(meshAnchors.values))
-        if detectedFloorSqFt > 1 {
-            sessionMessage = String(format: "%.0f sq ft detected — tap Capture to save an area", detectedFloorSqFt)
+        // Wall line from previous corner → this corner
+        if perimeterPoints.count >= 2 {
+            let prev = perimeterPoints[perimeterPoints.count - 2]
+            renderer?.addWallLine(from: prev.worldPosition, to: pos)
         }
+
+        renderer?.addCornerMarker(at: pos, isStart: false)
+        recalculate()
+
+        AppHaptics.trigger(.medium)
+    }
+
+    /// Remove the last corner (undo).
+    func undoLastCorner() {
+        guard phase == .walking, perimeterPoints.count > 1 else { return }
+        perimeterPoints.removeLast()
+        cornerCount = perimeterPoints.count
+        recalculate()
+
+        let positions = perimeterPoints.map(\.worldPosition)
+        renderer?.rebuildVisualization(points: positions, isClosed: false)
+
+        AppHaptics.trigger(.light)
+    }
+
+    /// Manually close the perimeter loop (final wall: last → first).
+    func closeLoop() {
+        guard perimeterPoints.count >= minSides else { return }
+
+        phase = .complete
+        guidanceMessage = "Scan complete!"
+        recalculate()
+
+        let positions = perimeterPoints.map(\.worldPosition)
+        renderer?.rebuildVisualization(points: positions, isClosed: true)
+
+        AppHaptics.trigger(.success)
+    }
+
+    /// Restart the scan from scratch.
+    func resetScan() {
+        perimeterPoints.removeAll()
+        wallLengthsFt.removeAll()
+        cornerCount = 0
+        totalAreaSqFt = 0
+        totalPerimeterFt = 0
+        currentWallLengthFt = 0
+        isNearStartPoint = false
+
+        renderer?.clearAll()
+
+        if floorPlaneAnchor != nil {
+            phase = .placingStart
+            guidanceMessage = "Tap to place your start point"
+        } else {
+            phase = .detectingFloor
+            guidanceMessage = "Point your device at the floor"
+        }
+    }
+
+    // MARK: - Calculations
+
+    private func recalculate() {
+        let xz = perimeterPoints.map(\.floorXZ)
+        let closed = (phase == .complete)
+
+        totalAreaSqFt    = PerimeterProcessor.polygonAreaSqFt(vertices: xz)
+        totalPerimeterFt = PerimeterProcessor.perimeterLengthFt(vertices: xz, closed: closed)
+        wallLengthsFt    = PerimeterProcessor.wallLengthsFt(vertices: xz, closed: closed)
+    }
+
+    private func checkProximityToStart() {
+        guard perimeterPoints.count >= minSides,
+              let curXZ = currentDeviceXZ,
+              let startXZ = perimeterPoints.first?.floorXZ else {
+            isNearStartPoint = false
+            return
+        }
+
+        let dist = simd_distance(curXZ, startXZ)
+        let wasNear = isNearStartPoint
+        isNearStartPoint = dist < snapRadius
+
+        if isNearStartPoint && !wasNear {
+            AppHaptics.trigger(.light)
+        }
+    }
+
+    // MARK: - Export
+
+    /// JSON representation of the polygon for persistence.
+    func polygonJSON() -> String {
+        PerimeterProcessor.toJSON(vertices: perimeterPoints.map(\.floorXZ))
     }
 }
 
@@ -104,50 +221,130 @@ final class ScanSessionManager: NSObject, ObservableObject {
 
 extension ScanSessionManager: ARSessionDelegate {
 
-    nonisolated func session(_ session: ARSession, didAdd anchors: [ARAnchor]) {
-        let meshes = anchors.compactMap { $0 as? ARMeshAnchor }
-        guard !meshes.isEmpty else { return }
-        Task { @MainActor in
-            for anchor in meshes { meshAnchors[anchor.identifier] = anchor }
-            recomputeFloorArea()
+    func session(_ session: ARSession, didUpdate frame: ARFrame) {
+        let t = frame.camera.transform
+        let cam = SIMD3<Float>(t.columns.3.x, t.columns.3.y, t.columns.3.z)
+
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+
+            // Raycast from screen center instead of dropping the camera exactly down
+            let screenCenter = CGPoint(x: UIScreen.main.bounds.midX, y: UIScreen.main.bounds.midY)
+            var targetFloorPos: SIMD3<Float>?
+            
+            if let arView = self.arView,
+               let hit = arView.raycast(from: screenCenter, allowing: .estimatedPlane, alignment: .horizontal).first {
+                targetFloorPos = SIMD3<Float>(hit.worldTransform.columns.3.x, hit.worldTransform.columns.3.y, hit.worldTransform.columns.3.z)
+            } else {
+                // Mathematical intersection with the floor plane if raycast fails
+                let dir = SIMD3<Float>(-t.columns.2.x, -t.columns.2.y, -t.columns.2.z)
+                if dir.y < -0.01 {
+                    let distance = (self.floorY - cam.y) / dir.y
+                    targetFloorPos = cam + dir * distance
+                }
+            }
+
+            guard let floorPos = targetFloorPos else { return }
+            
+            self.currentFloorPosition = floorPos
+            self.currentDeviceXZ = SIMD2(floorPos.x, floorPos.z)
+            
+            // Render a reticle on the floor
+            self.renderer?.updateReticle(at: floorPos)
+
+            guard self.phase == .walking,
+                  let lastPt = self.perimeterPoints.last else { return }
+
+            // Live wall length
+            let liveLen = Double(simd_distance(
+                SIMD2(lastPt.worldPosition.x, lastPt.worldPosition.z),
+                SIMD2(floorPos.x, floorPos.z)
+            )) * PerimeterProcessor.metersToFeet
+            self.currentWallLengthFt = liveLen
+
+            // Tracking line
+            self.renderer?.updateTrackingLine(
+                from: lastPt.worldPosition,
+                to: floorPos,
+                isNearStart: self.isNearStartPoint
+            )
+
+            // Proximity check
+            self.checkProximityToStart()
+
+            // Guidance
+            if self.isNearStartPoint {
+                self.guidanceMessage = "Near start — tap ● to close the perimeter"
+            } else {
+                let c = self.perimeterPoints.count - 1
+                self.guidanceMessage = "\(c) corner\(c == 1 ? "" : "s") marked · aim at the next corner"
+            }
         }
     }
 
-    nonisolated func session(_ session: ARSession, didUpdate anchors: [ARAnchor]) {
-        let meshes = anchors.compactMap { $0 as? ARMeshAnchor }
-        guard !meshes.isEmpty else { return }
-        Task { @MainActor in
-            for anchor in meshes { meshAnchors[anchor.identifier] = anchor }
-            updateCallCount += 1
-            // Throttle: recompute every 4th update to avoid heavy CPU
-            if updateCallCount % 4 == 0 { recomputeFloorArea() }
+    func session(_ session: ARSession, didAdd anchors: [ARAnchor]) {
+        for anchor in anchors {
+            guard let plane = anchor as? ARPlaneAnchor,
+                  plane.alignment == .horizontal else { continue }
+
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+
+                let existingArea = (self.floorPlaneAnchor?.planeExtent.width ?? 0)
+                                 * (self.floorPlaneAnchor?.planeExtent.height ?? 0)
+                let newArea = plane.planeExtent.width * plane.planeExtent.height
+
+                if self.floorPlaneAnchor == nil || newArea > existingArea {
+                    self.floorPlaneAnchor = plane
+                    self.floorY = plane.transform.columns.3.y
+
+                    if self.phase == .detectingFloor {
+                        self.phase = .placingStart
+                        self.isSessionReady = true
+                        self.guidanceMessage = "Floor detected — aim at a corner and tap to start"
+                        AppHaptics.trigger(.light)
+                    }
+                }
+            }
         }
     }
 
-    nonisolated func session(_ session: ARSession, didRemove anchors: [ARAnchor]) {
-        let ids = anchors.compactMap { ($0 as? ARMeshAnchor)?.identifier }
-        guard !ids.isEmpty else { return }
-        Task { @MainActor in
-            ids.forEach { meshAnchors.removeValue(forKey: $0) }
-            recomputeFloorArea()
+    func session(_ session: ARSession, didUpdate anchors: [ARAnchor]) {
+        for anchor in anchors {
+            guard let plane = anchor as? ARPlaneAnchor else { continue }
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                if plane.identifier == self.floorPlaneAnchor?.identifier {
+                    self.floorY = plane.transform.columns.3.y
+                }
+            }
         }
     }
 
-    nonisolated func session(_ session: ARSession, didFailWithError error: Error) {
-        Task { @MainActor in
-            sessionError = error.localizedDescription
-        }
-    }
-
-    nonisolated func sessionWasInterrupted(_ session: ARSession) {
-        Task { @MainActor in
-            sessionMessage = "Session interrupted"
-        }
-    }
-
-    nonisolated func sessionInterruptionEnded(_ session: ARSession) {
-        Task { @MainActor in
-            sessionMessage = "Resuming scan…"
+    func session(_ session: ARSession, cameraDidChangeTrackingState camera: ARCamera) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            switch camera.trackingState {
+            case .notAvailable:
+                self.guidanceMessage = "AR tracking unavailable"
+            case .limited(let reason):
+                switch reason {
+                case .initializing:
+                    self.guidanceMessage = "Initializing — move slowly"
+                case .excessiveMotion:
+                    self.guidanceMessage = "Slow down — too much motion"
+                case .insufficientFeatures:
+                    self.guidanceMessage = "Point at a well-lit textured surface"
+                case .relocalizing:
+                    self.guidanceMessage = "Re-localizing…"
+                @unknown default:
+                    self.guidanceMessage = "Limited tracking"
+                }
+            case .normal:
+                if self.phase == .detectingFloor {
+                    self.guidanceMessage = "Point your device at the floor"
+                }
+            }
         }
     }
 }

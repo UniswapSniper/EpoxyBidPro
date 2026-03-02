@@ -27,6 +27,38 @@
 
 ---
 
+## 0. Current Sprint Update (March 1, 2026)
+
+### UX Hardening Pass — Tabs + Onboarding (Completed)
+
+- [x] Added first-time tooltip coach overlay in tab shell (`MainTabView`) with guided tips for Dashboard, CRM, Bids, Jobs, and More
+- [x] Added persistent first-run state (`hasSeenFirstTimeTabTooltips`) and skip/next/back controls for new-user guidance
+- [x] Fixed Dashboard placeholder actions and connected visible controls to real app flows:
+  - CRM Pipeline card now routes to CRM workflow
+  - Profile action routes to More/settings
+  - Invoice action now opens `CreateInvoiceSheet` (removed “Coming Soon” placeholder)
+- [x] Replaced Dashboard mock Active Jobs cards with live SwiftData-backed jobs and actionable navigation handoff to Jobs tab
+- [x] Made Dashboard Recent Activity rows actionable by routing to the correct tab based on entity type
+- [x] Converted previously static rows in More into functional destinations or links (Jobs, Bids, Analytics, support mail link, info views)
+- [x] Added “Replay App Tips” action in More to allow onboarding guidance to be shown again
+
+### Motion + Visual Polish (Clean UX Pass)
+
+- [x] Upgraded quick-action dock interactions with snappier animated state changes and press-scale feedback
+- [x] Improved first-time tooltip coach card visuals with step progress indicators and animated step transitions
+- [x] Added subtle animated orb motion to Dashboard background for premium visual depth without adding UI clutter
+- [x] Upgraded Dashboard quick-action cards with consistent haptic + press-scale interaction feedback
+- [x] Added coordinated route-handoff transitions across tabs with destination-aware animated handoff banner cues
+- [x] Harmonized animation timing across Dashboard/CRM/Bids using shared `EBPAnimation` tokens for section switches, handoffs, and ambient motion
+
+### QA Notes (Current)
+
+- [ ] Run on-device manual tap-through for every tab and all primary CTA buttons
+- [ ] Verify external links (privacy URL, support email) on device
+- [ ] Verify first-time tooltip behavior across cold launch, sign-out/sign-in, and after replaying tips
+
+---
+
 ## 1. Project Overview
 
 **EpoxyBidPro** is a native iOS application built for epoxy flooring contractors and businesses. It eliminates manual measuring, spreadsheet bidding, and juggling multiple apps by delivering:
@@ -613,6 +645,8 @@ EpoxyBidPro/
 - [x] Attach files from Files app (supplier quotes, permits)
 - [x] Document viewer in-app
 
+
+
 ---
 
 ## Phase 9 — Analytics & Reporting Dashboard
@@ -902,6 +936,21 @@ model Notification  // In-app + push notification records
   - Solo plan: $49.99/month
   - Team plan: $99.99/month (up to 5 crew)
   - Enterprise: Custom
+
+### 12.1.1 Upload Validation Preflight (Icons + Archive)
+
+- [ ] Confirm app icon source is asset catalog only:
+  - `ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon`
+  - Remove legacy `CFBundleIcons` / `CFBundleIcons~ipad` / `CFBundleIconFiles` entries from `Info.plist`
+- [ ] Verify required icon slots exist in `AppIcon.appiconset`:
+  - iPhone notification/settings/spotlight/app icons (all required scales)
+  - iPad notification/settings/spotlight/app icons (including 152x152 and 167x167)
+  - App Store marketing icon 1024x1024
+- [ ] Verify icon PNG dimensions are exact (no alpha/transparency issues for 1024 icon)
+- [ ] Run plist syntax check before archive:
+  - `plutil -lint iOS/EpoxyBidPro/Info.plist`
+- [ ] Clean and create a fresh archive (do not re-upload an old archive)
+- [ ] In Organizer, run **Validate App** before **Distribute App**
 
 ### 12.2 Submission Process
 

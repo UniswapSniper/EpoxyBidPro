@@ -1,4 +1,5 @@
 import SwiftUI
+import AuthenticationServices
 
 struct OnboardingView: View {
     @EnvironmentObject private var authStore: AuthStore
@@ -60,43 +61,33 @@ struct OnboardingView: View {
                             .font(.system(size: 36, weight: .bold))
                             .foregroundStyle(.white)
                     }
-                    .scaleEffect(appeared ? 1 : 0.5)
+                    .scaleEffect(appeared ? 1 : 0.6)
                     .opacity(appeared ? 1 : 0)
                     .animation(EBPAnimation.bouncy.delay(0.1), value: appeared)
 
                     Text("EpoxyBidPro")
-                        .font(.system(size: 30, weight: .black, design: .rounded))
+                        .font(EBPFont.hero)
                         .foregroundStyle(.white)
                         .opacity(appeared ? 1 : 0)
                         .animation(EBPAnimation.smooth.delay(0.2), value: appeared)
-
-                    Text("Measure. Bid. Win.")
-                        .font(.subheadline.weight(.medium))
-                        .foregroundStyle(.white.opacity(0.65))
-                        .tracking(1.5)
-                        .opacity(appeared ? 1 : 0)
-                        .animation(EBPAnimation.smooth.delay(0.3), value: appeared)
                 }
 
-                Spacer(minLength: EBPSpacing.xl)
+                Spacer(minLength: EBPSpacing.lg)
 
-                // ── Feature Pager ──────────────────────────────────────────
+                // ── Feature pager ──────────────────────────────────────────
                 TabView(selection: $currentPage) {
-                    ForEach(features.indices, id: \.self) { i in
-                        featureCard(features[i])
-                            .tag(i)
+                    ForEach(0..<features.count, id: \.self) { i in
+                        featureCard(features[i]).tag(i)
                     }
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
-                .frame(height: 260)
-                .opacity(appeared ? 1 : 0)
-                .animation(EBPAnimation.smooth.delay(0.4), value: appeared)
+                .frame(height: 220)
 
-                // ── Page dots ──────────────────────────────────────────────
-                HStack(spacing: EBPSpacing.sm) {
-                    ForEach(features.indices, id: \.self) { i in
+                // Dots
+                HStack(spacing: 6) {
+                    ForEach(0..<features.count, id: \.self) { i in
                         Capsule()
-                            .fill(.white.opacity(currentPage == i ? 0.9 : 0.30))
+                            .fill(.white.opacity(currentPage == i ? 0.90 : 0.30))
                             .frame(width: currentPage == i ? 20 : 6, height: 6)
                             .animation(EBPAnimation.snappy, value: currentPage)
                     }
@@ -107,35 +98,29 @@ struct OnboardingView: View {
 
                 // ── CTA ────────────────────────────────────────────────────
                 VStack(spacing: EBPSpacing.md) {
-                    Button {
-                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                        authStore.signInWithApple()
-                    } label: {
-                        HStack(spacing: EBPSpacing.sm) {
-                            Image(systemName: "applelogo")
-                                .font(.body.weight(.semibold))
-                            Text("Sign in with Apple")
-                                .font(.headline)
-                        }
-                        .foregroundStyle(.black)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(.white, in: RoundedRectangle(cornerRadius: EBPRadius.md))
+
+                    // Real Sign in with Apple button
+                    SignInWithAppleButton(.signIn) { request in
+                        request.requestedScopes = [.fullName, .email]
+                    } onCompletion: { result in
+                        authStore.handleAppleSignIn(result: result)
+                    }
+                    .signInWithAppleButtonStyle(.white)
+                    .frame(height: 52)
+                    .clipShape(RoundedRectangle(cornerRadius: EBPRadius.md))
+
+                    // Error message
+                    if let error = authStore.authError {
+                        Text(error)
+                            .font(.caption)
+                            .foregroundStyle(.red)
+                            .multilineTextAlignment(.center)
                     }
 
-                    Button {
-                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                        authStore.signInWithApple() // same flow, just labelled differently
-                    } label: {
-                        Text("Continue with Email")
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(.white.opacity(0.80))
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: EBPRadius.md)
-                                    .strokeBorder(.white.opacity(0.35), lineWidth: 1.5)
-                            )
+                    // Loading
+                    if authStore.isAuthenticating {
+                        ProgressView()
+                            .tint(.white)
                     }
 
                     Text("By continuing, you agree to our Terms of Service and Privacy Policy.")
@@ -165,7 +150,7 @@ struct OnboardingView: View {
                     .frame(width: 72, height: 72)
                 Image(systemName: feature.icon)
                     .font(.system(size: 30, weight: .semibold))
-                    .foregroundStyle(feature.color.mix(with: .white, by: 0.3))
+                    .foregroundStyle(feature.color.opacity(0.8))
             }
 
             VStack(spacing: EBPSpacing.sm) {
@@ -194,12 +179,4 @@ private struct OnboardingFeature {
     let body: String
 }
 
-// ─── Color mix helper (iOS 17+, with fallback) ────────────────────────────────
-private extension Color {
-    func mix(with other: Color, by amount: Double) -> Color {
-        // Simple approximation: blend toward white
-        let opacity = 1.0 - amount * 0.5
-        return self.opacity(opacity)
-    }
-}
 

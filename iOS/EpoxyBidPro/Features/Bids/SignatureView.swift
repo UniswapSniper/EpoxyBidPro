@@ -67,7 +67,7 @@ struct SignatureView: View {
                                 Spacer()
                                 Button("Clear") { showClearAlert = true }
                                     .font(.subheadline)
-                                    .foregroundStyle(lines.isEmpty ? .secondary : .red)
+                                    .foregroundStyle(lines.isEmpty ? Color.secondary : Color.red)
                                     .disabled(lines.isEmpty)
                             }
 
@@ -90,7 +90,7 @@ struct SignatureView: View {
 
                                 Text("× Sign here")
                                     .font(.caption)
-                                    .foregroundStyle(Color(.tertiaryLabel))
+                                    .foregroundStyle(.tertiary)
                                     .offset(x: -(canvasSize.width / 2) + 60, y: 40)
 
                                 // Drawn lines

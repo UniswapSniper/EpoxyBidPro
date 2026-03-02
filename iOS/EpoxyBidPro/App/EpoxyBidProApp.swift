@@ -5,10 +5,14 @@ import SwiftData
 struct EpoxyBidProApp: App {
     @StateObject private var authStore = AuthStore()
     @StateObject private var reachabilityMonitor = ReachabilityMonitor()
-    @AppStorage("appLanguage") private var appLanguageRawValue = AppLanguage.english.rawValue
+    @AppStorage("appLanguage") private var appLanguageRawValue = AppLanguage.system.rawValue
 
     private var appLanguage: AppLanguage {
-        AppLanguage(rawValue: appLanguageRawValue) ?? .english
+        AppLanguage(rawValue: appLanguageRawValue) ?? .system
+    }
+
+    private var appLocale: Locale {
+        appLanguage.locale ?? .current
     }
 
     var body: some Scene {
@@ -16,7 +20,7 @@ struct EpoxyBidProApp: App {
             RootView()
                 .environmentObject(authStore)
                 .environmentObject(reachabilityMonitor)
-                .environment(\.locale, appLanguage.locale)
+                .environment(\.locale, appLocale)
                 .preferredColorScheme(nil)
         }
         .modelContainer(for: [
@@ -28,7 +32,9 @@ struct EpoxyBidProApp: App {
             BidLineItem.self,
             BidSignature.self,
             Job.self,
+            JobChecklistItem.self,
             Invoice.self,
+            InvoiceLineItem.self,
             Payment.self,
             Photo.self,
             CrewMember.self,

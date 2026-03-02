@@ -7,40 +7,44 @@ import SwiftUI
 enum EBPColor {
 
     // ── Brand ──────────────────────────────────────────────────────────────────
-    /// Royal-blue primary brand colour.
-    static let primary      = Color(red: 0.05, green: 0.33, blue: 0.64)
-    /// Midnight-slate secondary.
-    static let secondary    = Color(red: 0.20, green: 0.24, blue: 0.30)
-    /// Bright azure accent (highlights, links).
-    static let accent       = Color(red: 0.10, green: 0.55, blue: 0.95)
+    /// Obsidian-black primary (Deep dark background).
+    static let primary      = Color(red: 0.05, green: 0.05, blue: 0.06)
+    /// Charcoal-slate secondary.
+    static let secondary    = Color(red: 0.12, green: 0.12, blue: 0.15)
+    /// Electric Cyan accent (LiDAR, highlights).
+    static let accent       = Color(red: 0.00, green: 1.00, blue: 0.95)
+    /// Metallic Silver (Flakes, secondary highlights).
+    static let silver       = Color(red: 0.75, green: 0.75, blue: 0.80)
 
     // ── Semantic ───────────────────────────────────────────────────────────────
-    static let success      = Color(red: 0.18, green: 0.72, blue: 0.42)
-    static let warning      = Color(red: 1.00, green: 0.62, blue: 0.04)
-    static let danger       = Color(red: 0.94, green: 0.22, blue: 0.22)
-    static let info         = Color(red: 0.10, green: 0.55, blue: 0.95)
+    static let success      = Color(red: 0.00, green: 0.85, blue: 0.45)
+    static let warning      = Color(red: 1.00, green: 0.70, blue: 0.00)
+    static let danger       = Color(red: 1.00, green: 0.30, blue: 0.30)
+    static let info         = Color(red: 0.00, green: 1.00, blue: 0.95)
 
     // ── Premium / Tier ─────────────────────────────────────────────────────────
     /// Gold tone used for BEST-tier bids.
     static let gold         = Color(red: 0.82, green: 0.62, blue: 0.10)
 
     // ── Backgrounds & Surfaces ─────────────────────────────────────────────────
-    static let surface      = Color(.secondarySystemBackground)
-    static let surfaceRaised = Color(.tertiarySystemBackground)
-    static let canvas       = Color(.systemBackground)
+    static let surface      = Color(red: 0.10, green: 0.10, blue: 0.12)
+    static let surfaceRaised = Color(red: 0.15, green: 0.15, blue: 0.18)
+    static let canvas       = Color(red: 0.05, green: 0.05, blue: 0.06)
 
     // ── Gradients ─────────────────────────────────────────────────────────────
+    /// Deep obsidian to charcoal gradient.
     static var primaryGradient: LinearGradient {
         LinearGradient(
-            colors: [Color(red: 0.05, green: 0.33, blue: 0.64), Color(red: 0.10, green: 0.52, blue: 0.92)],
+            colors: [Color(red: 0.05, green: 0.05, blue: 0.06), Color(red: 0.12, green: 0.12, blue: 0.15)],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
     }
 
+    /// Cyan scanning gradient for headers and CTAs.
     static var heroGradient: LinearGradient {
         LinearGradient(
-            colors: [Color(red: 0.04, green: 0.26, blue: 0.54), Color(red: 0.08, green: 0.45, blue: 0.80)],
+            colors: [Color(red: 0.00, green: 0.80, blue: 0.75), Color(red: 0.00, green: 1.00, blue: 0.95)],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
@@ -48,18 +52,19 @@ enum EBPColor {
 
     static var successGradient: LinearGradient {
         LinearGradient(
-            colors: [Color(red: 0.14, green: 0.62, blue: 0.36), Color(red: 0.24, green: 0.78, blue: 0.50)],
+            colors: [Color(red: 0.00, green: 0.70, blue: 0.40), Color(red: 0.00, green: 0.90, blue: 0.50)],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
     }
 
+    /// Dark obsidian to cyan glow (for onboarding screens).
     static var onboardingGradient: LinearGradient {
         LinearGradient(
             colors: [
-                Color(red: 0.03, green: 0.18, blue: 0.40),
-                Color(red: 0.05, green: 0.33, blue: 0.64),
-                Color(red: 0.10, green: 0.50, blue: 0.90),
+                Color(red: 0.02, green: 0.02, blue: 0.03),
+                Color(red: 0.05, green: 0.05, blue: 0.06),
+                Color(red: 0.00, green: 0.30, blue: 0.30),
             ],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
@@ -117,9 +122,31 @@ struct _ShadowModifier: ViewModifier {
 }
 
 extension View {
-    func ebpShadowSubtle() -> some View  { shadow(color: .black.opacity(0.06), radius: 4,  x: 0, y: 2) }
-    func ebpShadowMedium()  -> some View { shadow(color: .black.opacity(0.10), radius: 10, x: 0, y: 4) }
-    func ebpShadowStrong()  -> some View { shadow(color: .black.opacity(0.18), radius: 20, x: 0, y: 8) }
+    func ebpShadowSubtle() -> some View  { shadow(color: .black.opacity(0.3), radius: 6,  x: 0, y: 3) }
+    func ebpShadowMedium()  -> some View { shadow(color: .black.opacity(0.5), radius: 12, x: 0, y: 6) }
+    func ebpShadowStrong()  -> some View { shadow(color: .black.opacity(0.7), radius: 24, x: 0, y: 12) }
+
+    /// A premium glassmorphic background effect
+    func ebpGlassmorphism(cornerRadius: CGFloat = EBPRadius.md) -> some View {
+        self
+            .background(.ultraThinMaterial)
+            .background(Color.black.opacity(0.2)) // Slightly darkens the blur
+            .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
+            .overlay(
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .stroke(LinearGradient(
+                        colors: [Color.white.opacity(0.15), Color.clear, Color.white.opacity(0.05)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ), lineWidth: 1)
+            )
+            .shadow(color: .black.opacity(0.4), radius: 10, x: 0, y: 5)
+    }
+
+    /// Adds a cyan neon glow
+    func ebpNeonGlow(radius: CGFloat = 8, intensity: Double = 0.3) -> some View {
+        self.shadow(color: EBPColor.accent.opacity(intensity), radius: radius, x: 0, y: 0)
+    }
 }
 
 // ─── EBPAnimation ─────────────────────────────────────────────────────────────
@@ -129,6 +156,9 @@ enum EBPAnimation {
     static let bouncy   = Animation.spring(response: 0.4,  dampingFraction: 0.65)
     static let smooth   = Animation.easeInOut(duration: 0.25)
     static let fast     = Animation.easeInOut(duration: 0.15)
+    static let sectionSwitch = Animation.easeInOut(duration: 0.22)
+    static let handoff  = Animation.spring(response: 0.38, dampingFraction: 0.8)
+    static let ambient  = Animation.easeInOut(duration: 7.0)
 }
 
 // ─── EBPFont ──────────────────────────────────────────────────────────────────
@@ -146,6 +176,7 @@ enum EBPFont {
     static let caption: Font = .system(size: 12, weight: .regular)
     static let micro:   Font = .system(size: 10, weight: .semibold)
     // Numeric
+    static let statLg:  Font = .system(size: 40, weight: .bold,  design: .rounded)
     static let stat:    Font = .system(size: 32, weight: .bold,  design: .rounded)
     static let statSm:  Font = .system(size: 22, weight: .bold,  design: .rounded)
     static let mono:    Font = .system(size: 15, weight: .medium, design: .monospaced)

@@ -8,10 +8,19 @@ struct AnalyticsView: View {
     @State private var selectedSection: Section = .revenue
 
     enum Section: String, CaseIterable {
-        case revenue  = "Revenue"
-        case sales    = "Sales"
-        case jobs     = "Jobs"
-        case crm      = "CRM"
+        case revenue
+        case sales
+        case jobs
+        case crm
+
+        var localizedTitle: String {
+            switch self {
+            case .revenue: return NSLocalizedString("revenue", comment: "")
+            case .sales:   return NSLocalizedString("sales", comment: "")
+            case .jobs:    return NSLocalizedString("jobs", comment: "")
+            case .crm:     return NSLocalizedString("crm", comment: "")
+            }
+        }
     }
 
     var body: some View {
@@ -22,7 +31,7 @@ struct AnalyticsView: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 4) {
                         ForEach(Section.allCases, id: \.self) { section in
-                            Button(section.rawValue) {
+                            Button(section.localizedTitle) {
                                 withAnimation(.easeInOut(duration: 0.2)) {
                                     selectedSection = section
                                 }
@@ -49,7 +58,7 @@ struct AnalyticsView: View {
                 // ── Content ─────────────────────────────────────────────────
                 ZStack {
                     if vm.isLoading && vm.dashboardData == nil {
-                        ProgressView("Loading analytics…")
+                        ProgressView(NSLocalizedString("loading.analytics", comment: ""))
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                     } else {
                         switch selectedSection {
@@ -89,7 +98,7 @@ struct AnalyticsView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            .navigationTitle("Analytics")
+            .navigationTitle(NSLocalizedString("analytics.title", comment: ""))
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
@@ -97,17 +106,17 @@ struct AnalyticsView: View {
                         Button {
                             Task { await vm.exportWeeklyPDF() }
                         } label: {
-                            Label("Weekly PDF Report", systemImage: "doc.richtext")
+                            Label(NSLocalizedString("weekly.pdf", comment: ""), systemImage: "doc.richtext")
                         }
                         Button {
                             Task { await vm.exportCSV(type: "revenue") }
                         } label: {
-                            Label("Revenue CSV", systemImage: "tablecells")
+                            Label(NSLocalizedString("revenue.csv", comment: ""), systemImage: "tablecells")
                         }
                         Button {
                             Task { await vm.exportCSV(type: "profitability") }
                         } label: {
-                            Label("Job Profitability CSV", systemImage: "tablecells.badge.ellipsis")
+                            Label(NSLocalizedString("job.profit.csv", comment: ""), systemImage: "tablecells.badge.ellipsis")
                         }
                     } label: {
                         Image(systemName: "square.and.arrow.up")
@@ -120,13 +129,13 @@ struct AnalyticsView: View {
                     }
                 }
             }
-            .alert("Error", isPresented: Binding(
+            .alert(NSLocalizedString("error", comment: ""), isPresented: Binding(
                 get: { vm.errorMessage != nil },
                 set: { if !$0 { vm.errorMessage = nil } }
             )) {
-                Button("OK") { vm.errorMessage = nil }
+                Button(NSLocalizedString("ok", comment: "")) { vm.errorMessage = nil }
             } message: {
-                Text(vm.errorMessage ?? "Unknown error")
+                Text(vm.errorMessage ?? NSLocalizedString("unknown.error", comment: ""))
             }
             .sheet(isPresented: $vm.showingExportShare) {
                 if let url = vm.exportURL {

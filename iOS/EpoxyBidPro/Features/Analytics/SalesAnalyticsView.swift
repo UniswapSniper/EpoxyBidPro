@@ -99,8 +99,8 @@ struct SalesAnalyticsView: View {
                             }
                         }
                         .chartXAxis {
-                            AxisMarks(values: [0, 25, 50, 75, 100]) {
-                                AxisValueLabel { Text("\($0.as(Int.self) ?? 0)%") }
+                            AxisMarks(values: [0, 25, 50, 75, 100]) { value in
+                                AxisValueLabel("\(value.as(Int.self) ?? 0)%")
                             }
                         }
                         .frame(height: CGFloat(bt.breakdown.count) * 40 + 40)

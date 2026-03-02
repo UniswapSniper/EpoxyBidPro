@@ -1,5 +1,6 @@
 "language.english" = "Inglés";
 "language.spanish" = "Español";
+"language.system" = "Usar Ajustes del Sistema";
 "setting.appLanguage" = "Idioma de la app";
 "setting.languageDescription" = "Elige cómo se muestra el texto en toda la aplicación.";
 "section.language" = "Idioma";
@@ -42,3 +43,312 @@
 "Save Measurement" = "Guardar medición";
 "Back" = "Atrás";
 "Measurement Saved!" = "¡Medición guardada!";
+
+"save.analysis" = "GUARDAR ANÁLISIS";
+"create.client.bid" = "CREAR COTIZACIÓN";
+"garage.analysis" = "Análisis del Garaje";
+"analyzing.garage" = "ANALIZANDO GARAJE";
+"lidar.perimeter.tracking" = "RASTREO DE PERÍMETRO LiDAR";
+"surface.mapping.active" = "MAPEO DE SUPERFICIE ACTIVO";
+"precise.perimeter" = "PERÍMETRO PRECISO";
+"surface.mapping" = "MAPEO DE SUPERFICIE";
+"sq.ft" = "PIES²";
+"measurements.caps" = "MEDICIONES";
+"total.sq.ft.caps" = "TOTAL: %.0f PIES²";
+"ft2" = "PIES²";
+"zone" = "ZONA";
+"finish.mapping" = "TERMINAR MAPEO";
+"garage.floor" = "Piso del Garaje";
+"starting.garage.analysis" = "Iniciando análisis del piso del garaje...";
+"walk.perimeter.slowly" = "Camine lentamente por el perímetro para mapear el garaje";
+"walk.perimeter" = "Camine por el perímetro del garaje";
+"keep.walking.perimeter" = "Siga caminando para expandir la detección del perímetro";
+"scanning.floor.perimeter" = "Escaneando piso... camine por todo el perímetro";
+"perimeter.detected" = "Perímetro detectado — ¡el mapeo se ve sólido!";
+"perimeter.mapped" = "Perímetro mapeado — toque Terminar Escaneo";
+"sq.ft.detected.follow" = "%.0f pies² detectados — siga el perímetro";
+"no.floor.detected" = "Aún no se detecta el piso — siga escaneando";
+"captured.msg" = "Capturado: %@ — %.0f pies²";
+"analyzing.lidar" = "ANALIZANDO LiDAR";
+"analyzing.surface" = "ANALIZANDO SUPERFICIE";
+"initializing.sensors" = "INICIALIZANDO SENSORES";
+"sensor.ready" = "Sensores listos";
+"SAVE ANALYSIS" = "GUARDAR ANÁLISIS";
+"CREATE CLIENT BID" = "CREAR COTIZACIÓN";
+"FINISH MAPPING" = "TERMINAR MAPEO";
+"ZONE" = "ZONA";
+
+"system.performance" = "Rendimiento del Sistema";
+"active.jobs" = "Trabajos Activos";
+"open.bids" = "Cotizaciones Abiertas";
+"overdue.invoices" = "Facturas Vencidas";
+"analytics" = "Analíticas";
+"digital.log" = "Bitácora Digital";
+"monthly.revenue" = "INGRESOS MENSUALES";
+"bids.pipeline" = "%d Cotizaciones en Proceso";
+"pro.dashboard" = "PANEL PRO";
+"command.center" = "Centro de Comando";
+"new.scan" = "Nuevo Escaneo";
+"new.bid" = "Nueva Cotización";
+"add.client" = "Agregar Cliente";
+"invoicing" = "Facturación";
+"good.morning" = "Buenos días";
+"good.afternoon" = "Buenas tardes";
+"good.evening" = "Buenas noches";
+
+"select.client" = "Seleccionar Cliente";
+"select.client.subtitle" = "Elija un cliente existente o salte este paso para crear una cotización sin uno.";
+"search.clients" = "Buscar clientes...";
+"no.clients.found" = "No se encontraron clientes";
+"create.new.client" = "Crear Nuevo Cliente";
+"skip.client.hint" = "Puede saltar este paso y agregar un cliente más tarde.";
+"contact.info" = "Información de Contacto";
+"first.name" = "Nombre";
+"last.name" = "Apellido";
+"email" = "Correo electrónico";
+"phone" = "Teléfono";
+"company" = "Empresa";
+"company.name.optional" = "Nombre de la empresa (opcional)";
+"create.client" = "Crear Cliente";
+"new.client" = "Nuevo Cliente";
+"cancel" = "Cancelar";
+"floor.measurement" = "Medición del Piso";
+"measurement.subtitle" = "Adjunte un escaneo LiDAR o ingrese las dimensiones manualmente.";
+"lidar.scans" = "Escaneos LiDAR";
+"manual.entry" = "Entrada Manual";
+"no.scans.yet" = "Aún no hay escaneos";
+"no.scans.hint" = "Use el escáner LiDAR para capturar mediciones primero, luego adjúntelas aquí.";
+"untitled.scan" = "Escaneo sin título";
+"format.sq.ft" = "%d pies²";
+"format.areas" = "• %d área%@";
+"area.name.input" = "Nombre del área";
+"add.area" = "Agregar Área";
+"total.floor.area" = "Área Total del Piso";
+"close" = "Cerrar";
+"new.invoice" = "Nueva Factura";
+"create.invoice" = "Crear Factura";
+"coming.soon" = "Muy Pronto";
+"Area" = "Área";
+
+"pipeline" = "Embudo";
+"crm.clients" = "Clientes";
+"insights" = "Perspectivas";
+"search.crm" = "Buscar prospectos o clientes...";
+"new.lead" = "Nuevo Prospecto";
+"total.leads" = "Total Prospectos";
+"won" = "Ganado";
+"move.to" = "Mover a %@";
+"convert.client" = "Convertir a Cliente";
+"delete" = "Eliminar";
+"no.leads" = "Sin prospectos";
+"no.clients.yet" = "Aún sin clientes";
+"no.clients.hint" = "Agregue su primer cliente o convierta un prospecto.";
+"count.bids" = "%d cotización%@";
+"win.rate" = "Tasa de Ganancia";
+"avg.close" = "Promedio de Cierre";
+"lead.sources" = "Fuentes de Prospectos";
+"win.more.bids" = "Gane Más Cotizaciones";
+"overdue.followups" = "Seguimientos Vencidos";
+"reward.top.clients" = "Recompense a sus mejores clientes";
+"contact.information" = "Información de Contacto";
+"additional.details" = "Detalles Adicionales";
+"address" = "Dirección";
+"lead.source" = "Fuente de Prospecto";
+"estimated.value" = "Valor Estimado";
+"notes" = "Notas";
+"city" = "Ciudad";
+"state" = "Estado";
+"zip" = "C.P.";
+"client.type" = "Tipo de Cliente";
+"residential" = "Residencial";
+"commercial" = "Comercial";
+"save" = "Guardar";
+
+"CRM" = "CRM";
+"site.visit" = "Visita Técnina";
+"bid.sent" = "Cotización Enviada";
+"contacted" = "Contactado";
+"lost" = "Perdido";
+"street.address" = "Dirección";
+"lead.details" = "Detalles del Prospecto";
+"client.details" = "Detalles del Cliente";
+"done" = "Listo";
+"delete.lead.q" = "¿Eliminar Prospecto?";
+"delete.client.q" = "¿Eliminar Cliente?";
+"delete.lead" = "Eliminar Prospecto";
+"delete.client" = "Eliminar Cliente";
+
+"coating.system" = "Sistema de Recubrimiento";
+"coating.subtitle" = "Elija el sistema epóxico para este trabajo.";
+"price.range" = "Rango de Precios";
+"prep.details" = "Detalles de Superficie y Prep";
+"prep.subtitle" = "Estos factores afectan el tiempo de mano de obra y el precio final.";
+"surface.condition" = "Condición de la Superficie";
+"prep.complexity" = "Complejidad de Prep";
+"access.difficulty" = "Dificultad de Acceso";
+"complex.layout" = "Diseño Complejo";
+"complex.layout.hint" = "Formas en L, recortes, pilares: aumenta el factor de desperdicio al 15%";
+"crew.hours" = "Equipo y Horas Estimadas";
+"crew.size" = "Tamaño del Equipo";
+"est.hours" = "Horas Est.";
+"hrs" = "hrs";
+"auto.estimate" = "Auto-estimar por pies²";
+"prep.light.desc" = "Solo limpieza ligera y parches menores.";
+"prep.standard.desc" = "Pulido de diamante y reparación de grietas.";
+"prep.heavy.desc" = "Granallado, mitigación de humedad, reparaciones extensas.";
+
+"coating.single.clear" = "Capa Única Transparente";
+"coating.two.flake" = "Sistema de Hojuelas de 2 Capas";
+"coating.metallic" = "Metálico Completo";
+"coating.quartz" = "Sembrado de Cuarzo";
+"coating.polyaspartic" = "Poliaspártico";
+"coating.commercial" = "Grado Comercial";
+"coating.custom" = "Personalizado";
+
+"desc.single.clear" = "Epóxico transparente básico. 1 capa sobre concreto preparado.";
+"desc.two.flake" = "El más popular. Capa base + hojuela decorativa + capa superior transparente.";
+"desc.metallic" = "Acabado metálico premium. Calidad de exhibición.";
+"desc.quartz" = "Cuarzo sembrado para durabilidad comercial/industrial.";
+"desc.polyaspartic" = "Poliaspártico de curado rápido. Regreso al servicio el mismo día.";
+"desc.commercial" = "Sistema de alta resistencia para almacenes y alto tráfico.";
+"desc.custom" = "Sistema de recubrimiento personalizado con configuración manual.";
+
+"excellent" = "Excelente";
+"good" = "Bueno";
+"fair" = "Regular";
+"poor" = "Deficiente";
+
+"desc.excellent" = "Limpio, liso, no requiere reparaciones";
+"desc.good" = "Imperfecciones menores, limpieza ligera";
+"desc.fair" = "Grietas, se requiere algo de parcheo";
+"desc.poor" = "Daños graves, preparación extensa";
+
+"light" = "Ligero";
+"standard" = "Estándar";
+"heavy" = "Pesado";
+
+"easy" = "Fácil";
+"normal" = "Normal";
+"difficult" = "Difícil";
+
+"pricing.preview" = "Vista Previa de Precios";
+"pricing.subtitle" = "Elija un nivel. Todos los precios se actualizan en tiempo real.";
+"calculating" = "Calculando precios…";
+"cost.breakdown" = "Desglose de Costos";
+"materials" = "Materiales";
+"labor" = "Mano de Obra";
+"overhead" = "Gastos Generales";
+"markup" = "Ganancia";
+"tax" = "Impuesto";
+"total" = "Total";
+"profit.margin" = "Margen de Beneficio";
+"low" = "Bajo";
+"healthy" = "Saludable";
+"premium" = "Premium";
+"shopping.list" = "Lista de Compras";
+"auto.generated" = "Auto-generado";
+"margin.label" = "%d%% de margen";
+"per.sqft" = "$%.2f / pie²";
+
+"ai.insights" = "Perspectivas de IA";
+"ai.insights.subtitle" = "Revise las sugerencias generadas por la IA para esta cotización.";
+"ai.analysis" = "Análisis de IA";
+"risk.flags" = "Señales de Riesgo";
+"upsell.opps" = "Oportunidades de Venta";
+"no.ai.insights" = "No hay perspectivas de IA disponibles";
+"ai.not.connected" = "Las perspectivas de IA se generarán cuando se conecte al servidor.";
+"ai.disclaimer" = "Las sugerencias de la IA son solo de carácter informativo. Revise todos los detalles de precio y alcance antes de enviar.";
+"line.items" = "Partidas";
+"line.items.subtitle" = "Revise y edite partidas individuales.";
+"add.line.item" = "Agregar Partida";
+"line.items.total" = "Total de Partidas";
+"description" = "Descripción";
+"qty" = "Cant.";
+"unit.price" = "Precio Unitario";
+"unit" = "Unidad";
+"amount" = "Monto";
+
+"ai.summary.fmt" = "Basado en %d pies² de piso de %@ con una condición de superficie %@, esta cotización tiene un precio competitivo para su mercado.";
+"ai.risk.poor" = "La condición de la superficie es deficiente: se puede requerir tiempo de pulido adicional. Considere agregar un margen de mano de obra del 20%.";
+"ai.risk.large" = "Trabajo de área grande: asegure un almacenamiento adecuado de materiales y capacidad de equipo.";
+"ai.risk.complex" = "Se detectó un diseño complejo: el factor de desperdicio aumentó al 15%. Verifique las cantidades de material.";
+"ai.upsell.metallic" = "Mejore a un acabado metálico para un ingreso adicional de %d–%d.";
+"ai.upsell.cove" = "Agregue instalación de base curva por un ingreso adicional de $%d–$%d.";
+"ai.upsell.maint" = "Ofrezca un plan de mantenimiento: $%.2f/año para una inspección de recubrimiento anual.";
+
+"review.title" = "Revise su Cotización";
+"review.subtitle" = "¿Todo bien? Guárdelo como borrador.";
+"bid.title" = "Título de la Cotización";
+"epoxy.floor" = "Piso de Epóxico";
+"no.client.selected" = "Sin cliente seleccionado";
+"measurement" = "Mediciones";
+"total.sqft.fmt" = "%d pies² en total";
+"coating.prep" = "Recubrimiento y Prep";
+"yes.waste" = "Sí (15% factor de desperdicio)";
+"pricing.tier.fmt" = "Precios — %@";
+"items.fmt" = "%d artículos";
+"risk.flags.fmt" = "%d señales de riesgo";
+"upsell.opps.fmt" = "%d oportunidades de venta";
+"scope.notes" = "Notas de Alcance";
+"edit" = "Editar";
+"no.scope.notes" = "No se agregaron notas de alcance.";
+"valid.for" = "Válido por";
+"days.fmt" = "%d días";
+"done" = "Hecho";
+"client" = "Cliente";
+
+"revenue" = "Ingresos";
+"sales" = "Ventas";
+"jobs" = "Trabajos";
+"crm" = "CRM";
+"loading.analytics" = "Cargando análisis…";
+"analytics.title" = "Análisis";
+"weekly.pdf" = "Informe Semanal en PDF";
+"revenue.csv" = "CSV de Ingresos";
+"job.profit.csv" = "CSV de Rentabilidad de Trabajos";
+"error" = "Error";
+"unknown.error" = "Error desconocido";
+"ok" = "Aceptar";
+"activity" = "Actividad";
+"report" = "Informe";
+
+"more.title" = "Más";
+"more.user" = "Usuario";
+"more.pro" = "Duro Epoxi Pro";
+"more.language" = "Idioma";
+"more.appLanguage" = "Idioma de la App";
+"more.langDesc" = "Elige cómo se muestra el texto en toda la aplicación.";
+"more.business" = "Negocio";
+"more.companyProfile" = "Perfil de la Empresa";
+"more.crew" = "Miembros del Equipo";
+"more.materials" = "Catálogo de Materiales";
+"more.templates" = "Plantillas de Propuestas";
+"more.operations" = "Operaciones";
+"more.invoicing" = "Facturación y Pagos";
+"more.reports" = "Reportes";
+"more.sync" = "Estado de Sincronización";
+"more.notifications" = "Notificaciones";
+"more.support" = "Soporte";
+"more.faq" = "Ayuda y FAQ";
+"more.contact" = "Contactar Soporte";
+"more.privacy" = "Política de Privacidad";
+"more.about" = "Acerca de";
+"more.version" = "Versión";
+"more.builtFor" = "Creado para";
+"more.signOut" = "Cerrar Sesión";
+"more.noInvoices" = "Sin Facturas";
+"more.invoicingComing" = "Funciones de facturación próximamente";
+"more.ios17" = "iOS 17+";
+
+
+
+
+
+
+
+
+
+
+
+
+

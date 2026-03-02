@@ -4,81 +4,194 @@ import SwiftData
 // ─── Supporting Bid Models ────────────────────────────────────────────────────
 
 @Model final class BidLineItem {
-    var id: UUID = UUID()
-    var description: String = ""
-    var quantity: Double = 1
-    var unitPrice: Decimal = 0
-    var amount: Decimal = 0
-    var sortOrder: Int = 0
+    var id: UUID
+    var itemDescription: String  // Changed from 'description' (reserved name)
+    var quantity: Double
+    var unitPrice: Decimal
+    var amount: Decimal
+    var sortOrder: Int
+    
+    init(
+        id: UUID = UUID(),
+        itemDescription: String = "",
+        quantity: Double = 1,
+        unitPrice: Decimal = 0,
+        amount: Decimal = 0,
+        sortOrder: Int = 0
+    ) {
+        self.id = id
+        self.itemDescription = itemDescription
+        self.quantity = quantity
+        self.unitPrice = unitPrice
+        self.amount = amount
+        self.sortOrder = sortOrder
+    }
 }
 
 @Model final class BidSignature {
-    var id: UUID = UUID()
-    var signerName: String = ""
-    var signedAt: Date = Date()
-    var signatureDataBase64: String = ""  // PNG base64-encoded signature image
-    var ipAddress: String = ""
+    var id: UUID
+    var signerName: String
+    var signedAt: Date
+    var signatureDataBase64: String
+    var ipAddress: String
+    
+    init(
+        id: UUID = UUID(),
+        signerName: String = "",
+        signedAt: Date = Date(),
+        signatureDataBase64: String = "",
+        ipAddress: String = ""
+    ) {
+        self.id = id
+        self.signerName = signerName
+        self.signedAt = signedAt
+        self.signatureDataBase64 = signatureDataBase64
+        self.ipAddress = ipAddress
+    }
 }
 
 // ─── Other Domain Models (stubs — expanded in later phases) ──────────────────
-
-@Model final class Invoice {
-    var id: UUID = UUID()
-    var number: String = ""
-    var totalAmount: Decimal = 0
-    var status: String = "DRAFT"
-    var createdAt: Date = Date()
-    var backendId: String = ""
-    var isSynced: Bool = false
-}
+// NOTE: Invoice and InvoiceLineItem are in CoreModels.swift
 
 @Model final class Payment {
-    var id: UUID = UUID()
-    var amount: Decimal = 0
-    var method: String = "CASH"
-    var paidAt: Date = Date()
-    var backendId: String = ""
-    var isSynced: Bool = false
+    var id: UUID
+    var amount: Decimal
+    var method: String
+    var paidAt: Date
+    var backendId: String
+    var isSynced: Bool
+    
+    init(
+        id: UUID = UUID(),
+        amount: Decimal = 0,
+        method: String = "CASH",
+        paidAt: Date = Date(),
+        backendId: String = "",
+        isSynced: Bool = false
+    ) {
+        self.id = id
+        self.amount = amount
+        self.method = method
+        self.paidAt = paidAt
+        self.backendId = backendId
+        self.isSynced = isSynced
+    }
 }
 
 @Model final class Photo {
-    var id: UUID = UUID()
-    var remoteURL: String = ""
-    var localPath: String = ""
-    var category: String = "GENERAL"
-    var caption: String = ""
-    var createdAt: Date = Date()
-    var isSynced: Bool = false
+    var id: UUID
+    var remoteURL: String
+    var localPath: String
+    var category: String
+    var caption: String
+    var createdAt: Date
+    var isSynced: Bool
+    
+    init(
+        id: UUID = UUID(),
+        remoteURL: String = "",
+        localPath: String = "",
+        category: String = "GENERAL",
+        caption: String = "",
+        createdAt: Date = Date(),
+        isSynced: Bool = false
+    ) {
+        self.id = id
+        self.remoteURL = remoteURL
+        self.localPath = localPath
+        self.category = category
+        self.caption = caption
+        self.createdAt = createdAt
+        self.isSynced = isSynced
+    }
 }
 
 @Model final class CrewMember {
-    var id: UUID = UUID()
-    var firstName: String = ""
-    var lastName: String = ""
-    var role: String = ""
-    var isActive: Bool = true
-    var backendId: String = ""
-    var isSynced: Bool = false
+    var id: UUID
+    var firstName: String
+    var lastName: String
+    var role: String
+    var isActive: Bool
+    var backendId: String
+    var isSynced: Bool
+    
+    init(
+        id: UUID = UUID(),
+        firstName: String = "",
+        lastName: String = "",
+        role: String = "",
+        isActive: Bool = true,
+        backendId: String = "",
+        isSynced: Bool = false
+    ) {
+        self.id = id
+        self.firstName = firstName
+        self.lastName = lastName
+        self.role = role
+        self.isActive = isActive
+        self.backendId = backendId
+        self.isSynced = isSynced
+    }
 }
 
 @Model final class Material {
-    var id: UUID = UUID()
-    var name: String = ""
-    var brand: String = ""
-    var category: String = ""
-    var costPerUnit: Decimal = 0
-    var coverageRate: Double = 0
-    var unit: String = "gallon"
-    var backendId: String = ""
-    var isSynced: Bool = false
+    var id: UUID
+    var name: String
+    var brand: String
+    var category: String
+    var costPerUnit: Decimal
+    var coverageRate: Double
+    var unit: String
+    var backendId: String
+    var isSynced: Bool
+    
+    init(
+        id: UUID = UUID(),
+        name: String = "",
+        brand: String = "",
+        category: String = "",
+        costPerUnit: Decimal = 0,
+        coverageRate: Double = 0,
+        unit: String = "gallon",
+        backendId: String = "",
+        isSynced: Bool = false
+    ) {
+        self.id = id
+        self.name = name
+        self.brand = brand
+        self.category = category
+        self.costPerUnit = costPerUnit
+        self.coverageRate = coverageRate
+        self.unit = unit
+        self.backendId = backendId
+        self.isSynced = isSynced
+    }
 }
 
 @Model final class Template {
-    var id: UUID = UUID()
-    var name: String = ""
-    var type: String = "BID"
-    var contentJson: String = "{}"
-    var isDefault: Bool = false
-    var backendId: String = ""
-    var isSynced: Bool = false
+    var id: UUID
+    var name: String
+    var type: String
+    var contentJson: String
+    var isDefault: Bool
+    var backendId: String
+    var isSynced: Bool
+    
+    init(
+        id: UUID = UUID(),
+        name: String = "",
+        type: String = "BID",
+        contentJson: String = "{}",
+        isDefault: Bool = false,
+        backendId: String = "",
+        isSynced: Bool = false
+    ) {
+        self.id = id
+        self.name = name
+        self.type = type
+        self.contentJson = contentJson
+        self.isDefault = isDefault
+        self.backendId = backendId
+        self.isSynced = isSynced
+    }
 }

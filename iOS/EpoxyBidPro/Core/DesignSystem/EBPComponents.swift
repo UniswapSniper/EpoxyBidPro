@@ -41,7 +41,7 @@ struct EBPButton: View {
 
     var body: some View {
         Button {
-            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+            AppHaptics.trigger(.medium)
             action()
         } label: {
             HStack(spacing: EBPSpacing.sm) {
@@ -370,3 +370,65 @@ extension View {
     }
 }
 
+// ─── Date Extensions ─────────────────────────────────────────────────────────
+
+extension Date {
+    var relativeFormatted: String {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .abbreviated
+        return formatter.localizedString(for: self, relativeTo: Date())
+    }
+}
+
+// ─── EBPDynamicBackground ───────────────────────────────────────────────────
+
+struct EBPDynamicBackground: View {
+    var body: some View {
+        ZStack {
+            // Base gradient
+            LinearGradient(
+                colors: [
+                    Color(red: 0.05, green: 0.05, blue: 0.15),
+                    Color(red: 0.1, green: 0.1, blue: 0.2)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+            
+            // Animated orbs
+            GeometryReader { geo in
+                ZStack {
+                    // Cyan glow
+                    Circle()
+                        .fill(
+                            RadialGradient(
+                                colors: [Color.cyan.opacity(0.3), Color.clear],
+                                center: .center,
+                                startRadius: 0,
+                                endRadius: 200
+                            )
+                        )
+                        .frame(width: 400, height: 400)
+                        .blur(radius: 60)
+                        .offset(x: -100, y: -100)
+                    
+                    // Blue accent glow
+                    Circle()
+                        .fill(
+                            RadialGradient(
+                                colors: [Color.blue.opacity(0.25), Color.clear],
+                                center: .center,
+                                startRadius: 0,
+                                endRadius: 150
+                            )
+                        )
+                        .frame(width: 300, height: 300)
+                        .blur(radius: 50)
+                        .offset(x: geo.size.width - 100, y: geo.size.height - 200)
+                }
+            }
+            .ignoresSafeArea()
+        }
+    }
+}

@@ -346,7 +346,7 @@ enum APIClient {
 
 // ─── Keychain Helper (stub — full implementation in Auth phase) ───────────────
 
-enum KeychainHelper {
+private enum KeychainHelper {
     static func readToken() -> String? {
         UserDefaults.standard.string(forKey: "ebp_access_token")
     }
