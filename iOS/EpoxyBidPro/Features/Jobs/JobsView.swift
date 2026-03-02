@@ -94,34 +94,49 @@ struct JobsView: View {
         NavigationStack {
             ZStack {
                 EBPDynamicBackground()
-                
-                VStack(spacing: 0) {
-                    // ── Section Picker ────────────────────────────────────────
-                    Picker("Section", selection: $selectedSection) {
-                        ForEach(JobsSection.allCases) { s in
-                            Text(s.rawValue).tag(s)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                    .padding(EBPSpacing.md)
-                    .background(Color.clear)
 
-                    WorkflowKPIBanner(snapshot: workflowSnapshot)
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 0) {
+                        GeometryReader { geo in
+                            Color.clear
+                                .preference(
+                                    key: VerticalScrollOffsetKey.self,
+                                    value: geo.frame(in: .named("jobsMainScroll")).minY
+                                )
+                        }
+                        .frame(height: 0)
+
+                        Picker("Section", selection: $selectedSection) {
+                            ForEach(JobsSection.allCases) { s in
+                                Text(s.rawValue).tag(s)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+                        .padding(EBPSpacing.md)
+                        .background(Color.clear)
+
+                        WorkflowKPIBanner(snapshot: workflowSnapshot)
+                            .padding(.horizontal, EBPSpacing.md)
+                            .padding(.bottom, EBPSpacing.sm)
+
+                        WorkflowNextActionBanner(action: nextAction) { target in
+                            workflowRouter.navigate(to: target, handoffMessage: nextAction.title)
+                        }
                         .padding(.horizontal, EBPSpacing.md)
                         .padding(.bottom, EBPSpacing.sm)
 
-                    WorkflowNextActionBanner(action: nextAction) { target in
-                        workflowRouter.navigate(to: target, handoffMessage: nextAction.title)
-                    }
-                    .padding(.horizontal, EBPSpacing.md)
-                    .padding(.bottom, EBPSpacing.sm)
+                        switch selectedSection {
+                        case .board:    boardView
+                        case .calendar: calendarView
+                        case .crew:     crewView
+                        }
 
-                    // ── Content ───────────────────────────────────────────────
-                    switch selectedSection {
-                    case .board:    boardView
-                    case .calendar: calendarView
-                    case .crew:     crewView
+                        Spacer(minLength: 120)
                     }
+                }
+                .coordinateSpace(name: "jobsMainScroll")
+                .onPreferenceChange(VerticalScrollOffsetKey.self) { offset in
+                    workflowRouter.setDockCompact(offset < -30, for: .jobs)
                 }
             }
             .navigationTitle("Jobs")
@@ -179,35 +194,20 @@ struct JobsView: View {
 
             // Job list
             if filteredJobs.isEmpty {
-                Spacer()
                 EBPEmptyState(
                     icon: "hammer.fill",
                     title: "No Jobs",
                     subtitle: "Create a job from a signed bid to get started."
                 )
-                Spacer()
+                .padding(.top, EBPSpacing.xl)
+                .padding(.horizontal, EBPSpacing.md)
             } else {
-                ScrollView {
-                    LazyVStack(spacing: EBPSpacing.sm) {
-                        GeometryReader { geo in
-                            Color.clear
-                                .preference(
-                                    key: VerticalScrollOffsetKey.self,
-                                    value: geo.frame(in: .named("jobsBoardScroll")).minY
-                                )
-                        }
-                        .frame(height: 0)
-
-                        ForEach(filteredJobs) { job in
-                            jobCard(job)
-                        }
+                LazyVStack(spacing: EBPSpacing.sm) {
+                    ForEach(filteredJobs) { job in
+                        jobCard(job)
                     }
-                    .padding(EBPSpacing.md)
                 }
-                .coordinateSpace(name: "jobsBoardScroll")
-                .onPreferenceChange(VerticalScrollOffsetKey.self) { offset in
-                    workflowRouter.setDockCompact(offset < -30, for: .jobs)
-                }
+                .padding(EBPSpacing.md)
             }
         }
     }
@@ -457,37 +457,19 @@ struct JobsView: View {
             }
 
             if dayJobs.isEmpty {
-                VStack(spacing: EBPSpacing.sm) {
-                    Image(systemName: "calendar.badge.minus")
-                        .font(.system(size: 36))
-                        .foregroundStyle(.secondary)
-                    Text("No jobs on this date")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                EBPEmptyState(
+                    icon: "calendar.badge.minus",
+                    title: "No jobs on this date",
+                    subtitle: "Pick a different day or create a job to populate the calendar."
+                )
+                .padding(.top, EBPSpacing.lg)
             } else {
-                ScrollView {
-                    LazyVStack(spacing: EBPSpacing.sm) {
-                        GeometryReader { geo in
-                            Color.clear
-                                .preference(
-                                    key: VerticalScrollOffsetKey.self,
-                                    value: geo.frame(in: .named("jobsCalendarScroll")).minY
-                                )
-                        }
-                        .frame(height: 0)
-
-                        ForEach(dayJobs) { job in
-                            jobCard(job)
-                        }
+                LazyVStack(spacing: EBPSpacing.sm) {
+                    ForEach(dayJobs) { job in
+                        jobCard(job)
                     }
-                    .padding(EBPSpacing.md)
                 }
-                .coordinateSpace(name: "jobsCalendarScroll")
-                .onPreferenceChange(VerticalScrollOffsetKey.self) { offset in
-                    workflowRouter.setDockCompact(offset < -30, for: .jobs)
-                }
+                .padding(EBPSpacing.md)
             }
         }
     }
@@ -495,38 +477,23 @@ struct JobsView: View {
     // MARK: - Crew View
 
     private var crewView: some View {
-        ScrollView {
-            VStack(spacing: EBPSpacing.md) {
-                GeometryReader { geo in
-                    Color.clear
-                        .preference(
-                            key: VerticalScrollOffsetKey.self,
-                            value: geo.frame(in: .named("jobsCrewScroll")).minY
-                        )
-                }
-                .frame(height: 0)
+        VStack(spacing: EBPSpacing.md) {
+            let crewNames = Set(allJobs.flatMap { $0.assignedCrew })
 
-                let crewNames = Set(allJobs.flatMap { $0.assignedCrew })
-
-                if crewNames.isEmpty {
-                    EBPEmptyState(
-                        icon: "person.3.fill",
-                        title: "No Crew Members",
-                        subtitle: "Assign crew members to jobs to see them here."
-                    )
-                    .padding(.top, EBPSpacing.xl)
-                } else {
-                    ForEach(Array(crewNames).sorted(), id: \.self) { name in
-                        crewMemberCard(name)
-                    }
+            if crewNames.isEmpty {
+                EBPEmptyState(
+                    icon: "person.3.fill",
+                    title: "No Crew Members",
+                    subtitle: "Assign crew members to jobs to see them here."
+                )
+                .padding(.top, EBPSpacing.xl)
+            } else {
+                ForEach(Array(crewNames).sorted(), id: \.self) { name in
+                    crewMemberCard(name)
                 }
             }
-            .padding(EBPSpacing.md)
         }
-        .coordinateSpace(name: "jobsCrewScroll")
-        .onPreferenceChange(VerticalScrollOffsetKey.self) { offset in
-            workflowRouter.setDockCompact(offset < -30, for: .jobs)
-        }
+        .padding(EBPSpacing.md)
     }
 
     private func crewMemberCard(_ name: String) -> some View {
