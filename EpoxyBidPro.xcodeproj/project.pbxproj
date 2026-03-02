@@ -36,6 +36,14 @@
 		8A571789DE9C78EC16B9F6D7 /* RoomPlan.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 479FE022B76DE03DF3D4B5A9 /* RoomPlan.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		8CF472BA84838CD35EA1FBA8 /* ScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3394DB4CD0C89D817B988644 /* ScanView.swift */; };
 		8E370C886DE4A60A5E26E0E2 /* PerimeterRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F7F1284168DFC3743EB8136 /* PerimeterRenderer.swift */; };
+		AA1000000000000000000001 /* WorkflowKPIBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1000000000000000000001 /* WorkflowKPIBanner.swift */; };
+		AA1000000000000000000002 /* WorkflowNextActionBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1000000000000000000002 /* WorkflowNextActionBanner.swift */; };
+		AA1000000000000000000003 /* WorkflowStatusPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1000000000000000000003 /* WorkflowStatusPalette.swift */; };
+		AA1000000000000000000004 /* WorkflowRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1000000000000000000004 /* WorkflowRouter.swift */; };
+		AA1000000000000000000005 /* EpoxyAIWorkflowAdvisor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1000000000000000000005 /* EpoxyAIWorkflowAdvisor.swift */; };
+		AA1000000000000000000006 /* WorkflowKPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1000000000000000000006 /* WorkflowKPIService.swift */; };
+		AA1000000000000000000007 /* AppHaptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1000000000000000000007 /* AppHaptics.swift */; };
+		AA1000000000000000000008 /* VerticalScrollOffsetKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1000000000000000000008 /* VerticalScrollOffsetKey.swift */; };
 		93FFB610C883D0E397E94ACB /* AppLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6F50F1FE1B81A3E902B4AE /* AppLanguage.swift */; };
 		A37BCE70E68210A58FBFBD9B /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6230CE7F787EF666C98046CE /* Localizable.strings */; };
 		A41B14821F84C3BF7C93EF5A /* AutoScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08FBA7AA38FE105B34FCB369 /* AutoScanView.swift */; };
@@ -103,6 +111,14 @@
 		87433FB77F3B199854DF26B7 /* InvoicingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoicingView.swift; sourceTree = "<group>"; };
 		874A9E5B03019F77AE33896B /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		8CF437396C48892A5B99B056 /* BidBuilderViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BidBuilderViewModel.swift; sourceTree = "<group>"; };
+		BB1000000000000000000001 /* WorkflowKPIBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkflowKPIBanner.swift; sourceTree = "<group>"; };
+		BB1000000000000000000002 /* WorkflowNextActionBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkflowNextActionBanner.swift; sourceTree = "<group>"; };
+		BB1000000000000000000003 /* WorkflowStatusPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkflowStatusPalette.swift; sourceTree = "<group>"; };
+		BB1000000000000000000004 /* WorkflowRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkflowRouter.swift; sourceTree = "<group>"; };
+		BB1000000000000000000005 /* EpoxyAIWorkflowAdvisor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EpoxyAIWorkflowAdvisor.swift; sourceTree = "<group>"; };
+		BB1000000000000000000006 /* WorkflowKPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkflowKPIService.swift; sourceTree = "<group>"; };
+		BB1000000000000000000007 /* AppHaptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppHaptics.swift; sourceTree = "<group>"; };
+		BB1000000000000000000008 /* VerticalScrollOffsetKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerticalScrollOffsetKey.swift; sourceTree = "<group>"; };
 		9541B295B649BA504CB924B8 /* CRMSheets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CRMSheets.swift; sourceTree = "<group>"; };
 		95DE1879E8D073DB5CD621F1 /* BidCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BidCardView.swift; sourceTree = "<group>"; };
 		98ABE198A1E6326AA174B667 /* BidViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BidViewModel.swift; sourceTree = "<group>"; };
@@ -256,6 +272,7 @@
 			isa = PBXGroup;
 			children = (
 				BAEE74BD9A7BA2A889405CAB /* MainTabView.swift */,
+				BB1000000000000000000004 /* WorkflowRouter.swift */,
 			);
 			path = Navigation;
 			sourceTree = "<group>";
@@ -279,6 +296,9 @@
 			children = (
 				623AFCAA35446E3E3160F98D /* DesignTokens.swift */,
 				73D1344769F0B1B8AE81E83B /* EBPComponents.swift */,
+				BB1000000000000000000001 /* WorkflowKPIBanner.swift */,
+				BB1000000000000000000002 /* WorkflowNextActionBanner.swift */,
+				BB1000000000000000000003 /* WorkflowStatusPalette.swift */,
 			);
 			path = DesignSystem;
 			sourceTree = "<group>";
@@ -286,8 +306,10 @@
 		8E7E881F7C614250B0B96C03 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				BB1000000000000000000007 /* AppHaptics.swift */,
 				EF6F50F1FE1B81A3E902B4AE /* AppLanguage.swift */,
 				0121FBCDE2DEF01F9FE46B28 /* ReachabilityMonitor.swift */,
+				BB1000000000000000000008 /* VerticalScrollOffsetKey.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -320,7 +342,9 @@
 		AC4BF552D0A2FD5CB127B87E /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				BB1000000000000000000005 /* EpoxyAIWorkflowAdvisor.swift */,
 				5D91E1AC3E1321DF1EC47473 /* SyncManager.swift */,
+				BB1000000000000000000006 /* WorkflowKPIService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -465,6 +489,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA1000000000000000000007 /* AppHaptics.swift in Sources */,
 				F790DDE0C55860FB81BE4C81 /* ARViewContainer.swift in Sources */,
 				244879217CFEBD85ADE7E2DD /* AdditionalModels.swift in Sources */,
 				7D3A8D874B3814A96293CEAA /* AnalyticsView.swift in Sources */,
@@ -513,6 +538,13 @@
 				8CF472BA84838CD35EA1FBA8 /* ScanView.swift in Sources */,
 				4CA4665F7729384CE8270CF5 /* SignatureView.swift in Sources */,
 				DB0F873535FFBDB75097F6B3 /* SyncManager.swift in Sources */,
+				AA1000000000000000000008 /* VerticalScrollOffsetKey.swift in Sources */,
+				AA1000000000000000000005 /* EpoxyAIWorkflowAdvisor.swift in Sources */,
+				AA1000000000000000000001 /* WorkflowKPIBanner.swift in Sources */,
+				AA1000000000000000000002 /* WorkflowNextActionBanner.swift in Sources */,
+				AA1000000000000000000006 /* WorkflowKPIService.swift in Sources */,
+				AA1000000000000000000004 /* WorkflowRouter.swift in Sources */,
+				AA1000000000000000000003 /* WorkflowStatusPalette.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

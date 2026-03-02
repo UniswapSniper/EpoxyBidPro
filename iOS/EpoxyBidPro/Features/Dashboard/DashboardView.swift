@@ -545,7 +545,7 @@ struct DashboardView: View {
             .filter { !["COMPLETE", "INVOICED"].contains($0.status) }
             .prefix(5)
 
-        VStack(alignment: .leading, spacing: 16) {
+        return VStack(alignment: .leading, spacing: 16) {
             HStack {
                 Text("Active Jobs")
                     .font(.title3.weight(.bold))

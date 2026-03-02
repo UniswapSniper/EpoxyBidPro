@@ -190,7 +190,7 @@ struct MoreView: View {
                 }
 
                 // ── AI + Scanning Platform ─────────────────────────────────
-                Section("AI + Scanning") {
+                Section {
                     HStack {
                         Label("RoomPlan LiDAR", systemImage: "square.fill.on.square.fill")
                         Spacer()
@@ -212,17 +212,21 @@ struct MoreView: View {
                             .foregroundStyle(.secondary)
                             .multilineTextAlignment(.trailing)
                     }
+                } header: {
+                    Text("AI + Scanning")
                 } footer: {
                     Text("Scanning defaults to RoomPlan on LiDAR-capable devices and falls back to ARKit perimeter scanning when needed.")
                 }
 
                 // ── Interaction ────────────────────────────────────────────
-                Section("Interaction") {
+                Section {
                     Picker("Dock Haptics", selection: $dockHapticMode) {
                         Text("Strong").tag("strong")
                         Text("Subtle").tag("subtle")
                     }
                     .pickerStyle(.segmented)
+                } header: {
+                    Text("Interaction")
                 } footer: {
                     Text("Controls haptic intensity for global quick-action dock taps.")
                 }
@@ -263,13 +267,15 @@ struct MoreView: View {
                     .foregroundStyle(.primary)
                 }
 
-                Section("Getting Started") {
+                Section {
                     Button {
                         hasSeenFirstTimeTabTooltips = false
                         workflowRouter.navigate(to: .dashboard, handoffMessage: "App tour will replay on next launch")
                     } label: {
                         Label("Replay App Tips", systemImage: "lightbulb")
                     }
+                } header: {
+                    Text("Getting Started")
                 } footer: {
                     Text("App tips are shown automatically for first-time users and can be replayed anytime.")
                 }
