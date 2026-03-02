@@ -128,7 +128,7 @@ struct BidStatusBadge: View {
     }
 
     private var color: Color {
-        WorkflowStatusPalette.bid(status)
+        bidStatusColor(status)
     }
 }
 
@@ -136,7 +136,19 @@ struct BidStatusBadge: View {
 
 extension Bid {
     var statusColor: Color {
-        WorkflowStatusPalette.bid(status)
+        bidStatusColor(status)
+    }
+}
+
+private func bidStatusColor(_ status: String) -> Color {
+    switch status {
+    case "DRAFT":    return Color(.systemGray3)
+    case "SENT":     return .blue
+    case "VIEWED":   return EBPColor.warning
+    case "SIGNED":   return EBPColor.success
+    case "DECLINED": return EBPColor.danger
+    case "EXPIRED":  return Color(.systemGray4)
+    default:          return EBPColor.primary
     }
 }
 
