@@ -1,4 +1,7 @@
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // EBPComponents.swift
@@ -41,7 +44,7 @@ struct EBPButton: View {
 
     var body: some View {
         Button {
-            AppHaptics.trigger(.medium)
+            triggerTapHaptic()
             action()
         } label: {
             HStack(spacing: EBPSpacing.sm) {
@@ -74,6 +77,12 @@ struct EBPButton: View {
         .buttonStyle(.plain)
         .disabled(isLoading)
         .animation(EBPAnimation.fast, value: isLoading)
+    }
+
+    private func triggerTapHaptic() {
+#if canImport(UIKit)
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+#endif
     }
 
     @ViewBuilder private var backgroundFill: some View {
