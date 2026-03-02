@@ -191,6 +191,12 @@ struct MoreView: View {
 
                 // ── AI + Scanning Platform ─────────────────────────────────
                 Section {
+                    NavigationLink {
+                        AIAssistantView()
+                    } label: {
+                        Label("AI Assistant", systemImage: "message.badge.waveform")
+                    }
+
                     HStack {
                         Label("RoomPlan LiDAR", systemImage: "square.fill.on.square.fill")
                         Spacer()
@@ -339,6 +345,226 @@ private struct MoreInfoView: View {
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
     }
+}
+
+private struct AIAssistantView: View {
+    @StateObject private var viewModel = AIAssistantViewModel()
+    @State private var draft = ""
+
+    private let starterPrompts = [
+        "What should I work on first today?",
+        "How can I improve bid win rate this week?",
+        "Give me a client follow-up message template",
+    ]
+
+    var body: some View {
+        VStack(spacing: 0) {
+            ScrollViewReader { proxy in
+                ScrollView(showsIndicators: false) {
+                    LazyVStack(alignment: .leading, spacing: EBPSpacing.sm) {
+                        if viewModel.messages.count <= 1 {
+                            VStack(alignment: .leading, spacing: EBPSpacing.sm) {
+                                Text("Try a quick prompt")
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundStyle(.secondary)
+
+                                ForEach(starterPrompts, id: \.self) { prompt in
+                                    Button(prompt) {
+                                        submit(prompt)
+                                    }
+                                    .font(.caption)
+                                    .foregroundStyle(EBPColor.primary)
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 8)
+                                    .background(EBPColor.primary.opacity(0.08), in: Capsule())
+                                }
+                            }
+                            .padding(.horizontal, EBPSpacing.md)
+                            .padding(.top, EBPSpacing.md)
+                        }
+
+                        ForEach(viewModel.messages) { message in
+                            messageBubble(message)
+                                .id(message.id)
+                        }
+
+                        if viewModel.isThinking {
+                            HStack(spacing: 8) {
+                                ProgressView()
+                                    .scaleEffect(0.8)
+                                Text("Assistant is thinking…")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            .padding(.horizontal, EBPSpacing.md)
+                            .padding(.top, EBPSpacing.sm)
+                        }
+                    }
+                    .padding(.vertical, EBPSpacing.md)
+                }
+                .onChange(of: viewModel.messages.count) { _, _ in
+                    guard let lastId = viewModel.messages.last?.id else { return }
+                    withAnimation(EBPAnimation.smooth) {
+                        proxy.scrollTo(lastId, anchor: .bottom)
+                    }
+                }
+            }
+
+            Divider()
+
+            HStack(spacing: EBPSpacing.sm) {
+                TextField("Ask the assistant…", text: $draft, axis: .vertical)
+                    .textFieldStyle(.roundedBorder)
+                    .lineLimit(1...4)
+
+                Button {
+                    submit(draft)
+                } label: {
+                    Image(systemName: "arrow.up.circle.fill")
+                        .font(.title2)
+                        .foregroundStyle(draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? .secondary : EBPColor.primary)
+                }
+                .disabled(draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || viewModel.isThinking)
+            }
+            .padding(EBPSpacing.md)
+            .background(.ultraThinMaterial)
+        }
+        .navigationTitle("AI Assistant")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private func submit(_ text: String) {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        draft = ""
+        viewModel.send(trimmed)
+    }
+
+    private func messageBubble(_ message: AssistantMessage) -> some View {
+        HStack {
+            if message.role == .assistant {
+                Label("", systemImage: "brain")
+                    .foregroundStyle(EBPColor.primary)
+                    .padding(.top, 4)
+            } else {
+                Spacer(minLength: 0)
+            }
+
+            Text(message.text)
+                .font(.subheadline)
+                .foregroundStyle(message.role == .assistant ? Color.primary : Color.white)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 10)
+                .background(
+                    message.role == .assistant
+                    ? AnyShapeStyle(EBPColor.surface.opacity(0.35))
+                    : AnyShapeStyle(EBPColor.primaryGradient)
+                , in: RoundedRectangle(cornerRadius: EBPRadius.md))
+
+            if message.role == .assistant {
+                Spacer(minLength: 0)
+            }
+        }
+        .padding(.horizontal, EBPSpacing.md)
+    }
+}
+
+@MainActor
+private final class AIAssistantViewModel: ObservableObject {
+    @Published var messages: [AssistantMessage] = [
+        AssistantMessage(
+            role: .assistant,
+            text: "I can help with leads, bids, scheduling, invoices, and client communication. Ask anything."
+        )
+    ]
+    @Published var isThinking = false
+
+    private let service: AIAssistantServing
+
+    init(service: AIAssistantServing = AIAssistantService()) {
+        self.service = service
+    }
+
+    func send(_ userText: String) {
+        messages.append(AssistantMessage(role: .user, text: userText))
+        isThinking = true
+
+        Task {
+            let reply = (try? await service.reply(to: userText))
+                ?? "I couldn’t reach the assistant backend. Try again shortly."
+            messages.append(AssistantMessage(role: .assistant, text: reply))
+            isThinking = false
+        }
+    }
+}
+
+private protocol AIAssistantServing {
+    func reply(to message: String) async throws -> String
+}
+
+private struct AIAssistantService: AIAssistantServing {
+    func reply(to message: String) async throws -> String {
+        let baseURLString = UserDefaults.standard.string(forKey: "assistantAPIBaseURL")
+            ?? "http://localhost:3000"
+
+        guard let url = URL(string: "\(baseURLString)/api/v1/assistant/chat") else {
+            return localFallback(for: message)
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.timeoutInterval = 12
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONEncoder().encode(AssistantRequest(message: message))
+
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard let http = response as? HTTPURLResponse,
+                  (200..<300).contains(http.statusCode) else {
+                return localFallback(for: message)
+            }
+            let payload = try JSONDecoder().decode(AssistantResponse.self, from: data)
+            return payload.reply
+        } catch {
+            return localFallback(for: message)
+        }
+    }
+
+    private func localFallback(for message: String) -> String {
+        let lower = message.lowercased()
+        if lower.contains("follow") || lower.contains("lead") {
+            return "Start in CRM: clear overdue follow-ups first, then work SITE_VISIT leads created in the last 48 hours."
+        }
+        if lower.contains("bid") || lower.contains("quote") {
+            return "Open Bids, run Scan Space, then Build From Scan to reduce manual entry and tighten pricing consistency."
+        }
+        if lower.contains("invoice") || lower.contains("collect") {
+            return "Open Invoicing and filter Overdue first. Send reminders before creating new invoices to improve collections pace."
+        }
+        if lower.contains("job") || lower.contains("crew") || lower.contains("schedule") {
+            return "In Jobs, create from signed bids, then use at-risk filtering to catch margin and schedule issues early."
+        }
+        return "Backend assistant endpoint is ready at /api/assistant/chat. Set assistantAPIBaseURL in UserDefaults to connect your server."
+    }
+}
+
+private struct AssistantRequest: Codable {
+    let message: String
+}
+
+private struct AssistantResponse: Codable {
+    let reply: String
+}
+
+private struct AssistantMessage: Identifiable {
+    enum Role {
+        case user
+        case assistant
+    }
+
+    let id = UUID()
+    let role: Role
+    let text: String
 }
 
 // ─── Color helper for tertiaryLabel ──────────────────────────────────────────

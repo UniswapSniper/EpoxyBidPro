@@ -52,35 +52,52 @@ struct CRMView: View {
         NavigationStack {
             ZStack {
                 EBPDynamicBackground()
-                
-                VStack(spacing: EBPSpacing.md) {
-                    crmHeader
 
-                    WorkflowKPIBanner(snapshot: workflowSnapshot)
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: EBPSpacing.md) {
+                        GeometryReader { geo in
+                            Color.clear
+                                .preference(
+                                    key: VerticalScrollOffsetKey.self,
+                                    value: geo.frame(in: .named("crmMainScroll")).minY
+                                )
+                        }
+                        .frame(height: 0)
+
+                        crmHeader
+
+                        WorkflowKPIBanner(snapshot: workflowSnapshot)
+                            .padding(.horizontal, EBPSpacing.md)
+
+                        WorkflowNextActionBanner(action: nextAction) { target in
+                            workflowRouter.navigate(to: target, handoffMessage: nextAction.title)
+                        }
                         .padding(.horizontal, EBPSpacing.md)
 
-                    WorkflowNextActionBanner(action: nextAction) { target in
-                        workflowRouter.navigate(to: target, handoffMessage: nextAction.title)
-                    }
-                    .padding(.horizontal, EBPSpacing.md)
-
-                    Picker("Section", selection: $selectedSection) {
-                        ForEach(CRMSection.allCases, id: \.self) { Text($0.localizedName).tag($0) }
-                    }
-                    .pickerStyle(.segmented)
-                    .padding(.horizontal, EBPSpacing.md)
-                    .padding(.top, EBPSpacing.xs)
-
-                    Group {
-                        switch selectedSection {
-                        case .pipeline: pipelineView
-                        case .clients:  clientsView
-                        case .insights: insightsView
+                        Picker("Section", selection: $selectedSection) {
+                            ForEach(CRMSection.allCases, id: \.self) { Text($0.localizedName).tag($0) }
                         }
+                        .pickerStyle(.segmented)
+                        .padding(.horizontal, EBPSpacing.md)
+                        .padding(.top, EBPSpacing.xs)
+
+                        Group {
+                            switch selectedSection {
+                            case .pipeline: pipelineView
+                            case .clients:  clientsView
+                            case .insights: insightsView
+                            }
+                        }
+                        .id(selectedSection)
+                        .transition(.opacity.combined(with: .move(edge: .trailing)))
+                        .animation(EBPAnimation.sectionSwitch, value: selectedSection)
+
+                        Spacer(minLength: 120)
                     }
-                    .id(selectedSection)
-                    .transition(.opacity.combined(with: .move(edge: .trailing)))
-                    .animation(EBPAnimation.sectionSwitch, value: selectedSection)
+                }
+                .coordinateSpace(name: "crmMainScroll")
+                .onPreferenceChange(VerticalScrollOffsetKey.self) { offset in
+                    workflowRouter.setDockCompact(offset < -30, for: .crm)
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -163,31 +180,16 @@ struct CRMView: View {
     // MARK: - Pipeline (Kanban)
 
     private var pipelineView: some View {
-        ScrollView {
-            VStack(spacing: EBPSpacing.md) {
-                GeometryReader { geo in
-                    Color.clear
-                        .preference(
-                            key: VerticalScrollOffsetKey.self,
-                            value: geo.frame(in: .named("crmScroll")).minY
-                        )
-                }
-                .frame(height: 0)
+        VStack(spacing: EBPSpacing.md) {
+            pipelineSummaryBar
+            followUpAutomationQueue
 
-                pipelineSummaryBar
-                followUpAutomationQueue
-
-                ForEach(CRMLeadStage.allCases) { stage in
-                    kanbanColumn(stage: stage)
-                }
+            ForEach(CRMLeadStage.allCases) { stage in
+                kanbanColumn(stage: stage)
             }
-            .padding(.horizontal, EBPSpacing.md)
-            .padding(.bottom, EBPSpacing.xl)
         }
-        .coordinateSpace(name: "crmScroll")
-        .onPreferenceChange(VerticalScrollOffsetKey.self) { offset in
-            workflowRouter.setDockCompact(offset < -30, for: .crm)
-        }
+        .padding(.horizontal, EBPSpacing.md)
+        .padding(.bottom, EBPSpacing.xl)
     }
 
     private var followUpAutomationQueue: some View {
@@ -433,37 +435,27 @@ struct CRMView: View {
     // MARK: - Clients View
 
     private var clientsView: some View {
-        ScrollView {
-            VStack(spacing: EBPSpacing.md) {
-                GeometryReader { geo in
-                    Color.clear
-                        .preference(
-                            key: VerticalScrollOffsetKey.self,
-                            value: geo.frame(in: .named("crmClientsScroll")).minY
-                        )
-                }
-                .frame(height: 0)
+        VStack(spacing: EBPSpacing.md) {
+            let thisMonthClients = allClients.filter {
+                Calendar.current.isDate($0.createdAt, equalTo: Date(), toGranularity: .month)
+            }.count
 
-                let thisMonthClients = allClients.filter {
-                    Calendar.current.isDate($0.createdAt, equalTo: Date(), toGranularity: .month)
-                }.count
+            HStack(spacing: EBPSpacing.sm) {
+                EBPStatCard(
+                    title: NSLocalizedString("crm.clients", comment: ""),
+                    value: "\(allClients.count)",
+                    icon: "person.2.fill",
+                    tint: EBPColor.accent
+                )
+                EBPStatCard(
+                    title: NSLocalizedString("new", comment: ""),
+                    value: "\(thisMonthClients)",
+                    icon: "plus.circle.fill",
+                    tint: EBPColor.success
+                )
+            }
 
-                HStack(spacing: EBPSpacing.sm) {
-                    EBPStatCard(
-                        title: NSLocalizedString("crm.clients", comment: ""),
-                        value: "\(allClients.count)",
-                        icon: "person.2.fill",
-                        tint: EBPColor.accent
-                    )
-                    EBPStatCard(
-                        title: NSLocalizedString("new", comment: ""),
-                        value: "\(thisMonthClients)",
-                        icon: "plus.circle.fill",
-                        tint: EBPColor.success
-                    )
-                }
-
-                LazyVStack(spacing: EBPSpacing.sm) {
+            LazyVStack(spacing: EBPSpacing.sm) {
                 if filteredClients.isEmpty {
                     EBPEmptyState(
                         icon: "person.2.slash",
@@ -477,14 +469,9 @@ struct CRMView: View {
                     }
                 }
             }
-            }
-            .padding(EBPSpacing.md)
-            .padding(.bottom, EBPSpacing.xl)
         }
-        .coordinateSpace(name: "crmClientsScroll")
-        .onPreferenceChange(VerticalScrollOffsetKey.self) { offset in
-            workflowRouter.setDockCompact(offset < -30, for: .crm)
-        }
+        .padding(EBPSpacing.md)
+        .padding(.bottom, EBPSpacing.xl)
     }
 
     private func clientRow(_ client: Client) -> some View {
@@ -547,67 +534,49 @@ struct CRMView: View {
     // MARK: - Insights View
 
     private var insightsView: some View {
-        ScrollView {
-            VStack(spacing: EBPSpacing.md) {
-                GeometryReader { geo in
-                    Color.clear
-                        .preference(
-                            key: VerticalScrollOffsetKey.self,
-                            value: geo.frame(in: .named("crmInsightsScroll")).minY
-                        )
-                }
-                .frame(height: 0)
+        VStack(spacing: EBPSpacing.md) {
+            let wonLeads = allLeads.filter { $0.status == "WON" }.count
+            let decidedLeads = allLeads.filter { ["WON", "LOST"].contains($0.status) }.count
+            let winRate = decidedLeads > 0 ? Int(Double(wonLeads) / Double(decidedLeads) * 100) : 0
 
-                // Win rate stat
-                let wonLeads = allLeads.filter { $0.status == "WON" }.count
-                let decidedLeads = allLeads.filter { ["WON", "LOST"].contains($0.status) }.count
-                let winRate = decidedLeads > 0 ? Int(Double(wonLeads) / Double(decidedLeads) * 100) : 0
-
-                HStack(spacing: EBPSpacing.md) {
-                    insightStatCard(value: "\(winRate)%", label: NSLocalizedString("win.rate", comment: ""), icon: "trophy.fill", tint: EBPColor.gold)
-                    let avgDays = averageDaysToClose
-                    insightStatCard(value: "\(avgDays)d", label: NSLocalizedString("avg.close", comment: ""), icon: "clock.fill", tint: .blue)
-                }
-                .ebpHPadding()
-
-                HStack(spacing: EBPSpacing.md) {
-                    insightStatCard(value: "\(allClients.count)", label: NSLocalizedString("crm.clients", comment: ""), icon: "person.2.fill", tint: EBPColor.accent)
-                    let monthLeads = allLeads.filter {
-                        Calendar.current.isDate($0.createdAt, equalTo: Date(), toGranularity: .month)
-                    }.count
-                    insightStatCard(value: "\(monthLeads)", label: NSLocalizedString("new.lead", comment: ""), icon: "arrow.up.right", tint: EBPColor.success)
-                }
-                .ebpHPadding()
-
-                // Source breakdown
-                sourceBreakdown
-
-                // Actionable insights
-                insightCard(
-                    icon: "arrow.up.right.circle.fill",
-                    tint: EBPColor.success,
-                    title: NSLocalizedString("win.more.bids", comment: ""),
-                    body: "Follow up on 'SITE_VISIT' leads within 24 hours — data shows win rates are 3× higher."
-                )
-                insightCard(
-                    icon: "calendar.badge.exclamationmark",
-                    tint: EBPColor.warning,
-                    title: NSLocalizedString("overdue.followups", comment: ""),
-                    body: String(format: "You have %d leads with past-due follow-up dates. Update them now.", overdueFollowUps)
-                )
-                insightCard(
-                    icon: "star.fill",
-                    tint: EBPColor.gold,
-                    title: NSLocalizedString("reward.top.clients", comment: ""),
-                    body: "Your top 20% of clients generate 80% of revenue. Consider a VIP referral programme."
-                )
+            HStack(spacing: EBPSpacing.md) {
+                insightStatCard(value: "\(winRate)%", label: NSLocalizedString("win.rate", comment: ""), icon: "trophy.fill", tint: EBPColor.gold)
+                let avgDays = averageDaysToClose
+                insightStatCard(value: "\(avgDays)d", label: NSLocalizedString("avg.close", comment: ""), icon: "clock.fill", tint: .blue)
             }
-            .padding(.vertical, EBPSpacing.md)
-        }
-        .coordinateSpace(name: "crmInsightsScroll")
-        .onPreferenceChange(VerticalScrollOffsetKey.self) { offset in
-            workflowRouter.setDockCompact(offset < -30, for: .crm)
-        }
+            .ebpHPadding()
+
+            HStack(spacing: EBPSpacing.md) {
+                insightStatCard(value: "\(allClients.count)", label: NSLocalizedString("crm.clients", comment: ""), icon: "person.2.fill", tint: EBPColor.accent)
+                let monthLeads = allLeads.filter {
+                    Calendar.current.isDate($0.createdAt, equalTo: Date(), toGranularity: .month)
+                }.count
+                insightStatCard(value: "\(monthLeads)", label: NSLocalizedString("new.lead", comment: ""), icon: "arrow.up.right", tint: EBPColor.success)
+            }
+            .ebpHPadding()
+
+            sourceBreakdown
+
+            insightCard(
+                icon: "arrow.up.right.circle.fill",
+                tint: EBPColor.success,
+                title: NSLocalizedString("win.more.bids", comment: ""),
+                body: "Follow up on 'SITE_VISIT' leads within 24 hours — data shows win rates are 3× higher."
+            )
+            insightCard(
+                icon: "calendar.badge.exclamationmark",
+                tint: EBPColor.warning,
+                title: NSLocalizedString("overdue.followups", comment: ""),
+                body: String(format: "You have %d leads with past-due follow-up dates. Update them now.", overdueFollowUps)
+            )
+            insightCard(
+                icon: "star.fill",
+                tint: EBPColor.gold,
+                title: NSLocalizedString("reward.top.clients", comment: ""),
+                body: "Your top 20% of clients generate 80% of revenue. Consider a VIP referral programme."
+            )
+            }
+        .padding(.vertical, EBPSpacing.md)
     }
 
     // MARK: - Helpers

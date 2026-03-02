@@ -136,6 +136,10 @@ struct MainTabView: View {
             .scaleEffect(routeHandoffAnimating ? 0.996 : 1)
             .opacity(routeHandoffAnimating ? 0.985 : 1)
             .animation(EBPAnimation.smooth, value: routeHandoffAnimating)
+            .safeAreaInset(edge: .bottom) {
+                Color.clear
+                    .frame(height: selectedTab == .dashboard ? 0 : 112)
+            }
 
             quickActionDock(isCompact: workflowRouter.isDockCompact(for: activeRouteTab))
                 .padding(.horizontal, EBPSpacing.md)

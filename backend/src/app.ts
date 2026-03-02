@@ -41,6 +41,7 @@ const aiLimiter = rateLimit({
   message: { error: 'AI request limit reached. Please try again in an hour.' },
 });
 app.use('/api/v1/bids/:id/ai-suggest', aiLimiter);
+app.use('/api/v1/assistant/chat', aiLimiter);
 
 // ─── General Middleware ─────────────────────────────────────────────────────
 app.use(compression());

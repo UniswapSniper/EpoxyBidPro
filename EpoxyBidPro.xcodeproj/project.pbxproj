@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 63;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -36,6 +36,12 @@
 		8A571789DE9C78EC16B9F6D7 /* RoomPlan.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 479FE022B76DE03DF3D4B5A9 /* RoomPlan.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		8CF472BA84838CD35EA1FBA8 /* ScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3394DB4CD0C89D817B988644 /* ScanView.swift */; };
 		8E370C886DE4A60A5E26E0E2 /* PerimeterRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F7F1284168DFC3743EB8136 /* PerimeterRenderer.swift */; };
+		93FFB610C883D0E397E94ACB /* AppLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6F50F1FE1B81A3E902B4AE /* AppLanguage.swift */; };
+		A37BCE70E68210A58FBFBD9B /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6230CE7F787EF666C98046CE /* Localizable.strings */; };
+		A41B14821F84C3BF7C93EF5A /* AutoScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08FBA7AA38FE105B34FCB369 /* AutoScanView.swift */; };
+		A53F1D2287DE69334E9B6E69 /* BidCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95DE1879E8D073DB5CD621F1 /* BidCardView.swift */; };
+		A5F8AA3110723139AF867A49 /* BidBuilderSteps5_Pricing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BACFF7679D4B52E9AD9450E /* BidBuilderSteps5_Pricing.swift */; };
+		A69BB284B51C766104B48642 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAEE74BD9A7BA2A889405CAB /* MainTabView.swift */; };
 		AA1000000000000000000001 /* WorkflowKPIBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1000000000000000000001 /* WorkflowKPIBanner.swift */; };
 		AA1000000000000000000002 /* WorkflowNextActionBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1000000000000000000002 /* WorkflowNextActionBanner.swift */; };
 		AA1000000000000000000003 /* WorkflowStatusPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1000000000000000000003 /* WorkflowStatusPalette.swift */; };
@@ -44,12 +50,6 @@
 		AA1000000000000000000006 /* WorkflowKPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1000000000000000000006 /* WorkflowKPIService.swift */; };
 		AA1000000000000000000007 /* AppHaptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1000000000000000000007 /* AppHaptics.swift */; };
 		AA1000000000000000000008 /* VerticalScrollOffsetKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1000000000000000000008 /* VerticalScrollOffsetKey.swift */; };
-		93FFB610C883D0E397E94ACB /* AppLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6F50F1FE1B81A3E902B4AE /* AppLanguage.swift */; };
-		A37BCE70E68210A58FBFBD9B /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6230CE7F787EF666C98046CE /* Localizable.strings */; };
-		A41B14821F84C3BF7C93EF5A /* AutoScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08FBA7AA38FE105B34FCB369 /* AutoScanView.swift */; };
-		A53F1D2287DE69334E9B6E69 /* BidCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95DE1879E8D073DB5CD621F1 /* BidCardView.swift */; };
-		A5F8AA3110723139AF867A49 /* BidBuilderSteps5_Pricing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BACFF7679D4B52E9AD9450E /* BidBuilderSteps5_Pricing.swift */; };
-		A69BB284B51C766104B48642 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAEE74BD9A7BA2A889405CAB /* MainTabView.swift */; };
 		AFD68F891FDB47AEBE5CB43C /* EBPComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73D1344769F0B1B8AE81E83B /* EBPComponents.swift */; };
 		B0E5FB3782D6EC60FDD16A46 /* MoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82ADBA811FCDBC164E47972E /* MoreView.swift */; };
 		B43421F8B043118A83015B62 /* BidBuilderSteps8_Review.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DC5885753ACBEB678C2AEAE /* BidBuilderSteps8_Review.swift */; };
@@ -90,7 +90,7 @@
 		30C0F118E97992E3755EB124 /* icon_1024.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_1024.png; sourceTree = "<group>"; };
 		3394DB4CD0C89D817B988644 /* ScanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanView.swift; sourceTree = "<group>"; };
 		351CA546258AF85D5B73131B /* RoomTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomTest.swift; sourceTree = "<group>"; };
-		35BD59888579575B36AC6805 /* EpoxyBidPro.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = EpoxyBidPro.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		35BD59888579575B36AC6805 /* EpoxyBidPro.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EpoxyBidPro.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		35EDB633806E5EE604267FCB /* BidDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BidDetailView.swift; sourceTree = "<group>"; };
 		372E53CF92AC2515CF75C43C /* ARKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ARKit.framework; path = System/Library/Frameworks/ARKit.framework; sourceTree = SDKROOT; };
 		3B202AD97DD03408300C5DBC /* JobsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobsView.swift; sourceTree = "<group>"; };
@@ -111,6 +111,13 @@
 		87433FB77F3B199854DF26B7 /* InvoicingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoicingView.swift; sourceTree = "<group>"; };
 		874A9E5B03019F77AE33896B /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		8CF437396C48892A5B99B056 /* BidBuilderViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BidBuilderViewModel.swift; sourceTree = "<group>"; };
+		9541B295B649BA504CB924B8 /* CRMSheets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CRMSheets.swift; sourceTree = "<group>"; };
+		95DE1879E8D073DB5CD621F1 /* BidCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BidCardView.swift; sourceTree = "<group>"; };
+		98ABE198A1E6326AA174B667 /* BidViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BidViewModel.swift; sourceTree = "<group>"; };
+		9CB132FC600D27BC010A3034 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		9D52AF7E5D88CCF9B1B4743D /* CRMView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CRMView.swift; sourceTree = "<group>"; };
+		AB92521F2EBB56AD448EAD23 /* JobProfitabilityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobProfitabilityView.swift; sourceTree = "<group>"; };
+		BAEE74BD9A7BA2A889405CAB /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		BB1000000000000000000001 /* WorkflowKPIBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkflowKPIBanner.swift; sourceTree = "<group>"; };
 		BB1000000000000000000002 /* WorkflowNextActionBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkflowNextActionBanner.swift; sourceTree = "<group>"; };
 		BB1000000000000000000003 /* WorkflowStatusPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkflowStatusPalette.swift; sourceTree = "<group>"; };
@@ -119,13 +126,6 @@
 		BB1000000000000000000006 /* WorkflowKPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkflowKPIService.swift; sourceTree = "<group>"; };
 		BB1000000000000000000007 /* AppHaptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppHaptics.swift; sourceTree = "<group>"; };
 		BB1000000000000000000008 /* VerticalScrollOffsetKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerticalScrollOffsetKey.swift; sourceTree = "<group>"; };
-		9541B295B649BA504CB924B8 /* CRMSheets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CRMSheets.swift; sourceTree = "<group>"; };
-		95DE1879E8D073DB5CD621F1 /* BidCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BidCardView.swift; sourceTree = "<group>"; };
-		98ABE198A1E6326AA174B667 /* BidViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BidViewModel.swift; sourceTree = "<group>"; };
-		9CB132FC600D27BC010A3034 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
-		9D52AF7E5D88CCF9B1B4743D /* CRMView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CRMView.swift; sourceTree = "<group>"; };
-		AB92521F2EBB56AD448EAD23 /* JobProfitabilityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobProfitabilityView.swift; sourceTree = "<group>"; };
-		BAEE74BD9A7BA2A889405CAB /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		BC1B12D1F1A5250470D9B3F2 /* AnalyticsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsViewModel.swift; sourceTree = "<group>"; };
 		BD13CF086B9262B3D85C6101 /* BusinessSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BusinessSetupView.swift; sourceTree = "<group>"; };
 		C02C25EE5927A8FCEDB383BB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -442,7 +442,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 1600;
+				LastUpgradeCheck = 2620;
 				TargetAttributes = {
 					8874907E5B259CAD4D3C1B47 = {
 						DevelopmentTeam = HR82BNYZHV;
@@ -460,7 +460,6 @@
 			);
 			mainGroup = D5CD3ECB1CCEA5CEBB6FE84A;
 			minimizedProjectReferenceProxies = 1;
-			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -570,7 +569,6 @@
 				CFBundleIconName = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = HR82BNYZHV;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = iOS/EpoxyBidPro/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "EpoxyBidPro needs camera access to measure floor areas using AR technology.";
@@ -595,7 +593,6 @@
 				CFBundleIconName = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = HR82BNYZHV;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = iOS/EpoxyBidPro/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "EpoxyBidPro needs camera access to measure floor areas using AR technology.";
@@ -617,6 +614,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -648,8 +646,10 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = HR82BNYZHV;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -663,6 +663,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
@@ -673,6 +674,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -704,8 +706,10 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = HR82BNYZHV;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -726,6 +730,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;

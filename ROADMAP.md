@@ -51,11 +51,23 @@
 - [x] Added coordinated route-handoff transitions across tabs with destination-aware animated handoff banner cues
 - [x] Harmonized animation timing across Dashboard/CRM/Bids using shared `EBPAnimation` tokens for section switches, handoffs, and ambient motion
 
+### Tab Functionality + AI Assistant Prep (Completed)
+
+- [x] Refactored CRM/Bids/Jobs into full-tab scroll architecture (single parent vertical scroll per tab)
+- [x] Audited primary CTA/button flows across Dashboard, CRM, Bids, Jobs, More, and dock actions for functional routing and sheet/navigation wiring
+- [x] Added `AI Assistant` entry point in More tab with in-app chat surface for user guidance
+- [x] Added assistant integration scaffold with:
+  - backend endpoint hook (`POST /api/assistant/chat`)
+  - configurable base URL (`assistantAPIBaseURL` via `UserDefaults`)
+  - resilient local fallback responses when backend is unavailable
+- [x] Preserved clean UX constraints (no extra modals/pages beyond requested assistant entry)
+
 ### QA Notes (Current)
 
 - [ ] Run on-device manual tap-through for every tab and all primary CTA buttons
 - [ ] Verify external links (privacy URL, support email) on device
 - [ ] Verify first-time tooltip behavior across cold launch, sign-out/sign-in, and after replaying tips
+- [ ] Validate AI assistant backend response contract (`{ "reply": "..." }`) against production endpoint
 
 ---
 

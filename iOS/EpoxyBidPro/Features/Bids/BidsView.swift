@@ -87,22 +87,39 @@ struct BidsView: View {
         NavigationStack {
             ZStack {
                 EBPDynamicBackground()
-                
-                VStack(spacing: 0) {
-                    WorkflowKPIBanner(snapshot: workflowSnapshot)
+
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 0) {
+                        GeometryReader { geo in
+                            Color.clear
+                                .preference(
+                                    key: VerticalScrollOffsetKey.self,
+                                    value: geo.frame(in: .named("bidsScroll")).minY
+                                )
+                        }
+                        .frame(height: 0)
+
+                        WorkflowKPIBanner(snapshot: workflowSnapshot)
+                            .padding(.horizontal, EBPSpacing.md)
+                            .padding(.bottom, EBPSpacing.sm)
+
+                        WorkflowNextActionBanner(action: nextAction) { target in
+                            workflowRouter.navigate(to: target, handoffMessage: nextAction.title)
+                        }
                         .padding(.horizontal, EBPSpacing.md)
                         .padding(.bottom, EBPSpacing.sm)
 
-                    WorkflowNextActionBanner(action: nextAction) { target in
-                        workflowRouter.navigate(to: target, handoffMessage: nextAction.title)
-                    }
-                    .padding(.horizontal, EBPSpacing.md)
-                    .padding(.bottom, EBPSpacing.sm)
+                        workflowCommandDeck
+                        summaryBar
+                        filterChips
+                        bidList
 
-                    workflowCommandDeck
-                    summaryBar
-                    filterChips
-                    bidList
+                        Spacer(minLength: 120)
+                    }
+                }
+                .coordinateSpace(name: "bidsScroll")
+                .onPreferenceChange(VerticalScrollOffsetKey.self) { offset in
+                    workflowRouter.setDockCompact(offset < -30, for: .bids)
                 }
             }
             .navigationTitle("Bids & Proposals")
@@ -297,7 +314,7 @@ struct BidsView: View {
         if filteredBids.isEmpty {
             emptyState
         } else {
-            List {
+            LazyVStack(spacing: EBPSpacing.sm) {
                 ForEach(filteredBids) { bid in
                     Button {
                         selectedBid = bid
@@ -305,10 +322,16 @@ struct BidsView: View {
                         BidCardView(bid: bid)
                     }
                     .buttonStyle(.pressScale)
-                    .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
-                    .listRowSeparator(.hidden)
-                    .listRowBackground(Color.clear)
-                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                    .padding(.horizontal, EBPSpacing.md)
+                    .contextMenu {
+                        if bid.status == "DRAFT" {
+                            Button {
+                                selectedBid = bid
+                            } label: {
+                                Label("Send", systemImage: "paperplane.fill")
+                            }
+                        }
+
                         Button(role: .destructive) {
                             vm.deleteBid(bid, context: modelContext)
                         } label: {
@@ -320,21 +343,10 @@ struct BidsView: View {
                         } label: {
                             Label("Clone", systemImage: "doc.on.doc")
                         }
-                        .tint(.blue)
-                    }
-                    .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                        if bid.status == "DRAFT" {
-                            Button {
-                                selectedBid = bid
-                            } label: {
-                                Label("Send", systemImage: "paperplane.fill")
-                            }
-                            .tint(.green)
-                        }
                     }
                 }
             }
-            .listStyle(.plain)
+            .padding(.bottom, EBPSpacing.md)
         }
     }
 

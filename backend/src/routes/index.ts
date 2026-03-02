@@ -15,6 +15,7 @@ import notificationRoutes from './notifications';
 import crmRoutes from './crm';
 import templateRoutes from './templates';
 import documentRoutes from './documents';
+import assistantRoutes from './assistant';
 
 export const router = Router();
 
@@ -39,3 +40,4 @@ router.use('/notifications', notificationRoutes);
 router.use('/crm', crmRoutes);
 router.use('/templates', templateRoutes);
 router.use('/documents', documentRoutes);
+router.use('/assistant', assistantRoutes);
