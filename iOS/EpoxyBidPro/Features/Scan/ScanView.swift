@@ -28,6 +28,7 @@ struct ScanView: View {
                     topBar
                     Spacer()
                     statsBar
+                    aiCoachBanner
                     guidanceBanner
                     bottomBar
                 }
@@ -178,6 +179,52 @@ struct ScanView: View {
 
     // MARK: - Guidance Banner
 
+    private var aiCoachBanner: some View {
+        VStack(spacing: 8) {
+            HStack(spacing: 8) {
+                Image(systemName: "brain.head.profile")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(EBPColor.accent)
+                Text("AI Scan Coach")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundStyle(.white)
+                Spacer()
+                Text("\(scanManager.scanQualityScore)%")
+                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .foregroundStyle(scanQualityColor)
+            }
+
+            GeometryReader { proxy in
+                ZStack(alignment: .leading) {
+                    Capsule()
+                        .fill(Color.white.opacity(0.15))
+                        .frame(height: 6)
+                    Capsule()
+                        .fill(scanQualityColor)
+                        .frame(width: proxy.size.width * CGFloat(scanManager.scanQualityScore) / 100.0, height: 6)
+                }
+            }
+            .frame(height: 6)
+
+            Text(scanManager.aiCoachMessage)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(.white.opacity(0.92))
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background(.ultraThinMaterial)
+        .background(Color.black.opacity(0.28))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(scanQualityColor.opacity(0.45), lineWidth: 1)
+        )
+        .padding(.horizontal, 16)
+        .padding(.bottom, 6)
+        .opacity(scanManager.phase == .complete ? 0.95 : 1)
+    }
+
     private var guidanceBanner: some View {
         VStack(spacing: 4) {
             Text(scanManager.guidanceMessage)
@@ -193,6 +240,17 @@ struct ScanView: View {
         }
         .padding(.vertical, 8)
         .padding(.horizontal, 16)
+    }
+
+    private var scanQualityColor: Color {
+        switch scanManager.scanQualityScore {
+        case ..<45:
+            return .orange
+        case ..<75:
+            return EBPColor.accent
+        default:
+            return .green
+        }
     }
 
     // MARK: - Bottom Bar

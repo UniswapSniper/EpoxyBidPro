@@ -44,6 +44,8 @@ final class ScanSessionManager: NSObject, ObservableObject {
     @Published var isNearStartPoint: Bool       = false
     @Published var isLiDARAvailable: Bool       = false
     @Published var guidanceMessage: String      = "Point your device at the floor"
+    @Published var aiCoachMessage: String       = "AI coach: Keep the device chest-high and tilted toward floor edges."
+    @Published var scanQualityScore: Int        = 35
     @Published var isSessionReady: Bool         = false
     @Published var cornerCount: Int             = 0
 
@@ -58,6 +60,11 @@ final class ScanSessionManager: NSObject, ObservableObject {
     private var floorY: Float                   = 0
     private var currentFloorPosition: SIMD3<Float>?
     private var currentDeviceXZ: SIMD2<Float>?
+    private var cameraSpeedMps: Float           = 0
+    private var lastCameraPosition: SIMD3<Float>?
+    private var lastFrameTimestamp: TimeInterval?
+    private var lastCoachUpdateTimestamp: TimeInterval = 0
+    private var trackingStateBucket: TrackingStateBucket = .initializing
 
     // ── Tuning ──────────────────────────────────────────────────────────────
 
@@ -65,6 +72,15 @@ final class ScanSessionManager: NSObject, ObservableObject {
     private let snapRadius: Float = 0.50
     /// Minimum polygon sides for a valid area.
     private let minSides: Int = 3
+
+    private enum TrackingStateBucket {
+        case unavailable
+        case initializing
+        case excessiveMotion
+        case insufficientFeatures
+        case relocalizing
+        case normal
+    }
 
     // MARK: - Session Configuration
 
@@ -101,6 +117,7 @@ final class ScanSessionManager: NSObject, ObservableObject {
         cornerCount = 1
         phase = .walking
         guidanceMessage = "Aim at the next corner and tap ●"
+        updateAICoachMessage(force: true)
 
         renderer?.addCornerMarker(at: pos, isStart: true)
         AppHaptics.trigger(.heavy)
@@ -131,6 +148,7 @@ final class ScanSessionManager: NSObject, ObservableObject {
         recalculate()
 
         AppHaptics.trigger(.medium)
+        updateAICoachMessage(force: true)
     }
 
     /// Remove the last corner (undo).
@@ -144,6 +162,7 @@ final class ScanSessionManager: NSObject, ObservableObject {
         renderer?.rebuildVisualization(points: positions, isClosed: false)
 
         AppHaptics.trigger(.light)
+        updateAICoachMessage(force: true)
     }
 
     /// Manually close the perimeter loop (final wall: last → first).
@@ -158,6 +177,7 @@ final class ScanSessionManager: NSObject, ObservableObject {
         renderer?.rebuildVisualization(points: positions, isClosed: true)
 
         AppHaptics.trigger(.success)
+        updateAICoachMessage(force: true)
     }
 
     /// Restart the scan from scratch.
@@ -178,6 +198,63 @@ final class ScanSessionManager: NSObject, ObservableObject {
         } else {
             phase = .detectingFloor
             guidanceMessage = "Point your device at the floor"
+        }
+
+        aiCoachMessage = "AI coach: Re-scan slowly and capture each corner where direction changes."
+        scanQualityScore = floorPlaneAnchor == nil ? 35 : 45
+    }
+
+    private func updateAICoachMessage(force: Bool = false) {
+        let now = Date().timeIntervalSince1970
+        if !force && (now - lastCoachUpdateTimestamp) < 0.4 { return }
+        lastCoachUpdateTimestamp = now
+
+        let trackingPoints: Int
+        switch trackingStateBucket {
+        case .normal:
+            trackingPoints = 32
+        case .initializing:
+            trackingPoints = 20
+        case .excessiveMotion:
+            trackingPoints = 10
+        case .insufficientFeatures:
+            trackingPoints = 12
+        case .relocalizing:
+            trackingPoints = 8
+        case .unavailable:
+            trackingPoints = 5
+        }
+
+        let cornerPoints = min(perimeterPoints.count * 6, 30)
+        let completionPoints = phase == .complete ? 22 : 0
+        let speedPenalty = Int(max(0, (cameraSpeedMps - 0.9) * 22))
+        let base = floorPlaneAnchor == nil ? 28 : 40
+        let computed = base + trackingPoints + cornerPoints + completionPoints - speedPenalty
+        scanQualityScore = max(12, min(98, computed))
+
+        switch phase {
+        case .detectingFloor:
+            aiCoachMessage = "AI coach: Sweep left-to-right over floor edges in good light to lock the plane faster."
+        case .placingStart:
+            aiCoachMessage = "AI coach: Start at the farthest visible corner so your final closure is more precise."
+        case .walking:
+            if trackingStateBucket == .excessiveMotion || cameraSpeedMps > 1.1 {
+                aiCoachMessage = "AI coach: Slow down and keep the camera stable for cleaner edge tracking."
+            } else if trackingStateBucket == .insufficientFeatures {
+                aiCoachMessage = "AI coach: Aim at textured floor/wall boundaries; avoid glossy blank surfaces."
+            } else if isNearStartPoint && perimeterPoints.count >= minSides {
+                aiCoachMessage = "AI coach: Great loop alignment — tap CLOSE near the start marker now."
+            } else if perimeterPoints.count < 4 {
+                aiCoachMessage = "AI coach: Mark every direction change. Most rooms need 4+ corners for bid-grade accuracy."
+            } else {
+                aiCoachMessage = "AI coach: Good pace. Keep reticle exactly on each corner before tapping."
+            }
+        case .complete:
+            if wallLengthsFt.contains(where: { $0 < 1.5 }) {
+                aiCoachMessage = "AI coach: Scan completed, but very short wall segments detected. Consider a quick re-scan for cleaner geometry."
+            } else {
+                aiCoachMessage = "AI coach: Strong capture quality. Measurements are ready for pricing and bid generation."
+            }
         }
     }
 
@@ -248,6 +325,14 @@ extension ScanSessionManager: ARSessionDelegate {
             
             self.currentFloorPosition = floorPos
             self.currentDeviceXZ = SIMD2(floorPos.x, floorPos.z)
+
+            if let lastPos = self.lastCameraPosition, let lastTs = self.lastFrameTimestamp {
+                let dt = max(0.0001, frame.timestamp - lastTs)
+                let dist = simd_distance(lastPos, cam)
+                self.cameraSpeedMps = Float(dist / Float(dt))
+            }
+            self.lastCameraPosition = cam
+            self.lastFrameTimestamp = frame.timestamp
             
             // Render a reticle on the floor
             self.renderer?.updateReticle(at: floorPos)
@@ -279,6 +364,8 @@ extension ScanSessionManager: ARSessionDelegate {
                 let c = self.perimeterPoints.count - 1
                 self.guidanceMessage = "\(c) corner\(c == 1 ? "" : "s") marked · aim at the next corner"
             }
+
+            self.updateAICoachMessage()
         }
     }
 
@@ -302,6 +389,7 @@ extension ScanSessionManager: ARSessionDelegate {
                         self.phase = .placingStart
                         self.isSessionReady = true
                         self.guidanceMessage = "Floor detected — aim at a corner and tap to start"
+                        self.updateAICoachMessage(force: true)
                         AppHaptics.trigger(.light)
                     }
                 }
@@ -326,25 +414,32 @@ extension ScanSessionManager: ARSessionDelegate {
             guard let self else { return }
             switch camera.trackingState {
             case .notAvailable:
+                self.trackingStateBucket = .unavailable
                 self.guidanceMessage = "AR tracking unavailable"
             case .limited(let reason):
                 switch reason {
                 case .initializing:
+                    self.trackingStateBucket = .initializing
                     self.guidanceMessage = "Initializing — move slowly"
                 case .excessiveMotion:
+                    self.trackingStateBucket = .excessiveMotion
                     self.guidanceMessage = "Slow down — too much motion"
                 case .insufficientFeatures:
+                    self.trackingStateBucket = .insufficientFeatures
                     self.guidanceMessage = "Point at a well-lit textured surface"
                 case .relocalizing:
+                    self.trackingStateBucket = .relocalizing
                     self.guidanceMessage = "Re-localizing…"
                 @unknown default:
                     self.guidanceMessage = "Limited tracking"
                 }
             case .normal:
+                self.trackingStateBucket = .normal
                 if self.phase == .detectingFloor {
                     self.guidanceMessage = "Point your device at the floor"
                 }
             }
+            self.updateAICoachMessage(force: true)
         }
     }
 }

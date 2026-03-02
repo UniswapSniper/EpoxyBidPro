@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 import ARKit
 import RoomPlan
+import UIKit
 
 struct MoreView: View {
     @AppStorage("appLanguage") private var appLanguageRawValue = AppLanguage.system.rawValue
@@ -350,6 +351,11 @@ private struct MoreInfoView: View {
 private struct AIAssistantView: View {
     @StateObject private var viewModel = AIAssistantViewModel()
     @State private var draft = ""
+    @EnvironmentObject private var authStore: AuthStore
+    @Query(sort: \Lead.createdAt, order: .reverse) private var leads: [Lead]
+    @Query(sort: \Bid.createdAt, order: .reverse) private var bids: [Bid]
+    @Query(sort: \Job.createdAt, order: .reverse) private var jobs: [Job]
+    @Query(sort: \Invoice.createdAt, order: .reverse) private var invoices: [Invoice]
 
     private let starterPrompts = [
         "What should I work on first today?",
@@ -357,11 +363,62 @@ private struct AIAssistantView: View {
         "Give me a client follow-up message template",
     ]
 
+    private var latestAssistantReply: String? {
+        viewModel.messages.last(where: { $0.role == .assistant })?.text
+    }
+
+    private var overdueFollowUps: Int {
+        let now = Date()
+        return leads.filter {
+            guard let followUp = $0.followUpAt else { return false }
+            let status = $0.status.uppercased()
+            return followUp < now && status != "WON" && status != "LOST" && status != "CONVERTED"
+        }.count
+    }
+
+    private var draftBidCount: Int {
+        bids.filter { $0.status.uppercased() == "DRAFT" }.count
+    }
+
+    private var scheduledJobCount: Int {
+        jobs.filter {
+            let status = $0.status.uppercased()
+            return status == "SCHEDULED" || status == "IN_PROGRESS"
+        }.count
+    }
+
+    private var overdueInvoiceCount: Int {
+        invoices.filter { $0.isOverdue }.count
+    }
+
+    private var openInvoiceBalance: Double {
+        invoices.reduce(0) { partial, invoice in
+            partial + NSDecimalNumber(decimal: invoice.balanceDue).doubleValue
+        }
+    }
+
+    private var assistantContext: AssistantContextPayload {
+        AssistantContextPayload(
+            activeTab: "more",
+            businessName: authStore.businessName.isEmpty ? nil : authStore.businessName,
+            metrics: AssistantMetrics(
+                leadCount: leads.count,
+                overdueFollowUps: overdueFollowUps,
+                draftBidCount: draftBidCount,
+                scheduledJobCount: scheduledJobCount,
+                overdueInvoiceCount: overdueInvoiceCount,
+                openInvoiceBalance: openInvoiceBalance
+            )
+        )
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             ScrollViewReader { proxy in
                 ScrollView(showsIndicators: false) {
                     LazyVStack(alignment: .leading, spacing: EBPSpacing.sm) {
+                        quickActions
+
                         if viewModel.messages.count <= 1 {
                             VStack(alignment: .leading, spacing: EBPSpacing.sm) {
                                 Text("Try a quick prompt")
@@ -431,13 +488,107 @@ private struct AIAssistantView: View {
         }
         .navigationTitle("AI Assistant")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    UIPasteboard.general.string = latestAssistantReply
+                } label: {
+                    Label("Copy", systemImage: "doc.on.doc")
+                        .labelStyle(.iconOnly)
+                }
+                .disabled((latestAssistantReply ?? "").isEmpty)
+            }
+        }
+    }
+
+    private var quickActions: some View {
+        VStack(alignment: .leading, spacing: EBPSpacing.sm) {
+            Text("AI Workflows")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    actionChip("Daily Briefing", icon: "sun.max", tint: .orange) {
+                        let prompt = "Create my daily briefing using these numbers. Prioritize what I should do in the next 2 hours and include one specific next action in the app."
+                        viewModel.send(
+                            prompt,
+                            mode: .dailyBriefing,
+                            tone: .direct,
+                            context: assistantContext
+                        )
+                    }
+
+                    actionChip("Follow-up Draft", icon: "bubble.left.and.bubble.right", tint: EBPColor.primary) {
+                        let leadName = leads.first?.displayName.trimmingCharacters(in: .whitespacesAndNewlines)
+                        let leadText = (leadName?.isEmpty == false) ? leadName ?? "the client" : "the client"
+                        let prompt = "Write a short follow-up message for \(leadText) with a soft close and proposed next step."
+                        viewModel.send(
+                            prompt,
+                            mode: .followUpDraft,
+                            tone: .friendly,
+                            context: assistantContext
+                        )
+                    }
+
+                    actionChip("Invoice Reminder", icon: "dollarsign.circle", tint: EBPColor.success) {
+                        let overdueInvoice = invoices.first(where: { $0.isOverdue })
+                        let invoiceNumber = overdueInvoice?.invoiceNumber.isEmpty == false ? (overdueInvoice?.invoiceNumber ?? "[invoice #]") : "[invoice #]"
+                        let clientName = overdueInvoice?.client?.displayName ?? "the client"
+                        let prompt = "Draft a firm but friendly invoice reminder for \(clientName) about invoice \(invoiceNumber). Include a clear payment call-to-action."
+                        viewModel.send(
+                            prompt,
+                            mode: .invoiceReminder,
+                            tone: .concise,
+                            context: assistantContext
+                        )
+                    }
+                }
+                .padding(.horizontal, EBPSpacing.md)
+            }
+
+            HStack(spacing: 8) {
+                metricPill(title: "Overdue FU", value: "\(overdueFollowUps)", color: .orange)
+                metricPill(title: "Draft Bids", value: "\(draftBidCount)", color: EBPColor.primary)
+                metricPill(title: "Overdue Inv", value: "\(overdueInvoiceCount)", color: EBPColor.success)
+            }
+            .padding(.horizontal, EBPSpacing.md)
+        }
+        .padding(.top, EBPSpacing.md)
+    }
+
+    private func actionChip(_ title: String, icon: String, tint: Color, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Label(title, systemImage: icon)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(tint)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(tint.opacity(0.12), in: Capsule())
+        }
+        .buttonStyle(.plain)
+        .disabled(viewModel.isThinking)
+    }
+
+    private func metricPill(title: String, value: String, color: Color) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(title)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+            Text(value)
+                .font(.caption.weight(.bold))
+                .foregroundStyle(color)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 7)
+        .background(EBPColor.surface.opacity(0.3), in: Capsule())
     }
 
     private func submit(_ text: String) {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
         draft = ""
-        viewModel.send(trimmed)
+        viewModel.send(trimmed, mode: .chat, tone: .concise, context: assistantContext)
     }
 
     private func messageBubble(_ message: AssistantMessage) -> some View {
@@ -485,12 +636,17 @@ private final class AIAssistantViewModel: ObservableObject {
         self.service = service
     }
 
-    func send(_ userText: String) {
+    func send(
+        _ userText: String,
+        mode: AssistantMode = .chat,
+        tone: AssistantTone = .concise,
+        context: AssistantContextPayload? = nil
+    ) {
         messages.append(AssistantMessage(role: .user, text: userText))
         isThinking = true
 
         Task {
-            let reply = (try? await service.reply(to: userText))
+            let reply = (try? await service.reply(to: userText, mode: mode, tone: tone, context: context))
                 ?? "I couldn’t reach the assistant backend. Try again shortly."
             messages.append(AssistantMessage(role: .assistant, text: reply))
             isThinking = false
@@ -499,11 +655,21 @@ private final class AIAssistantViewModel: ObservableObject {
 }
 
 private protocol AIAssistantServing {
-    func reply(to message: String) async throws -> String
+    func reply(
+        to message: String,
+        mode: AssistantMode,
+        tone: AssistantTone,
+        context: AssistantContextPayload?
+    ) async throws -> String
 }
 
 private struct AIAssistantService: AIAssistantServing {
-    func reply(to message: String) async throws -> String {
+    func reply(
+        to message: String,
+        mode: AssistantMode,
+        tone: AssistantTone,
+        context: AssistantContextPayload?
+    ) async throws -> String {
         let baseURLString = UserDefaults.standard.string(forKey: "assistantAPIBaseURL")
             ?? "http://localhost:3000"
 
@@ -515,7 +681,14 @@ private struct AIAssistantService: AIAssistantServing {
         request.httpMethod = "POST"
         request.timeoutInterval = 12
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try JSONEncoder().encode(AssistantRequest(message: message))
+        request.httpBody = try JSONEncoder().encode(
+            AssistantRequest(
+                message: message,
+                mode: mode,
+                tone: tone,
+                context: context
+            )
+        )
 
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
@@ -544,16 +717,47 @@ private struct AIAssistantService: AIAssistantServing {
         if lower.contains("job") || lower.contains("crew") || lower.contains("schedule") {
             return "In Jobs, create from signed bids, then use at-risk filtering to catch margin and schedule issues early."
         }
-        return "Backend assistant endpoint is ready at /api/assistant/chat. Set assistantAPIBaseURL in UserDefaults to connect your server."
+        return "Backend assistant endpoint is ready at /api/v1/assistant/chat. Set assistantAPIBaseURL in UserDefaults to connect your server."
     }
 }
 
 private struct AssistantRequest: Codable {
     let message: String
+    let mode: AssistantMode
+    let tone: AssistantTone
+    let context: AssistantContextPayload?
 }
 
 private struct AssistantResponse: Codable {
     let reply: String
+}
+
+private enum AssistantMode: String, Codable {
+    case chat = "chat"
+    case dailyBriefing = "daily_briefing"
+    case followUpDraft = "follow_up_draft"
+    case invoiceReminder = "invoice_reminder"
+}
+
+private enum AssistantTone: String, Codable {
+    case concise = "concise"
+    case friendly = "friendly"
+    case direct = "direct"
+}
+
+private struct AssistantContextPayload: Codable {
+    let activeTab: String?
+    let businessName: String?
+    let metrics: AssistantMetrics?
+}
+
+private struct AssistantMetrics: Codable {
+    let leadCount: Int
+    let overdueFollowUps: Int
+    let draftBidCount: Int
+    let scheduledJobCount: Int
+    let overdueInvoiceCount: Int
+    let openInvoiceBalance: Double
 }
 
 private struct AssistantMessage: Identifiable {

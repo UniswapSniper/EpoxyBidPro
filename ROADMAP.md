@@ -57,10 +57,30 @@
 - [x] Audited primary CTA/button flows across Dashboard, CRM, Bids, Jobs, More, and dock actions for functional routing and sheet/navigation wiring
 - [x] Added `AI Assistant` entry point in More tab with in-app chat surface for user guidance
 - [x] Added assistant integration scaffold with:
-  - backend endpoint hook (`POST /api/assistant/chat`)
+  - backend endpoint hook (`POST /api/v1/assistant/chat`)
   - configurable base URL (`assistantAPIBaseURL` via `UserDefaults`)
   - resilient local fallback responses when backend is unavailable
 - [x] Preserved clean UX constraints (no extra modals/pages beyond requested assistant entry)
+
+### AI Workflow Upgrades (Completed)
+
+- [x] Added context-aware assistant payload contract with AI mode + tone controls (`chat`, `daily_briefing`, `follow_up_draft`, `invoice_reminder`)
+- [x] Added business KPI context injection (leads, overdue follow-ups, draft bids, scheduled jobs, overdue invoices, open balance)
+- [x] Added one-tap AI workflow chips in More → AI Assistant:
+  - Daily Briefing
+  - Follow-up Draft
+  - Invoice Reminder Draft
+- [x] Added quick-copy action for latest assistant response in chat toolbar
+
+### AI-Guided Scanning Coach (Completed)
+
+- [x] Added real-time AI Scan Coach to manual perimeter scan (`ScanView` + `ScanSessionManager`) with:
+  - live coaching prompts during floor detection, start-point placement, perimeter walk, and close-loop
+  - scan quality score (0–100) driven by tracking quality, motion stability, corner capture count, and closure quality
+- [x] Added AI Scan Coach panel to RoomPlan auto-scan (`AutoScanView` + `AutoScanManager`) with:
+  - timed in-session guidance prompts for higher-fidelity capture
+  - completion quality assessment tuned to wall coverage and usable area
+- [x] Kept coaching resilient/offline with on-device heuristics so scan guidance remains available without backend connectivity
 
 ### QA Notes (Current)
 
