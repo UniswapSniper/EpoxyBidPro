@@ -3,7 +3,7 @@ import SwiftData
 
 // ─── BidDetailView ─────────────────────────────────────────────────────────────
 // Full detail view for a single bid, with tabs for overview, line items,
-// AI suggestions, and proposal delivery controls.
+// AI suggestions, proposal builder, and version history.
 
 struct BidDetailView: View {
 
@@ -30,11 +30,19 @@ struct BidDetailView: View {
     @State private var declineReason = ""
     @State private var sendDeliveryMethod = "email"
     @State private var sendCustomMessage = ""
+    @State private var isPresentingProposalBuilder = false
+
+    @Query private var allVersions: [BidVersion]
+    private var bidVersions: [BidVersion] {
+        allVersions.filter { $0.bidId == bid.id }.sorted { $0.versionNumber > $1.versionNumber }
+    }
 
     enum BidTab: String, CaseIterable {
         case overview   = "Overview"
         case lineItems  = "Line Items"
         case aiInsights = "AI Insights"
+        case proposal   = "Proposal"
+        case versions   = "Versions"
     }
 
     // MARK: - Body
@@ -57,6 +65,9 @@ struct BidDetailView: View {
         }
         .sheet(isPresented: $isPresentingSend) {
             sendSheet
+        }
+        .sheet(isPresented: $isPresentingProposalBuilder) {
+            ProposalBuilderView(bid: bid)
         }
         .alert("Convert to Job?", isPresented: $isShowingConvertAlert) {
             Button("Convert", role: .destructive) {
@@ -187,6 +198,10 @@ struct BidDetailView: View {
             lineItemsTab
         case .aiInsights:
             aiInsightsTab
+        case .proposal:
+            proposalTab
+        case .versions:
+            versionsTab
         }
     }
 
@@ -327,6 +342,115 @@ struct BidDetailView: View {
                                 .foregroundStyle(.blue)
                                 .padding(.vertical, 2)
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    // ── Proposal Tab ──────────────────────────────────────────────────────────
+
+    private var proposalTab: some View {
+        VStack(alignment: .leading, spacing: EBPSpacing.md) {
+            // Proposal readiness summary
+            sectionCard(title: "Proposal Status") {
+                proposalStatusRow("Cover Page", isSet: true)
+                proposalStatusRow("Executive Summary", isSet: !bid.executiveSummary.isEmpty)
+                proposalStatusRow("Scope of Work", isSet: !bid.scopeNotes.isEmpty)
+                proposalStatusRow("Product Info", isSet: true)
+                proposalStatusRow("Warranty & Terms", isSet: true)
+                proposalStatusRow("Branding", isSet: true)
+            }
+
+            if !bid.executiveSummary.isEmpty {
+                sectionCard(title: "Executive Summary") {
+                    Text(bid.executiveSummary)
+                        .font(.body)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            if !bid.scopeNotes.isEmpty {
+                sectionCard(title: "Scope of Work") {
+                    Text(bid.scopeNotes)
+                        .font(.body)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            Button {
+                isPresentingProposalBuilder = true
+            } label: {
+                Label("Open Proposal Builder", systemImage: "doc.richtext.fill")
+                    .font(.headline)
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(EBPColor.primary)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+            }
+        }
+    }
+
+    private func proposalStatusRow(_ label: String, isSet: Bool) -> some View {
+        HStack {
+            Image(systemName: isSet ? "checkmark.circle.fill" : "circle")
+                .foregroundStyle(isSet ? .green : .secondary)
+            Text(label)
+                .font(.subheadline)
+            Spacer()
+            Text(isSet ? "Ready" : "Missing")
+                .font(.caption)
+                .foregroundStyle(isSet ? .green : .orange)
+        }
+        .padding(.vertical, 2)
+    }
+
+    // ── Versions Tab ──────────────────────────────────────────────────────────
+
+    private var versionsTab: some View {
+        VStack(alignment: .leading, spacing: EBPSpacing.md) {
+            if bidVersions.isEmpty {
+                ContentUnavailableView(
+                    "No Versions Yet",
+                    systemImage: "clock.arrow.circlepath",
+                    description: Text("Versions are saved each time you update the proposal via the Proposal Builder.")
+                )
+            } else {
+                sectionCard(title: "Version History") {
+                    ForEach(bidVersions) { version in
+                        HStack(alignment: .top, spacing: EBPSpacing.sm) {
+                            ZStack {
+                                Circle()
+                                    .fill(EBPColor.primary.opacity(0.12))
+                                    .frame(width: 32, height: 32)
+                                Text("v\(version.versionNumber)")
+                                    .font(.caption2.weight(.bold))
+                                    .foregroundStyle(EBPColor.primary)
+                            }
+
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text(version.changeNote.isEmpty ? "Proposal update" : version.changeNote)
+                                    .font(.subheadline.weight(.medium))
+                                Text(version.createdAt.formatted(date: .abbreviated, time: .shortened))
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+
+                            Spacer()
+
+                            if version.versionNumber == bidVersions.first?.versionNumber {
+                                Text("Latest")
+                                    .font(.caption2.weight(.semibold))
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 3)
+                                    .background(EBPColor.primary.opacity(0.12))
+                                    .foregroundStyle(EBPColor.primary)
+                                    .clipShape(Capsule())
+                            }
+                        }
+                        .padding(.vertical, 4)
+                        if version.id != bidVersions.last?.id { Divider() }
                     }
                 }
             }

@@ -50,6 +50,106 @@ import SwiftData
     }
 }
 
+// ─── JobTimeEntry ─────────────────────────────────────────────────────────────
+// Tracks crew clock-in / clock-out records per job.
+
+@Model final class JobTimeEntry {
+    var id: UUID
+    var crewMember: String
+    var clockedIn: Date
+    var clockedOut: Date?
+    var notes: String
+    var jobId: UUID
+
+    init(
+        id: UUID = UUID(),
+        crewMember: String = "",
+        clockedIn: Date = Date(),
+        clockedOut: Date? = nil,
+        notes: String = "",
+        jobId: UUID = UUID()
+    ) {
+        self.id = id
+        self.crewMember = crewMember
+        self.clockedIn = clockedIn
+        self.clockedOut = clockedOut
+        self.notes = notes
+        self.jobId = jobId
+    }
+
+    var durationHours: Double {
+        let end = clockedOut ?? Date()
+        return end.timeIntervalSince(clockedIn) / 3600
+    }
+
+    var isActive: Bool { clockedOut == nil }
+}
+
+// ─── JobMaterial ──────────────────────────────────────────────────────────────
+// Per-job materials / equipment checklist item.
+
+@Model final class JobMaterial {
+    var id: UUID
+    var name: String
+    var quantity: Double
+    var unit: String
+    var estimatedCost: Decimal
+    var isAcquired: Bool
+    var notes: String
+    var sortOrder: Int
+    var jobId: UUID
+
+    init(
+        id: UUID = UUID(),
+        name: String = "",
+        quantity: Double = 1,
+        unit: String = "gal",
+        estimatedCost: Decimal = 0,
+        isAcquired: Bool = false,
+        notes: String = "",
+        sortOrder: Int = 0,
+        jobId: UUID = UUID()
+    ) {
+        self.id = id
+        self.name = name
+        self.quantity = quantity
+        self.unit = unit
+        self.estimatedCost = estimatedCost
+        self.isAcquired = isAcquired
+        self.notes = notes
+        self.sortOrder = sortOrder
+        self.jobId = jobId
+    }
+}
+
+// ─── BidVersion ───────────────────────────────────────────────────────────────
+// Snapshot record capturing each time a bid is cloned or sent as a new version.
+
+@Model final class BidVersion {
+    var id: UUID
+    var bidId: UUID
+    var versionNumber: Int
+    var snapshotJson: String   // JSON summary of key pricing at that version
+    var createdAt: Date
+    var changeNote: String
+
+    init(
+        id: UUID = UUID(),
+        bidId: UUID = UUID(),
+        versionNumber: Int = 1,
+        snapshotJson: String = "{}",
+        createdAt: Date = Date(),
+        changeNote: String = ""
+    ) {
+        self.id = id
+        self.bidId = bidId
+        self.versionNumber = versionNumber
+        self.snapshotJson = snapshotJson
+        self.createdAt = createdAt
+        self.changeNote = changeNote
+    }
+}
+
 // ─── Other Domain Models (stubs — expanded in later phases) ──────────────────
 // NOTE: Invoice and InvoiceLineItem are in CoreModels.swift
 

@@ -160,6 +160,18 @@ struct JobDetailSheet: View {
     @Bindable var job: Job
 
     @State private var showInvoiceCreation = false
+    @State private var showTimeTracking = false
+    @State private var showMaterials = false
+
+    @Query private var allTimeEntries: [JobTimeEntry]
+    @Query private var allJobMaterials: [JobMaterial]
+
+    private var jobTimeEntries: [JobTimeEntry] { allTimeEntries.filter { $0.jobId == job.id } }
+    private var jobMaterials: [JobMaterial] { allJobMaterials.filter { $0.jobId == job.id } }
+
+    private var totalTrackedHours: Double { jobTimeEntries.reduce(0) { $0 + $1.durationHours } }
+    private var activeClockIns: Int { jobTimeEntries.filter { $0.isActive }.count }
+    private var acquiredMaterialsCount: Int { jobMaterials.filter { $0.isAcquired }.count }
 
     var body: some View {
         NavigationStack {
@@ -168,12 +180,18 @@ struct JobDetailSheet: View {
 
                     // ── Hero ──────────────────────────────────────────────
                     jobHero
-                    
+
                     // ── Status Control ────────────────────────────────────
                     statusControl
 
                     // ── Crew ──────────────────────────────────────────────
                     crewSection
+
+                    // ── Time Tracking ─────────────────────────────────────
+                    timeTrackingBadge
+
+                    // ── Materials ─────────────────────────────────────────
+                    materialsBadge
 
                     // ── Checklist ─────────────────────────────────────────
                     checklistSection
@@ -200,7 +218,91 @@ struct JobDetailSheet: View {
                     }
                 }
             }
+            .sheet(isPresented: $showTimeTracking) {
+                TimeTrackingView(job: job)
+            }
+            .sheet(isPresented: $showMaterials) {
+                MaterialsTrackingView(job: job)
+            }
         }
+    }
+
+    // MARK: - Time Tracking Badge
+
+    private var timeTrackingBadge: some View {
+        Button {
+            showTimeTracking = true
+        } label: {
+            HStack(spacing: EBPSpacing.md) {
+                Image(systemName: "timer")
+                    .font(.title3)
+                    .foregroundStyle(activeClockIns > 0 ? EBPColor.accent : EBPColor.primary)
+                    .frame(width: 36)
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Time Tracking")
+                        .font(.subheadline.weight(.semibold))
+                    HStack(spacing: 6) {
+                        Text(String(format: "%.1f hrs logged", totalTrackedHours))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        if activeClockIns > 0 {
+                            Text("· \(activeClockIns) active")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(EBPColor.accent)
+                        }
+                    }
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .padding(EBPSpacing.md)
+            .background(EBPColor.surface, in: RoundedRectangle(cornerRadius: EBPRadius.md))
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Materials Badge
+
+    private var materialsBadge: some View {
+        Button {
+            showMaterials = true
+        } label: {
+            HStack(spacing: EBPSpacing.md) {
+                Image(systemName: "shippingbox.fill")
+                    .font(.title3)
+                    .foregroundStyle(EBPColor.primary)
+                    .frame(width: 36)
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Materials & Equipment")
+                        .font(.subheadline.weight(.semibold))
+                    HStack(spacing: 6) {
+                        Text("\(jobMaterials.count) item\(jobMaterials.count == 1 ? "" : "s")")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        if !jobMaterials.isEmpty {
+                            Text("· \(acquiredMaterialsCount)/\(jobMaterials.count) acquired")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(acquiredMaterialsCount == jobMaterials.count ? .green : .orange)
+                        }
+                    }
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .padding(EBPSpacing.md)
+            .background(EBPColor.surface, in: RoundedRectangle(cornerRadius: EBPRadius.md))
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: - Hero

@@ -12,6 +12,7 @@ struct AnalyticsView: View {
         case sales
         case jobs
         case crm
+        case reports
 
         var localizedTitle: String {
             switch self {
@@ -19,6 +20,7 @@ struct AnalyticsView: View {
             case .sales:   return NSLocalizedString("sales", comment: "")
             case .jobs:    return NSLocalizedString("jobs", comment: "")
             case .crm:     return NSLocalizedString("crm", comment: "")
+            case .reports: return "Reports"
             }
         }
     }
@@ -93,6 +95,9 @@ struct AnalyticsView: View {
                                 pipeline: vm.crmPipeline,
                                 ltvClients: vm.ltvClients
                             )
+
+                        case .reports:
+                            ReportsView()
                         }
                     }
                 }

@@ -59,18 +59,22 @@
 		B90EADD611305FA6C51A5741 /* ScanSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E7DBCF7A91F03E7E7195632 /* ScanSessionManager.swift */; };
 		BF017F8F460182D6624186CA /* JobProfitabilityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB92521F2EBB56AD448EAD23 /* JobProfitabilityView.swift */; };
 		C87BC7B6D3CA0925AB3D1BAD /* JobSheets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145239BB1FD776F3C8987232 /* JobSheets.swift */; };
+		C2A4FED766714137A88442A3 /* MaterialsTrackingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 944EDF80A0C947DA8DA36258 /* MaterialsTrackingView.swift */; };
+		2F8C831E82464F7C99B47757 /* TimeTrackingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B4933DC4D240F2895F6D58 /* TimeTrackingView.swift */; };
 		CC1F190B15731FA8691E299C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D49401074204DDF4D794A59D /* Assets.xcassets */; };
 		D7C4459C3DAFCE782F54269F /* FloorMeshProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F14031A1293BC14E1765F5C8 /* FloorMeshProcessor.swift */; };
 		D8B9AF0B03BB479008A0B426 /* AnalyticsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC1B12D1F1A5250470D9B3F2 /* AnalyticsViewModel.swift */; };
 		DABD7264185CDC8F4C0ED549 /* ReachabilityMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0121FBCDE2DEF01F9FE46B28 /* ReachabilityMonitor.swift */; };
 		DB0F873535FFBDB75097F6B3 /* SyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D91E1AC3E1321DF1EC47473 /* SyncManager.swift */; };
 		DF32544426725C1871BEBFB1 /* RevenueChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1A16DA7EB4CA9763823E90E /* RevenueChartView.swift */; };
+		591EB636E7D54EE8889535EA /* ReportsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 946D155FAA37494D86ED2702 /* ReportsView.swift */; };
 		EBF1233476919DD81870CD43 /* AppIcon2x60.png in Resources */ = {isa = PBXBuildFile; fileRef = F36515FC408B7953FF4A499E /* AppIcon2x60.png */; };
 		F6F5B59DC999EE629F331EE5 /* InvoiceSheets.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6B7A9486587821C196F01F5 /* InvoiceSheets.swift */; };
 		F790DDE0C55860FB81BE4C81 /* ARViewContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8400C500F9EA7FBD15513C2E /* ARViewContainer.swift */; };
 		F8D920FFAE1ADB8A2CAFB6DE /* BidBuilderSteps1_2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 635B969438D5C5FB7CA91760 /* BidBuilderSteps1_2.swift */; };
 		F91CC52130FE2BD367EAA00E /* CoreModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC6A75058F51627B6E68898A /* CoreModels.swift */; };
 		FA70FE5FC00DBF5AB4941EEE /* BidDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35EDB633806E5EE604267FCB /* BidDetailView.swift */; };
+		86496940DC8546F48093A64A /* ProposalBuilderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E711B3EE60F24B8586D7F8C6 /* ProposalBuilderView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -79,6 +83,8 @@
 		08FBA7AA38FE105B34FCB369 /* AutoScanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoScanView.swift; sourceTree = "<group>"; };
 		130FE8447CB24AA6C35DDB74 /* SignatureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignatureView.swift; sourceTree = "<group>"; };
 		145239BB1FD776F3C8987232 /* JobSheets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobSheets.swift; sourceTree = "<group>"; };
+		944EDF80A0C947DA8DA36258 /* MaterialsTrackingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaterialsTrackingView.swift; sourceTree = "<group>"; };
+		16B4933DC4D240F2895F6D58 /* TimeTrackingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeTrackingView.swift; sourceTree = "<group>"; };
 		1BACFF7679D4B52E9AD9450E /* BidBuilderSteps5_Pricing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BidBuilderSteps5_Pricing.swift; sourceTree = "<group>"; };
 		1BB286853EC7F5121A6B1333 /* ScanResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanResultView.swift; sourceTree = "<group>"; };
 		1C55ABAE68094FF52AE5DDF8 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
@@ -92,6 +98,7 @@
 		351CA546258AF85D5B73131B /* RoomTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomTest.swift; sourceTree = "<group>"; };
 		35BD59888579575B36AC6805 /* EpoxyBidPro.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EpoxyBidPro.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		35EDB633806E5EE604267FCB /* BidDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BidDetailView.swift; sourceTree = "<group>"; };
+		E711B3EE60F24B8586D7F8C6 /* ProposalBuilderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProposalBuilderView.swift; sourceTree = "<group>"; };
 		372E53CF92AC2515CF75C43C /* ARKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ARKit.framework; path = System/Library/Frameworks/ARKit.framework; sourceTree = SDKROOT; };
 		3B202AD97DD03408300C5DBC /* JobsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobsView.swift; sourceTree = "<group>"; };
 		3EDA5C9EF68A3D84A5762A8B /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -132,6 +139,7 @@
 		C6B7A9486587821C196F01F5 /* InvoiceSheets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceSheets.swift; sourceTree = "<group>"; };
 		CCC48C0E511E9C75BA04A129 /* BidBuilderSteps6_7.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BidBuilderSteps6_7.swift; sourceTree = "<group>"; };
 		D1A16DA7EB4CA9763823E90E /* RevenueChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RevenueChartView.swift; sourceTree = "<group>"; };
+		946D155FAA37494D86ED2702 /* ReportsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportsView.swift; sourceTree = "<group>"; };
 		D49401074204DDF4D794A59D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		DBEC58CFEC337AFCE2F19476 /* BidsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BidsView.swift; sourceTree = "<group>"; };
 		E00F9DAA443294F4CA3047FD /* BidBuilderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BidBuilderView.swift; sourceTree = "<group>"; };
@@ -177,6 +185,7 @@
 				00FDF29A3375830AB7B7304C /* CRMAnalyticsView.swift */,
 				AB92521F2EBB56AD448EAD23 /* JobProfitabilityView.swift */,
 				D1A16DA7EB4CA9763823E90E /* RevenueChartView.swift */,
+				946D155FAA37494D86ED2702 /* ReportsView.swift */,
 				4BAA4A770175AC871F67B6FA /* SalesAnalyticsView.swift */,
 			);
 			path = Analytics;
@@ -215,6 +224,8 @@
 			isa = PBXGroup;
 			children = (
 				145239BB1FD776F3C8987232 /* JobSheets.swift */,
+				944EDF80A0C947DA8DA36258 /* MaterialsTrackingView.swift */,
+				16B4933DC4D240F2895F6D58 /* TimeTrackingView.swift */,
 				3B202AD97DD03408300C5DBC /* JobsView.swift */,
 			);
 			path = Jobs;
@@ -398,6 +409,7 @@
 				5B767FFBEEE5146E83DEBFF0 /* BidBuilder */,
 				95DE1879E8D073DB5CD621F1 /* BidCardView.swift */,
 				35EDB633806E5EE604267FCB /* BidDetailView.swift */,
+				E711B3EE60F24B8586D7F8C6 /* ProposalBuilderView.swift */,
 				DBEC58CFEC337AFCE2F19476 /* BidsView.swift */,
 				98ABE198A1E6326AA174B667 /* BidViewModel.swift */,
 				130FE8447CB24AA6C35DDB74 /* SignatureView.swift */,
@@ -506,6 +518,7 @@
 				40D2F7320E0BEC5E59C2516C /* BidBuilderViewModel.swift in Sources */,
 				A53F1D2287DE69334E9B6E69 /* BidCardView.swift in Sources */,
 				FA70FE5FC00DBF5AB4941EEE /* BidDetailView.swift in Sources */,
+				86496940DC8546F48093A64A /* ProposalBuilderView.swift in Sources */,
 				2019890D2E84D239D0A267B1 /* BidViewModel.swift in Sources */,
 				3D62B100ECEC363EEBD5D234 /* BidsView.swift in Sources */,
 				420A0EF88B3507A8B6E3387F /* BusinessSetupView.swift in Sources */,
@@ -522,6 +535,8 @@
 				45F952A81DC96B578ED3C6FA /* InvoicingView.swift in Sources */,
 				BF017F8F460182D6624186CA /* JobProfitabilityView.swift in Sources */,
 				C87BC7B6D3CA0925AB3D1BAD /* JobSheets.swift in Sources */,
+				C2A4FED766714137A88442A3 /* MaterialsTrackingView.swift in Sources */,
+				2F8C831E82464F7C99B47757 /* TimeTrackingView.swift in Sources */,
 				223B8C6FD69401E0511D5B4D /* JobsView.swift in Sources */,
 				A69BB284B51C766104B48642 /* MainTabView.swift in Sources */,
 				B0E5FB3782D6EC60FDD16A46 /* MoreView.swift in Sources */,
@@ -529,6 +544,7 @@
 				8E370C886DE4A60A5E26E0E2 /* PerimeterRenderer.swift in Sources */,
 				DABD7264185CDC8F4C0ED549 /* ReachabilityMonitor.swift in Sources */,
 				DF32544426725C1871BEBFB1 /* RevenueChartView.swift in Sources */,
+				591EB636E7D54EE8889535EA /* ReportsView.swift in Sources */,
 				87D0943ED5641D8E67D1F962 /* RoomTest.swift in Sources */,
 				06769687E85B91A28B1E214B /* RootView.swift in Sources */,
 				B871DD2E63DAB8316ED865C7 /* SalesAnalyticsView.swift in Sources */,
