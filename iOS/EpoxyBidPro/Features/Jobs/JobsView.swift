@@ -16,20 +16,13 @@ struct JobsView: View {
     @Query(sort: \Invoice.createdAt, order: .reverse) private var workflowInvoices: [Invoice]
     @Query(sort: \Measurement.scanDate, order: .reverse) private var workflowMeasurements: [Measurement]
 
-    @State private var selectedSection: JobsSection = .board
     @State private var selectedFilter: JobStatusFilter = .all
     @State private var showAddJob = false
     @State private var selectedJob: Job? = nil
     @State private var calendarDate = Date()
     @State private var showOnlyAtRisk = false
-
-    enum JobsSection: String, CaseIterable, Identifiable {
-        case board    = "Board"
-        case calendar = "Calendar"
-        case crew     = "Crew"
-
-        var id: String { rawValue }
-    }
+    @State private var showCalendar = false
+    @State private var showCrew = false
 
     enum JobStatusFilter: String, CaseIterable {
         case all         = "All"
@@ -76,20 +69,6 @@ struct JobsView: View {
         return allBids.filter { $0.status == "SIGNED" && !linkedBidIds.contains($0.id) }
     }
 
-    private var workflowSnapshot: WorkflowKPISnapshot {
-        WorkflowKPIService.snapshot(
-            leads: workflowLeads,
-            bids: allBids,
-            jobs: allJobs,
-            invoices: workflowInvoices,
-            measurements: workflowMeasurements
-        )
-    }
-
-    private var nextAction: WorkflowNextAction {
-        WorkflowKPIService.nextBestAction(from: workflowSnapshot)
-    }
-
     var body: some View {
         NavigationStack {
             ZStack {
@@ -97,46 +76,9 @@ struct JobsView: View {
 
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 0) {
-                        GeometryReader { geo in
-                            Color.clear
-                                .preference(
-                                    key: VerticalScrollOffsetKey.self,
-                                    value: geo.frame(in: .named("jobsMainScroll")).minY
-                                )
-                        }
-                        .frame(height: 0)
-
-                        Picker("Section", selection: $selectedSection) {
-                            ForEach(JobsSection.allCases) { s in
-                                Text(s.rawValue).tag(s)
-                            }
-                        }
-                        .pickerStyle(.segmented)
-                        .padding(EBPSpacing.md)
-                        .background(Color.clear)
-
-                        WorkflowKPIBanner(snapshot: workflowSnapshot)
-                            .padding(.horizontal, EBPSpacing.md)
-                            .padding(.bottom, EBPSpacing.sm)
-
-                        WorkflowNextActionBanner(action: nextAction) { target in
-                            workflowRouter.navigate(to: target, handoffMessage: nextAction.title)
-                        }
-                        .padding(.horizontal, EBPSpacing.md)
-                        .padding(.bottom, EBPSpacing.sm)
-
-                        switch selectedSection {
-                        case .board:    boardView
-                        case .calendar: calendarView
-                        case .crew:     crewView
-                        }
-
+                        boardView
                         Spacer(minLength: 120)
                     }
-                }
-                .coordinateSpace(name: "jobsMainScroll")
-                .onPreferenceChange(VerticalScrollOffsetKey.self) { offset in
-                    workflowRouter.setDockCompact(offset < -30, for: .jobs)
                 }
             }
             .navigationTitle("Jobs")
@@ -144,13 +86,21 @@ struct JobsView: View {
             .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        showAddJob = true
-                    } label: {
-                        Image(systemName: "plus.circle.fill")
-                            .font(.title2)
-                            .foregroundStyle(EBPColor.accent)
-                            .ebpNeonGlow(radius: 4, intensity: 0.5)
+                    HStack(spacing: 12) {
+                        Button { showCalendar = true } label: {
+                            Image(systemName: "calendar")
+                                .foregroundStyle(.white)
+                        }
+                        Button { showCrew = true } label: {
+                            Image(systemName: "person.3")
+                                .foregroundStyle(.white)
+                        }
+                        Button { showAddJob = true } label: {
+                            Image(systemName: "plus.circle.fill")
+                                .font(.title2)
+                                .foregroundStyle(EBPColor.accent)
+                                .ebpNeonGlow(radius: 4, intensity: 0.5)
+                        }
                     }
                 }
             }
@@ -159,6 +109,35 @@ struct JobsView: View {
             }
             .sheet(item: $selectedJob) { job in
                 JobDetailSheet(job: job)
+            }
+            .sheet(isPresented: $showCalendar) {
+                NavigationStack {
+                    calendarView
+                        .navigationTitle("Calendar")
+                        .navigationBarTitleDisplayMode(.inline)
+                        .toolbar {
+                            ToolbarItem(placement: .topBarTrailing) {
+                                Button("Done") { showCalendar = false }
+                                    .fontWeight(.semibold)
+                            }
+                        }
+                }
+            }
+            .sheet(isPresented: $showCrew) {
+                NavigationStack {
+                    ZStack {
+                        EBPDynamicBackground()
+                        ScrollView { crewView }
+                    }
+                    .navigationTitle("Crew")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button("Done") { showCrew = false }
+                                .fontWeight(.semibold)
+                        }
+                    }
+                }
             }
         }
     }
@@ -432,7 +411,7 @@ struct JobsView: View {
             if job.status == "COMPLETE" {
                 Button {
                     advanceStatus(job, to: "INVOICED")
-                    workflowRouter.navigate(to: .more, handoffMessage: "Job invoiced — review in Invoicing")
+                    workflowRouter.navigate(to: .payments, handoffMessage: "Job invoiced — review in Payments")
                 } label: {
                     Label("Create Invoice", systemImage: "dollarsign.circle")
                 }

@@ -177,9 +177,6 @@ struct InvoicingView: View {
                         .padding(EBPSpacing.md)
                     }
                     .coordinateSpace(name: "invoicingScroll")
-                    .onPreferenceChange(VerticalScrollOffsetKey.self) { offset in
-                        workflowRouter.setDockCompact(offset < -30, for: .more)
-                    }
                 }
             }
             .background(Color(.systemGroupedBackground))
@@ -473,6 +470,6 @@ struct InvoicingView: View {
         modelContext.insert(invoice)
         try? modelContext.save()
         selectedInvoice = invoice
-        workflowRouter.navigate(to: .more, handoffMessage: "Invoice drafted from signed bid")
+        workflowRouter.navigate(to: .payments, handoffMessage: "Invoice drafted from signed bid")
     }
 }
