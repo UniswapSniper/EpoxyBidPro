@@ -391,11 +391,48 @@ struct PipelineView: View {
 
     private var bidsContent: some View {
         VStack(spacing: 0) {
+            scanHeroButton
             workflowCommandDeck
             bidsSummaryBar
             bidsFilterChips
             bidsList
         }
+    }
+
+    private var scanHeroButton: some View {
+        Button { showScan = true } label: {
+            HStack(spacing: 12) {
+                ZStack {
+                    Circle()
+                        .fill(.white.opacity(0.2))
+                        .frame(width: 44, height: 44)
+                    Image(systemName: "ruler.fill")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundStyle(.white)
+                }
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Scan Garage Floor")
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                    Text("LiDAR measure → instant pricing → one-tap bid")
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.8))
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right.circle.fill")
+                    .font(.title2)
+                    .foregroundStyle(.white.opacity(0.6))
+            }
+            .padding(EBPSpacing.md)
+            .background(EBPColor.heroGradient, in: RoundedRectangle(cornerRadius: EBPRadius.lg))
+            .ebpShadowStrong()
+        }
+        .buttonStyle(.pressScale)
+        .padding(.horizontal, EBPSpacing.md)
+        .padding(.bottom, EBPSpacing.sm)
     }
 
     private var workflowCommandDeck: some View {

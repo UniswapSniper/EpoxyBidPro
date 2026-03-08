@@ -3,7 +3,8 @@ import SwiftData
 
 // ─── BidBuilderView ───────────────────────────────────────────────────────────
 // Multi-step wizard for creating a new bid.
-// Flow: Client → Measurement → Coating → Prep → Pricing → AI → Line Items → Review
+// Full flow: Client → Measurement → Coating → Prep → Pricing → AI → Line Items → Review
+// Quick flow (from scan): Coating+Prep → Pricing → Review+Save
 
 struct BidBuilderView: View {
 
@@ -14,9 +15,17 @@ struct BidBuilderView: View {
     @State private var currentStep: BidBuilderStep = .client
     @State private var direction: Edge = .trailing
     @State private var showCancelConfirm = false
-    
+
     var initialMeasurement: Measurement? = nil
     var initialCoating: BidBuilderViewModel.CoatingSystemOption? = nil
+
+    /// Quick mode activates when entering from a scan (measurement pre-filled)
+    private var isQuickMode: Bool { initialMeasurement != nil }
+
+    /// Condensed steps for scan → bid flow
+    private var activeSteps: [BidBuilderStep] {
+        isQuickMode ? [.coating, .pricing, .review] : BidBuilderStep.allCases
+    }
 
     enum BidBuilderStep: Int, CaseIterable {
         case client = 0
@@ -38,6 +47,16 @@ struct BidBuilderView: View {
             case .aiInsights: return "AI Insights"
             case .lineItems:  return "Line Items"
             case .review:     return "Review"
+            }
+        }
+
+        /// Contextual title for quick mode (combined steps)
+        func quickTitle(isQuick: Bool) -> String {
+            guard isQuick else { return title }
+            switch self {
+            case .coating: return "Coating & Prep"
+            case .review:  return "Review & Save"
+            default:       return title
             }
         }
 
@@ -77,7 +96,7 @@ struct BidBuilderView: View {
                 bottomBar
             }
             .background(Color(.systemGroupedBackground))
-            .navigationTitle("New Bid")
+            .navigationTitle(isQuickMode ? "Quick Bid" : "New Bid")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -107,13 +126,10 @@ struct BidBuilderView: View {
             if let m = initialMeasurement {
                 vm.selectedMeasurement = m
                 if let c = initialCoating {
-                    // Coating pre-selected from scan — jump to prep step
                     vm.selectedCoatingSystem = c
-                    currentStep = .prep
-                } else {
-                    // Measurement only — jump to coating selection
-                    currentStep = .coating
                 }
+                // Quick mode: start at first active step (coating)
+                currentStep = .coating
             }
         }
     }
@@ -128,7 +144,11 @@ struct BidBuilderView: View {
         case .measurement:
             BidBuilderMeasurementStep(vm: vm)
         case .coating:
-            BidBuilderCoatingStep(vm: vm)
+            if isQuickMode {
+                BidBuilderCoatingAndPrepStep(vm: vm)
+            } else {
+                BidBuilderCoatingStep(vm: vm)
+            }
         case .prep:
             BidBuilderPrepStep(vm: vm)
         case .pricing:
@@ -138,24 +158,27 @@ struct BidBuilderView: View {
         case .lineItems:
             BidBuilderLineItemsStep(vm: vm)
         case .review:
-            BidBuilderReviewStep(vm: vm)
+            BidBuilderReviewStep(vm: vm, isQuickMode: isQuickMode)
         }
     }
 
     // MARK: - Progress Bar
 
     private var stepProgressBar: some View {
-        VStack(spacing: EBPSpacing.sm) {
+        let steps = activeSteps
+
+        return VStack(spacing: EBPSpacing.sm) {
             // Step dots
             HStack(spacing: EBPSpacing.xs) {
-                ForEach(BidBuilderStep.allCases, id: \.rawValue) { step in
+                ForEach(Array(steps.enumerated()), id: \.element.rawValue) { index, step in
+                    let currentIndex = steps.firstIndex(of: currentStep) ?? 0
                     VStack(spacing: 4) {
                         ZStack {
                             Circle()
-                                .fill(stepFill(for: step))
+                                .fill(stepFill(stepIndex: index, currentIndex: currentIndex))
                                 .frame(width: 28, height: 28)
 
-                            if step.rawValue < currentStep.rawValue {
+                            if index < currentIndex {
                                 Image(systemName: "checkmark")
                                     .font(.system(size: 11, weight: .bold))
                                     .foregroundStyle(.white)
@@ -166,7 +189,7 @@ struct BidBuilderView: View {
                             }
                         }
 
-                        Text(step.title)
+                        Text(step.quickTitle(isQuick: isQuickMode))
                             .font(.system(size: 8, weight: step == currentStep ? .bold : .medium))
                             .foregroundStyle(step == currentStep ? EBPColor.primary : .secondary)
                             .lineLimit(1)
@@ -197,10 +220,10 @@ struct BidBuilderView: View {
         .background(.bar)
     }
 
-    private func stepFill(for step: BidBuilderStep) -> some ShapeStyle {
-        if step.rawValue < currentStep.rawValue {
+    private func stepFill(stepIndex: Int, currentIndex: Int) -> some ShapeStyle {
+        if stepIndex < currentIndex {
             return AnyShapeStyle(EBPColor.success)
-        } else if step == currentStep {
+        } else if stepIndex == currentIndex {
             return AnyShapeStyle(EBPColor.primary)
         } else {
             return AnyShapeStyle(Color(.systemGray5))
@@ -208,15 +231,17 @@ struct BidBuilderView: View {
     }
 
     private var progressFraction: CGFloat {
-        let total = CGFloat(BidBuilderStep.allCases.count - 1)
-        return total > 0 ? CGFloat(currentStep.rawValue) / total : 0
+        let steps = activeSteps
+        let total = CGFloat(steps.count - 1)
+        guard total > 0, let idx = steps.firstIndex(of: currentStep) else { return 0 }
+        return CGFloat(idx) / total
     }
 
     // MARK: - Bottom Bar
 
     private var bottomBar: some View {
         HStack(spacing: EBPSpacing.md) {
-            if currentStep != .client {
+            if activeSteps.first != currentStep {
                 Button {
                     direction = .leading
                     withAnimation { goBack() }
@@ -280,6 +305,13 @@ struct BidBuilderView: View {
     }
 
     private var nextButtonLabel: String {
+        if isQuickMode {
+            switch currentStep {
+            case .coating: return "Calculate Price"
+            case .pricing: return "Review & Save"
+            default:       return "Next"
+            }
+        }
         switch currentStep {
         case .prep:    return "Calculate Price"
         case .pricing: return "AI Insights"
@@ -303,21 +335,27 @@ struct BidBuilderView: View {
     // MARK: - Navigation
 
     private func goForward() {
-        let allSteps = BidBuilderStep.allCases
-        if let idx = allSteps.firstIndex(of: currentStep), idx < allSteps.count - 1 {
-            let nextStep = allSteps[idx + 1]
+        let steps = activeSteps
+        if let idx = steps.firstIndex(of: currentStep), idx < steps.count - 1 {
+            let nextStep = steps[idx + 1]
             // Trigger pricing when moving to pricing step
             if nextStep == .pricing && vm.pricingResult == nil {
                 Task { await vm.calculatePricing() }
+            }
+            // In quick mode, auto-generate AI insights when entering review
+            if isQuickMode && nextStep == .review {
+                if vm.pricingResult == nil {
+                    Task { await vm.calculatePricing() }
+                }
             }
             currentStep = nextStep
         }
     }
 
     private func goBack() {
-        let allSteps = BidBuilderStep.allCases
-        if let idx = allSteps.firstIndex(of: currentStep), idx > 0 {
-            currentStep = allSteps[idx - 1]
+        let steps = activeSteps
+        if let idx = steps.firstIndex(of: currentStep), idx > 0 {
+            currentStep = steps[idx - 1]
         }
     }
 

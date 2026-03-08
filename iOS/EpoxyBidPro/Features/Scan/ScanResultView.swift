@@ -35,7 +35,7 @@ struct ScanResultView: View {
 
     // ── Coating & Pricing State ─────────────────────────────────────────────
 
-    @State private var selectedCoating: BidBuilderViewModel.CoatingSystemOption? = nil
+    @State private var selectedCoating: BidBuilderViewModel.CoatingSystemOption? = .twoCoatFlake
     @State private var selectedTier: String = "BETTER"
     @State private var calculatedPricing: ScanQuickPricing? = nil
     @State private var isCalculating = false
@@ -70,7 +70,11 @@ struct ScanResultView: View {
                 BidBuilderView(initialMeasurement: m, initialCoating: selectedCoating)
             }
         }
-        .onAppear { editedSqFt = totalSqFt }
+        .onAppear {
+            editedSqFt = totalSqFt
+            // Auto-calculate pricing with default coating on load
+            recalculatePricing()
+        }
         .onChange(of: selectedCoating) { _, _ in recalculatePricing() }
         .onChange(of: selectedTier)    { _, _ in recalculatePricing() }
         .onChange(of: editedSqFt)     { _, _ in recalculatePricing() }
@@ -395,18 +399,12 @@ struct ScanResultView: View {
                 Button { customizeBid() } label: {
                     HStack(spacing: 6) {
                         Image(systemName: "slider.horizontal.3")
-                        Text("Customize Bid")
-                            .font(.subheadline.weight(.semibold))
+                        Text("Advanced Options")
+                            .font(.subheadline.weight(.medium))
                     }
-                    .foregroundStyle(EBPColor.accent)
+                    .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .background(EBPColor.surface)
-                    .clipShape(RoundedRectangle(cornerRadius: EBPRadius.md))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: EBPRadius.md)
-                            .stroke(EBPColor.accent.opacity(0.25), lineWidth: 1)
-                    )
+                    .padding(.vertical, 12)
                 }
             } else {
                 // No coating selected yet — show build bid
