@@ -16,6 +16,7 @@ struct BidBuilderView: View {
     @State private var showCancelConfirm = false
     
     var initialMeasurement: Measurement? = nil
+    var initialCoating: BidBuilderViewModel.CoatingSystemOption? = nil
 
     enum BidBuilderStep: Int, CaseIterable {
         case client = 0
@@ -105,9 +106,14 @@ struct BidBuilderView: View {
         .onAppear {
             if let m = initialMeasurement {
                 vm.selectedMeasurement = m
-                // If we have a measurement, we can jump straight to coating selection
-                // while keeping the client step available for back-navigation.
-                currentStep = .coating
+                if let c = initialCoating {
+                    // Coating pre-selected from scan — jump to prep step
+                    vm.selectedCoatingSystem = c
+                    currentStep = .prep
+                } else {
+                    // Measurement only — jump to coating selection
+                    currentStep = .coating
+                }
             }
         }
     }
