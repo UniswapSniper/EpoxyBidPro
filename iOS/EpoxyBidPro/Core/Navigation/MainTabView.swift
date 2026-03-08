@@ -2,37 +2,21 @@ import SwiftUI
 
 struct MainTabView: View {
     enum Tab: Hashable, CaseIterable {
-        case dashboard, crm, bids, jobs, more
+        case home, pipeline, jobs, payments
 
         var displayName: String {
             switch self {
-            case .dashboard: return "Dashboard"
-            case .crm: return "CRM"
-            case .bids: return "Bids"
-            case .jobs: return "Jobs"
-            case .more: return "More"
+            case .home:     return "Home"
+            case .pipeline: return "Pipeline"
+            case .jobs:     return "Jobs"
+            case .payments: return "Payments"
             }
         }
     }
 
-    enum DockHaptic {
-        case light
-        case medium
-        case heavy
-        case soft
-        case rigid
-        case success
-    }
-
-    @State private var selectedTab: Tab = .bids
-    @State private var presentingScan = false
-    @State private var presentingBidBuilder = false
-    @State private var presentingCreateJob = false
-    @State private var presentingCreateInvoice = false
+    @State private var selectedTab: Tab = .home
     @StateObject private var workflowRouter = WorkflowRouter()
-    @AppStorage("hasSeenCompactDockHint") private var hasSeenCompactDockHint = false
     @AppStorage("hasSeenFirstTimeTabTooltips") private var hasSeenFirstTimeTabTooltips = false
-    @State private var showCompactDockHint = false
     @State private var showTooltipOverlay = false
     @State private var tooltipIndex = 0
     @State private var routeHandoffAnimating = false
@@ -47,29 +31,24 @@ struct MainTabView: View {
     private var tooltipSteps: [TooltipStep] {
         [
             TooltipStep(
-                tab: .dashboard,
-                title: "Start on Dashboard",
-                message: "Use Quick Actions for your most common tasks and check the KPI banner before you begin your day."
+                tab: .home,
+                title: "Your Command Center",
+                message: "Check KPIs, see what needs attention today, and jump to any part of your business with Quick Actions."
             ),
             TooltipStep(
-                tab: .crm,
-                title: "Work Your Follow-Ups",
-                message: "Pipeline and AI Follow-Up Queue keep leads moving. Prioritize overdue follow-ups first."
-            ),
-            TooltipStep(
-                tab: .bids,
-                title: "Scan to Bid Fast",
-                message: "Run Scan Space, then Build From Scan to prefill pricing and scope in one flow."
+                tab: .pipeline,
+                title: "Leads & Bids Together",
+                message: "Manage your sales pipeline — from first contact to signed proposal. Scan spaces and build bids in one flow."
             ),
             TooltipStep(
                 tab: .jobs,
                 title: "Execute Without Gaps",
-                message: "Create jobs from signed bids and use risk filters to catch schedule or margin issues early."
+                message: "Create jobs from signed bids, track progress, and catch margin or schedule issues early."
             ),
             TooltipStep(
-                tab: .more,
-                title: "Configure Operations",
-                message: "Use More for invoicing, business profile, app language, and account settings."
+                tab: .payments,
+                title: "Get Paid Faster",
+                message: "Create invoices, track what's outstanding, and follow up on overdue payments."
             ),
         ]
     }
@@ -78,84 +57,33 @@ struct MainTabView: View {
         tooltipSteps[min(tooltipIndex, tooltipSteps.count - 1)]
     }
 
-    private var activeRouteTab: WorkflowRouter.RouteTab {
-        switch selectedTab {
-        case .dashboard: return .dashboard
-        case .crm: return .crm
-        case .bids: return .bids
-        case .jobs: return .jobs
-        case .more: return .more
-        }
-    }
-
-    private var compactHintText: String {
-        switch selectedTab {
-        case .dashboard:
-            return "Quick actions for your day are in the dock"
-        case .crm:
-            return "Tap Follow-Up to work your next AI priority"
-        case .bids:
-            return "Tap Scan to start LiDAR estimate flow"
-        case .jobs:
-            return "Tap Create Job to schedule execution faster"
-        case .more:
-            return "Tap Invoice to open billing in one step"
-        }
-    }
-
     var body: some View {
         ZStack(alignment: .bottom) {
-            // ── Tab content area ───────────────────────────────────────────
             TabView(selection: $selectedTab) {
                 DashboardView()
                     .environmentObject(workflowRouter)
-                    .tabItem { Label("Dashboard", systemImage: "house.fill") }
-                    .tag(Tab.dashboard)
+                    .tabItem { Label("Home", systemImage: "house.fill") }
+                    .tag(Tab.home)
 
-                CRMView()
+                PipelineView()
                     .environmentObject(workflowRouter)
-                    .tabItem { Label("CRM", systemImage: "person.2.fill") }
-                    .tag(Tab.crm)
-
-                BidsView()
-                    .environmentObject(workflowRouter)
-                    .tabItem { Label("Bids", systemImage: "doc.text.fill") }
-                    .tag(Tab.bids)
+                    .tabItem { Label("Pipeline", systemImage: "arrow.triangle.swap") }
+                    .tag(Tab.pipeline)
 
                 JobsView()
                     .environmentObject(workflowRouter)
-                    .tabItem { Label("Jobs", systemImage: "briefcase.fill") }
+                    .tabItem { Label("Jobs", systemImage: "hammer.fill") }
                     .tag(Tab.jobs)
 
-                MoreView()
+                PaymentsView()
                     .environmentObject(workflowRouter)
-                    .tabItem { Label("More", systemImage: "ellipsis.circle.fill") }
-                    .tag(Tab.more)
+                    .tabItem { Label("Payments", systemImage: "dollarsign.circle.fill") }
+                    .tag(Tab.payments)
             }
             .tint(EBPColor.accent)
             .scaleEffect(routeHandoffAnimating ? 0.996 : 1)
             .opacity(routeHandoffAnimating ? 0.985 : 1)
             .animation(EBPAnimation.smooth, value: routeHandoffAnimating)
-            .safeAreaInset(edge: .bottom) {
-                Color.clear
-                    .frame(height: selectedTab == .dashboard ? 0 : 112)
-            }
-
-            quickActionDock(isCompact: workflowRouter.isDockCompact(for: activeRouteTab))
-                .padding(.horizontal, EBPSpacing.md)
-                .padding(.bottom, dockBottomPadding())
-
-            if showCompactDockHint {
-                Text(compactHintText)
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-                    .background(.ultraThinMaterial)
-                    .clipShape(Capsule())
-                    .padding(.bottom, dockBottomPadding() + 62)
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
-            }
 
             if let handoff = workflowRouter.handoffMessage {
                 handoffBanner(handoff)
@@ -173,22 +101,12 @@ struct MainTabView: View {
 
                 tooltipCoachCard
                     .padding(.horizontal, EBPSpacing.md)
-                    .padding(.bottom, dockBottomPadding() + 72)
+                    .padding(.bottom, 72)
                     .frame(maxHeight: .infinity, alignment: .bottom)
                     .transition(.opacity.combined(with: .move(edge: .bottom)))
                     .zIndex(10)
             }
         }
-        .sheet(isPresented: $presentingScan) {
-            if #available(iOS 16.0, *) {
-                AutoScanView()
-            } else {
-                ScanView()
-            }
-        }
-        .fullScreenCover(isPresented: $presentingBidBuilder) { BidBuilderView() }
-        .sheet(isPresented: $presentingCreateJob) { AddJobSheet() }
-        .sheet(isPresented: $presentingCreateInvoice) { CreateInvoiceSheet() }
         .onReceive(workflowRouter.$requestedTab) { route in
             guard let route else { return }
 
@@ -213,24 +131,6 @@ struct MainTabView: View {
                 routeHandoffTab = nil
             }
         }
-        .onChange(of: selectedTab) { _, newTab in
-            if newTab == .bids {
-                workflowRouter.setDockCompact(false, for: .bids)
-            }
-        }
-        .onChange(of: workflowRouter.compactDockTabs) { _, compactTabs in
-            let nowCompact = compactTabs.contains(activeRouteTab)
-            guard nowCompact, !hasSeenCompactDockHint, !showCompactDockHint else { return }
-
-            showCompactDockHint = true
-            hasSeenCompactDockHint = true
-
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.4) {
-                withAnimation(.easeOut(duration: 0.2)) {
-                    showCompactDockHint = false
-                }
-            }
-        }
         .onAppear {
             guard !hasSeenFirstTimeTabTooltips else { return }
             tooltipIndex = 0
@@ -241,145 +141,7 @@ struct MainTabView: View {
         }
     }
 
-    // MARK: - Quick Action Dock
-
-    private func quickActionDock(isCompact: Bool) -> some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: EBPSpacing.sm) {
-                if isCompact {
-                    HStack(spacing: 4) {
-                        Image(systemName: "sparkles")
-                            .font(.caption2.weight(.bold))
-                        Text("Dock")
-                            .font(.caption2.weight(.semibold))
-                    }
-                    .foregroundStyle(.white.opacity(0.75))
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 8)
-                    .background(Color.white.opacity(0.08), in: Capsule())
-                }
-
-                quickActionButton(
-                    title: "Scan",
-                    icon: "ruler",
-                    color: EBPColor.accent,
-                    textColor: .black,
-                    compact: isCompact,
-                    haptic: .heavy
-                ) {
-                    selectedTab = .bids
-                    presentingScan = true
-                }
-
-                quickActionButton(
-                    title: "Build Bid",
-                    icon: "doc.text.fill",
-                    color: EBPColor.primary,
-                    textColor: .white,
-                    compact: isCompact,
-                    haptic: .medium
-                ) {
-                    selectedTab = .bids
-                    presentingBidBuilder = true
-                }
-
-                quickActionButton(
-                    title: "Create Job",
-                    icon: "hammer.fill",
-                    color: .orange,
-                    textColor: .white,
-                    compact: isCompact,
-                    haptic: .rigid
-                ) {
-                    selectedTab = .jobs
-                    presentingCreateJob = true
-                }
-
-                quickActionButton(
-                    title: "Invoice",
-                    icon: "dollarsign.circle.fill",
-                    color: .green,
-                    textColor: .white,
-                    compact: isCompact,
-                    haptic: .soft
-                ) {
-                    selectedTab = .more
-                    presentingCreateInvoice = true
-                }
-
-                quickActionButton(
-                    title: "Follow-Up",
-                    icon: "person.badge.clock",
-                    color: .blue,
-                    textColor: .white,
-                    compact: isCompact,
-                    haptic: .success
-                ) {
-                    workflowRouter.navigate(to: .crm, handoffMessage: "Open AI Follow-Up Queue")
-                }
-            }
-        }
-        .padding(EBPSpacing.sm)
-        .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: EBPRadius.lg))
-        .overlay(
-            RoundedRectangle(cornerRadius: EBPRadius.lg)
-                .stroke(Color.white.opacity(0.12), lineWidth: 1)
-        )
-        .animation(.easeInOut(duration: 0.2), value: isCompact)
-    }
-
-    private func quickActionButton(
-        title: String,
-        icon: String,
-        color: Color,
-        textColor: Color,
-        compact: Bool,
-        haptic: DockHaptic,
-        action: @escaping () -> Void
-    ) -> some View {
-        Button {
-            triggerHaptic(haptic, compact: compact)
-            withAnimation(EBPAnimation.snappy) {
-                action()
-            }
-        } label: {
-            HStack(spacing: 6) {
-                Image(systemName: icon)
-                    .font(.caption.weight(.bold))
-                if !compact {
-                    Text(title)
-                        .font(.caption.weight(.bold))
-                }
-            }
-            .foregroundStyle(textColor)
-            .padding(.horizontal, compact ? 10 : 12)
-            .padding(.vertical, 10)
-            .background(color, in: Capsule())
-        }
-        .buttonStyle(.pressScale)
-    }
-
-    private func triggerHaptic(_ haptic: DockHaptic, compact: Bool) {
-        let pattern: AppHaptics.Pattern = switch haptic {
-        case .light: .light
-        case .medium: .medium
-        case .heavy: .heavy
-        case .soft: .soft
-        case .rigid: .rigid
-        case .success: .success
-        }
-        AppHaptics.trigger(pattern, compact: compact)
-    }
-
     // MARK: - Helpers
-
-    private func dockBottomPadding() -> CGFloat {
-        let safeBottom = (UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .first?.windows.first?.safeAreaInsets.bottom) ?? 0
-        return 49 + safeBottom + 8
-    }
 
     private func handoffBanner(_ handoff: String) -> some View {
         HStack(spacing: 8) {
@@ -411,21 +173,19 @@ struct MainTabView: View {
 
     private func tab(for route: WorkflowRouter.RouteTab) -> Tab {
         switch route {
-        case .dashboard: return .dashboard
-        case .crm: return .crm
-        case .bids: return .bids
-        case .jobs: return .jobs
-        case .more: return .more
+        case .home:     return .home
+        case .pipeline: return .pipeline
+        case .jobs:     return .jobs
+        case .payments: return .payments
         }
     }
 
     private func tabIcon(_ tab: Tab) -> String {
         switch tab {
-        case .dashboard: return "house.fill"
-        case .crm: return "person.2.fill"
-        case .bids: return "doc.text.fill"
-        case .jobs: return "briefcase.fill"
-        case .more: return "ellipsis.circle.fill"
+        case .home:     return "house.fill"
+        case .pipeline: return "arrow.triangle.swap"
+        case .jobs:     return "hammer.fill"
+        case .payments: return "dollarsign.circle.fill"
         }
     }
 
@@ -523,5 +283,3 @@ struct MainTabView: View {
         }
     }
 }
-
-
