@@ -125,6 +125,236 @@ struct BidBuilderCoatingStep: View {
     }
 }
 
+// ─── Combined Coating + Prep (Quick Mode) ───────────────────────────────────
+// Used in quick (scan) flow — coating grid + collapsible surface details.
+
+struct BidBuilderCoatingAndPrepStep: View {
+
+    @ObservedObject var vm: BidBuilderViewModel
+    @State private var showSurfaceDetails = false
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: EBPSpacing.lg) {
+
+                stepHeader(
+                    icon: "paintbrush.fill",
+                    title: "Coating & Prep",
+                    subtitle: "Pick your coating system. Surface details are optional."
+                )
+
+                // Measurement summary (from scan)
+                if vm.totalSqFt > 0 {
+                    HStack(spacing: EBPSpacing.md) {
+                        Label("\(Int(vm.totalSqFt)) sq ft", systemImage: "ruler.fill")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(EBPColor.primary)
+                        if let m = vm.selectedMeasurement {
+                            Text(m.label.isEmpty ? "Scanned area" : m.label)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                    }
+                    .padding(EBPSpacing.md)
+                    .background(EBPColor.primary.opacity(0.08), in: RoundedRectangle(cornerRadius: EBPRadius.md))
+                    .ebpHPadding()
+                }
+
+                // ── Coating Grid ─────────────────────────────────────────
+                LazyVGrid(columns: [
+                    GridItem(.flexible(), spacing: EBPSpacing.sm),
+                    GridItem(.flexible(), spacing: EBPSpacing.sm),
+                ], spacing: EBPSpacing.sm) {
+                    ForEach(BidBuilderViewModel.CoatingSystemOption.allCases) { option in
+                        quickCoatingCard(option)
+                    }
+                }
+                .ebpHPadding()
+
+                if let selected = vm.selectedCoatingSystem {
+                    // Selected coating detail
+                    HStack(spacing: EBPSpacing.sm) {
+                        Image(systemName: selected.icon)
+                            .foregroundStyle(selected.tintColor)
+                        Text(selected.displayName).font(.subheadline.weight(.semibold))
+                        Spacer()
+                        Text(selected.priceRange)
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(selected.tintColor)
+                    }
+                    .padding(EBPSpacing.md)
+                    .background(EBPColor.surface, in: RoundedRectangle(cornerRadius: EBPRadius.md))
+                    .ebpShadowSubtle()
+                    .ebpHPadding()
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
+
+                // ── Surface Details (Collapsible) ────────────────────────
+                VStack(spacing: 0) {
+                    Button {
+                        withAnimation(EBPAnimation.snappy) { showSurfaceDetails.toggle() }
+                    } label: {
+                        HStack {
+                            Image(systemName: "wrench.and.screwdriver.fill")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(EBPColor.primary)
+                            Text("Surface Details")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(.primary)
+                            Spacer()
+                            Text(surfaceDetailsSummary)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            Image(systemName: showSurfaceDetails ? "chevron.up" : "chevron.down")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.secondary)
+                        }
+                        .padding(EBPSpacing.md)
+                    }
+                    .buttonStyle(.plain)
+
+                    if showSurfaceDetails {
+                        Divider().padding(.horizontal, EBPSpacing.md)
+
+                        VStack(alignment: .leading, spacing: EBPSpacing.md) {
+                            // Surface condition — 4 icon picker
+                            VStack(alignment: .leading, spacing: EBPSpacing.xs) {
+                                Text("Surface Condition")
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundStyle(.secondary)
+                                HStack(spacing: EBPSpacing.sm) {
+                                    ForEach(BidBuilderViewModel.SurfaceConditionOption.allCases) { option in
+                                        surfaceConditionButton(option)
+                                    }
+                                }
+                            }
+
+                            // Prep complexity
+                            VStack(alignment: .leading, spacing: EBPSpacing.xs) {
+                                Text("Prep Complexity")
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundStyle(.secondary)
+                                Picker("Prep", selection: $vm.prepComplexity) {
+                                    ForEach(BidBuilderViewModel.PrepComplexityOption.allCases) {
+                                        Text($0.displayName).tag($0)
+                                    }
+                                }
+                                .pickerStyle(.segmented)
+                                .onChange(of: vm.prepComplexity) { _, _ in vm.pricingResult = nil }
+                            }
+
+                            // Access difficulty
+                            VStack(alignment: .leading, spacing: EBPSpacing.xs) {
+                                Text("Access Difficulty")
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundStyle(.secondary)
+                                Picker("Access", selection: $vm.accessDifficulty) {
+                                    ForEach(BidBuilderViewModel.AccessOption.allCases) {
+                                        Text($0.displayName).tag($0)
+                                    }
+                                }
+                                .pickerStyle(.segmented)
+                                .onChange(of: vm.accessDifficulty) { _, _ in vm.pricingResult = nil }
+                            }
+
+                            // Complex layout toggle
+                            Toggle(isOn: $vm.isComplexLayout) {
+                                Text("Complex Layout")
+                                    .font(.caption.weight(.medium))
+                            }
+                            .tint(EBPColor.primary)
+                            .onChange(of: vm.isComplexLayout) { _, _ in vm.pricingResult = nil }
+                        }
+                        .padding(EBPSpacing.md)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                    }
+                }
+                .background(EBPColor.surface, in: RoundedRectangle(cornerRadius: EBPRadius.md))
+                .ebpShadowSubtle()
+                .ebpHPadding()
+            }
+            .padding(.vertical, EBPSpacing.md)
+        }
+    }
+
+    // MARK: - Coating Card (compact for quick mode)
+
+    private func quickCoatingCard(_ option: BidBuilderViewModel.CoatingSystemOption) -> some View {
+        let isSelected = vm.selectedCoatingSystem == option
+        return Button {
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            withAnimation(EBPAnimation.snappy) {
+                vm.selectedCoatingSystem = option
+                vm.pricingResult = nil
+            }
+        } label: {
+            VStack(spacing: EBPSpacing.sm) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: EBPRadius.sm)
+                        .fill(option.tintColor.opacity(isSelected ? 0.20 : 0.08))
+                        .frame(width: 48, height: 48)
+                    Image(systemName: option.icon)
+                        .font(.system(size: 22, weight: .medium))
+                        .foregroundStyle(option.tintColor)
+                }
+
+                VStack(spacing: 2) {
+                    Text(option.displayName)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.primary)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.center)
+                    Text(option.priceRange)
+                        .font(.caption2.weight(.medium))
+                        .foregroundStyle(option.tintColor)
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, EBPSpacing.md)
+            .padding(.horizontal, EBPSpacing.xs)
+            .background(RoundedRectangle(cornerRadius: EBPRadius.md).fill(EBPColor.surface))
+            .overlay(RoundedRectangle(cornerRadius: EBPRadius.md).strokeBorder(isSelected ? option.tintColor : Color.clear, lineWidth: 2))
+            .ebpShadowSubtle()
+            .scaleEffect(isSelected ? 1.03 : 1.0)
+        }
+        .buttonStyle(.plain)
+        .animation(EBPAnimation.snappy, value: isSelected)
+    }
+
+    // MARK: - Surface Condition Button
+
+    private func surfaceConditionButton(_ option: BidBuilderViewModel.SurfaceConditionOption) -> some View {
+        let isSelected = vm.surfaceCondition == option
+        return Button {
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            withAnimation { vm.surfaceCondition = option; vm.pricingResult = nil }
+        } label: {
+            VStack(spacing: 4) {
+                ZStack {
+                    Circle()
+                        .fill(isSelected ? option.tint : option.tint.opacity(0.12))
+                        .frame(width: 36, height: 36)
+                    Image(systemName: option.icon)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(isSelected ? .white : option.tint)
+                }
+                Text(option.displayName)
+                    .font(.system(size: 9, weight: .semibold))
+                    .foregroundStyle(isSelected ? option.tint : .secondary)
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Summary Text
+
+    private var surfaceDetailsSummary: String {
+        "\(vm.surfaceCondition.displayName) / \(vm.prepComplexity.displayName)"
+    }
+}
+
 // ─── Step 4: Surface Prep ────────────────────────────────────────────────────
 
 struct BidBuilderPrepStep: View {

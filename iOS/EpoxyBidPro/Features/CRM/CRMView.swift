@@ -96,9 +96,6 @@ struct CRMView: View {
                     }
                 }
                 .coordinateSpace(name: "crmMainScroll")
-                .onPreferenceChange(VerticalScrollOffsetKey.self) { offset in
-                    workflowRouter.setDockCompact(offset < -30, for: .crm)
-                }
             }
             .navigationBarTitleDisplayMode(.inline)
             .searchable(text: $searchText, prompt: NSLocalizedString("search.crm", comment: ""))
@@ -673,7 +670,7 @@ struct CRMView: View {
 
         if previousStatus == "SITE_VISIT" || lead.status == "BID_SENT" {
             workflowRouter.navigate(
-                to: .bids,
+                to: .pipeline,
                 handoffMessage: "Lead ready for proposal — opening Bids"
             )
         }

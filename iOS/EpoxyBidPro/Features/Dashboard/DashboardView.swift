@@ -21,6 +21,7 @@ struct DashboardView: View {
     @State private var showBidBuilder = false
     @State private var showAddClient = false
     @State private var showNewInvoice = false
+    @State private var showSettings = false
 
     private var greeting: String {
         let h = Calendar.current.component(.hour, from: Date())
@@ -107,9 +108,6 @@ struct DashboardView: View {
                     .padding(.vertical, EBPSpacing.lg)
                 }
                 .coordinateSpace(name: "dashboardScroll")
-                .onPreferenceChange(VerticalScrollOffsetKey.self) { offset in
-                    workflowRouter.setDockCompact(offset < -40, for: .dashboard)
-                }
                 .refreshable { await vm.loadDashboard() }
             }
             .navigationBarHidden(true)
@@ -125,6 +123,7 @@ struct DashboardView: View {
         .fullScreenCover(isPresented: $showBidBuilder) { BidBuilderView() }
         .sheet(isPresented: $showAddClient) { AddClientSheet() }
         .sheet(isPresented: $showNewInvoice) { CreateInvoiceSheet() }
+        .sheet(isPresented: $showSettings) { SettingsSheet() }
     }
     
     // MARK: - Dynamic Background
@@ -200,10 +199,8 @@ struct DashboardView: View {
             
             Spacer()
             
-            // Profile button
-            Button {
-                workflowRouter.navigate(to: .more, handoffMessage: "Open company profile and settings")
-            } label: {
+            // Settings gear
+            Button { showSettings = true } label: {
                 ZStack {
                     Circle()
                         .fill(
@@ -214,9 +211,9 @@ struct DashboardView: View {
                             )
                         )
                         .frame(width: 50, height: 50)
-                    
-                    Text("JG")
-                        .font(.system(size: 18, weight: .bold))
+
+                    Image(systemName: "gearshape.fill")
+                        .font(.system(size: 20, weight: .semibold))
                         .foregroundStyle(.white)
                 }
                 .shadow(color: Color.cyan.opacity(0.5), radius: 10)
@@ -369,7 +366,7 @@ struct DashboardView: View {
                     subtitle: "Follow Up Leads",
                     gradient: [Color.cyan, Color.blue],
                     action: {
-                        workflowRouter.navigate(to: .crm, handoffMessage: "Review lead pipeline and follow-ups")
+                        workflowRouter.navigate(to: .pipeline, handoffMessage: "Review lead pipeline and follow-ups")
                     }
                 )
                 
@@ -758,15 +755,15 @@ struct DashboardView: View {
     private func routeTab(for entityType: String?) -> WorkflowRouter.RouteTab? {
         switch entityType {
         case "bid":
-            return .bids
+            return .pipeline
         case "job":
             return .jobs
         case "invoice":
-            return .more
+            return .payments
         case "client":
-            return .crm
+            return .pipeline
         default:
-            return .dashboard
+            return .home
         }
     }
 

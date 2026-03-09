@@ -1,19 +1,17 @@
 import SwiftUI
 import SwiftData
 
-// ─── InvoicingView ────────────────────────────────────────────────────────────
-// Full invoicing screen with auto-generation from jobs, Stripe payment links,
-// overdue tracking, and deposit management.
+// ─── PaymentsView ────────────────────────────────────────────────────────────
+// Promoted invoicing tab with summary, filters, and analytics access.
+// Replaces the buried More → Invoicing navigation path.
 
-struct InvoicingView: View {
+struct PaymentsView: View {
 
     @Environment(\.modelContext) private var modelContext
     @EnvironmentObject private var workflowRouter: WorkflowRouter
-    @Query(sort: \Lead.createdAt, order: .reverse) private var workflowLeads: [Lead]
     @Query(sort: \Invoice.createdAt, order: .reverse) private var allInvoices: [Invoice]
     @Query(sort: \Bid.createdAt, order: .reverse) private var allBids: [Bid]
     @Query(sort: \Job.createdAt, order: .reverse) private var workflowJobs: [Job]
-    @Query(sort: \Measurement.scanDate, order: .reverse) private var workflowMeasurements: [Measurement]
 
     @State private var selectedFilter: InvoiceFilter = .all
     @State private var showCreateInvoice = false
@@ -53,17 +51,11 @@ struct InvoicingView: View {
 
     private var filteredInvoices: [Invoice] {
         var results = Array(allInvoices)
-
-        // Apply filter
         switch selectedFilter {
         case .all: break
-        case .overdue:
-            results = results.filter { $0.isOverdue }
-        default:
-            results = results.filter { $0.status == selectedFilter.rawValue }
+        case .overdue: results = results.filter { $0.isOverdue }
+        default: results = results.filter { $0.status == selectedFilter.rawValue }
         }
-
-        // Apply search
         if !searchText.isEmpty {
             let lower = searchText.lowercased()
             results = results.filter {
@@ -71,7 +63,6 @@ struct InvoicingView: View {
                 ($0.client?.displayName.lowercased().contains(lower) ?? false)
             }
         }
-
         return results
     }
 
@@ -82,46 +73,15 @@ struct InvoicingView: View {
                 .first(where: { $0.hasPrefix("SOURCE_BID:") })
                 .map { String($0.replacingOccurrences(of: "SOURCE_BID:", with: "")) }
         })
-
-        return allBids.filter {
-            $0.status == "SIGNED" && !alreadyInvoicedNumbers.contains($0.bidNumber)
-        }
-    }
-
-    private var workflowSnapshot: WorkflowKPISnapshot {
-        WorkflowKPIService.snapshot(
-            leads: workflowLeads,
-            bids: allBids,
-            jobs: workflowJobs,
-            invoices: allInvoices,
-            measurements: workflowMeasurements
-        )
-    }
-
-    private var nextAction: WorkflowNextAction {
-        WorkflowKPIService.nextBestAction(from: workflowSnapshot)
+        return allBids.filter { $0.status == "SIGNED" && !alreadyInvoicedNumbers.contains($0.bidNumber) }
     }
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-
-                WorkflowKPIBanner(snapshot: workflowSnapshot)
-                    .padding(.horizontal, EBPSpacing.md)
-                    .padding(.vertical, EBPSpacing.sm)
-
-                WorkflowNextActionBanner(action: nextAction) { target in
-                    workflowRouter.navigate(to: target, handoffMessage: nextAction.title)
-                }
-                .padding(.horizontal, EBPSpacing.md)
-                .padding(.bottom, EBPSpacing.sm)
-
                 bidToInvoiceBar
-
-                // ── Summary Bar ───────────────────────────────────────────
                 summaryBar
 
-                // ── Filter Chips ──────────────────────────────────────────
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: EBPSpacing.xs) {
                         ForEach(InvoiceFilter.allCases, id: \.rawValue) { filter in
@@ -132,9 +92,9 @@ struct InvoicingView: View {
                                 default:       return allInvoices.filter { $0.status == filter.rawValue }.count
                                 }
                             }()
-                            FilterChip(title: filter.label, count: count, isSelected: selectedFilter == filter, action: {
+                            FilterChip(title: filter.label, count: count, isSelected: selectedFilter == filter) {
                                 withAnimation { selectedFilter = filter }
-                            })
+                            }
                         }
                     }
                     .padding(.horizontal, EBPSpacing.md)
@@ -143,87 +103,64 @@ struct InvoicingView: View {
 
                 Divider()
 
-                // ── Invoice List ──────────────────────────────────────────
                 if filteredInvoices.isEmpty {
                     Spacer()
-                    EBPEmptyState(
-                        icon: "doc.text.fill",
-                        title: "No Invoices",
-                        subtitle: "Create your first invoice from a completed job."
-                    )
+                    EBPEmptyState(icon: "doc.text.fill", title: "No Invoices", subtitle: "Create your first invoice from a completed job.")
                     Spacer()
                 } else {
                     ScrollView {
                         LazyVStack(spacing: EBPSpacing.sm) {
-                            GeometryReader { geo in
-                                Color.clear
-                                    .preference(
-                                        key: VerticalScrollOffsetKey.self,
-                                        value: geo.frame(in: .named("invoicingScroll")).minY
-                                    )
-                            }
-                            .frame(height: 0)
-
-                            // Overdue alert
                             let overdueCount = allInvoices.filter { $0.isOverdue }.count
                             if overdueCount > 0 && selectedFilter != .overdue {
                                 overdueAlert(count: overdueCount)
                             }
-
                             ForEach(filteredInvoices) { invoice in
                                 invoiceCard(invoice)
                             }
                         }
                         .padding(EBPSpacing.md)
                     }
-                    .coordinateSpace(name: "invoicingScroll")
                 }
             }
             .background(Color(.systemGroupedBackground))
-            .navigationTitle("Invoicing")
+            .navigationTitle("Payments")
             .navigationBarTitleDisplayMode(.large)
             .searchable(text: $searchText, prompt: "Search invoices…")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        showCreateInvoice = true
-                    } label: {
-                        Image(systemName: "plus")
-                            .font(.body.weight(.semibold))
+                    Button { showCreateInvoice = true } label: {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.title2)
+                            .foregroundStyle(EBPColor.accent)
+                            .ebpNeonGlow(radius: 4, intensity: 0.5)
+                    }
+                }
+                ToolbarItem(placement: .topBarLeading) {
+                    NavigationLink { AnalyticsView() } label: {
+                        Image(systemName: "chart.bar")
                     }
                 }
             }
-            .sheet(isPresented: $showCreateInvoice) {
-                CreateInvoiceSheet()
-            }
-            .sheet(item: $selectedInvoice) { invoice in
-                InvoiceDetailSheet(invoice: invoice)
-            }
+            .sheet(isPresented: $showCreateInvoice) { CreateInvoiceSheet() }
+            .sheet(item: $selectedInvoice) { invoice in InvoiceDetailSheet(invoice: invoice) }
         }
     }
 
-    // MARK: - Summary Bar
+    // MARK: - Bid to Invoice Bar
 
     private var bidToInvoiceBar: some View {
         HStack(spacing: EBPSpacing.sm) {
             VStack(alignment: .leading, spacing: 2) {
-                Text("Signed Bid Handoff")
-                    .font(.subheadline.weight(.bold))
-                Text("\(signedBidsReadyForInvoicing.count) ready for invoicing")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                Text("Signed Bid Handoff").font(.subheadline.weight(.bold))
+                Text("\(signedBidsReadyForInvoicing.count) ready for invoicing").font(.caption).foregroundStyle(.secondary)
             }
-
             Spacer()
-
             Menu {
                 if signedBidsReadyForInvoicing.isEmpty {
                     Text("No signed bids ready")
                 } else {
                     ForEach(signedBidsReadyForInvoicing.prefix(8)) { bid in
-                        Button {
-                            createInvoiceFromSignedBid(bid)
-                        } label: {
+                        Button { createInvoiceFromSignedBid(bid) } label: {
                             Label(
                                 bid.client?.displayName.isEmpty == false
                                     ? "\(bid.client!.displayName) · \(bid.bidNumber)"
@@ -235,10 +172,8 @@ struct InvoicingView: View {
                 }
             } label: {
                 Label("Create from Bid", systemImage: "arrow.triangle.branch")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.black)
-                    .padding(.horizontal, EBPSpacing.md)
-                    .padding(.vertical, 10)
+                    .font(.caption.weight(.semibold)).foregroundStyle(.black)
+                    .padding(.horizontal, EBPSpacing.md).padding(.vertical, 10)
                     .background(signedBidsReadyForInvoicing.isEmpty ? Color.gray.opacity(0.5) : EBPColor.accent,
                                 in: RoundedRectangle(cornerRadius: EBPRadius.sm))
             }
@@ -248,155 +183,101 @@ struct InvoicingView: View {
         .background(Color(.secondarySystemBackground))
     }
 
+    // MARK: - Summary Bar
+
     private var summaryBar: some View {
-        let totalOutstanding = allInvoices
-            .filter { !["PAID", "VOID"].contains($0.status) }
-            .reduce(Decimal(0)) { $0 + $1.balanceDue }
-        let totalPaid = allInvoices
-            .filter { $0.status == "PAID" }
-            .reduce(Decimal(0)) { $0 + $1.totalAmount }
-        let overdue = allInvoices.filter { $0.isOverdue }
-        let overdueAmount = overdue.reduce(Decimal(0)) { $0 + $1.balanceDue }
+        let totalOutstanding = allInvoices.filter { !["PAID", "VOID"].contains($0.status) }.reduce(Decimal(0)) { $0 + $1.balanceDue }
+        let totalPaid = allInvoices.filter { $0.status == "PAID" }.reduce(Decimal(0)) { $0 + $1.totalAmount }
+        let overdueAmount = allInvoices.filter { $0.isOverdue }.reduce(Decimal(0)) { $0 + $1.balanceDue }
 
         return HStack(spacing: 0) {
-            summaryCell(
-                value: totalOutstanding.formatted(.currency(code: "USD")),
-                label: "Outstanding",
-                color: .blue
-            )
+            summaryCell(value: totalOutstanding.formatted(.currency(code: "USD")), label: "Outstanding", color: .blue)
             Divider().frame(height: 36)
-            summaryCell(
-                value: overdueAmount.formatted(.currency(code: "USD")),
-                label: "Overdue",
-                color: EBPColor.danger
-            )
+            summaryCell(value: overdueAmount.formatted(.currency(code: "USD")), label: "Overdue", color: EBPColor.danger)
             Divider().frame(height: 36)
-            summaryCell(
-                value: totalPaid.formatted(.currency(code: "USD")),
-                label: "Collected",
-                color: EBPColor.success
-            )
+            summaryCell(value: totalPaid.formatted(.currency(code: "USD")), label: "Collected", color: EBPColor.success)
         }
         .padding(.vertical, EBPSpacing.sm)
         .background(Color(.secondarySystemBackground))
+    }
+
+    private func summaryCell(value: String, label: String, color: Color) -> some View {
+        VStack(spacing: 2) {
+            Text(value).font(.caption.weight(.bold)).foregroundStyle(color)
+            Text(label).font(.caption2).foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity)
     }
 
     // MARK: - Overdue Alert
 
     private func overdueAlert(count: Int) -> some View {
         HStack(spacing: EBPSpacing.sm) {
-            Image(systemName: "exclamationmark.triangle.fill")
-                .font(.title3)
-                .foregroundStyle(EBPColor.danger)
-
+            Image(systemName: "exclamationmark.triangle.fill").font(.title3).foregroundStyle(EBPColor.danger)
             VStack(alignment: .leading, spacing: 2) {
-                Text("\(count) overdue invoice\(count == 1 ? "" : "s")")
-                    .font(.subheadline.weight(.bold))
-                    .foregroundStyle(EBPColor.danger)
-                Text("Follow up to collect outstanding payments")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                Text("\(count) overdue invoice\(count == 1 ? "" : "s")").font(.subheadline.weight(.bold)).foregroundStyle(EBPColor.danger)
+                Text("Follow up to collect outstanding payments").font(.caption).foregroundStyle(.secondary)
             }
-
             Spacer()
-
-            Button {
-                withAnimation { selectedFilter = .overdue }
-            } label: {
-                Text("View")
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
+            Button { withAnimation { selectedFilter = .overdue } } label: {
+                Text("View").font(.caption.weight(.bold)).foregroundStyle(.white)
+                    .padding(.horizontal, 12).padding(.vertical, 6)
                     .background(EBPColor.danger, in: Capsule())
             }
         }
         .padding(EBPSpacing.md)
         .background(EBPColor.danger.opacity(0.06), in: RoundedRectangle(cornerRadius: EBPRadius.md))
-        .overlay(
-            RoundedRectangle(cornerRadius: EBPRadius.md)
-                .strokeBorder(EBPColor.danger.opacity(0.2), lineWidth: 1)
-        )
+        .overlay(RoundedRectangle(cornerRadius: EBPRadius.md).strokeBorder(EBPColor.danger.opacity(0.2), lineWidth: 1))
     }
 
     // MARK: - Invoice Card
 
     private func invoiceCard(_ invoice: Invoice) -> some View {
-        Button {
-            selectedInvoice = invoice
-        } label: {
+        Button { selectedInvoice = invoice } label: {
             VStack(alignment: .leading, spacing: EBPSpacing.sm) {
                 HStack {
                     VStack(alignment: .leading, spacing: 3) {
-                        Text(invoice.invoiceNumber)
-                            .font(.caption.weight(.bold))
-                            .foregroundStyle(statusColor(invoice))
-                        Text(invoice.client?.displayName ?? "No Client")
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(.primary)
+                        Text(invoice.invoiceNumber).font(.caption.weight(.bold)).foregroundStyle(statusColor(invoice))
+                        Text(invoice.client?.displayName ?? "No Client").font(.subheadline.weight(.semibold)).foregroundStyle(.primary)
                     }
-
                     Spacer()
-
                     VStack(alignment: .trailing, spacing: 3) {
-                        Text(invoice.totalAmount, format: .currency(code: "USD"))
-                            .font(.subheadline.weight(.black))
+                        Text(invoice.totalAmount, format: .currency(code: "USD")).font(.subheadline.weight(.black))
                         EBPBadge(text: displayStatus(invoice), color: statusColor(invoice))
                     }
                 }
-
                 HStack(spacing: EBPSpacing.md) {
                     Label("Issued: \(invoice.issueDate.formatted(date: .abbreviated, time: .omitted))", systemImage: "calendar")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .font(.caption).foregroundStyle(.secondary)
                     Spacer()
                     Label("Due: \(invoice.dueDate.formatted(date: .abbreviated, time: .omitted))", systemImage: "clock")
-                        .font(.caption)
-                        .foregroundStyle(invoice.isOverdue ? EBPColor.danger : .secondary)
+                        .font(.caption).foregroundStyle(invoice.isOverdue ? EBPColor.danger : .secondary)
                 }
-
-                // Balance due
                 if invoice.balanceDue > 0 && invoice.balanceDue != invoice.totalAmount {
                     HStack {
-                        Text("Paid: \(invoice.amountPaid, format: .currency(code: "USD"))")
-                            .font(.caption)
-                            .foregroundStyle(EBPColor.success)
+                        Text("Paid: \(invoice.amountPaid, format: .currency(code: "USD"))").font(.caption).foregroundStyle(EBPColor.success)
                         Spacer()
-                        Text("Balance: \(invoice.balanceDue, format: .currency(code: "USD"))")
-                            .font(.caption.weight(.bold))
+                        Text("Balance: \(invoice.balanceDue, format: .currency(code: "USD"))").font(.caption.weight(.bold))
                             .foregroundStyle(invoice.isOverdue ? EBPColor.danger : EBPColor.primary)
                     }
                 }
-
                 HStack {
                     let risk = EpoxyAIWorkflowAdvisor.invoiceCollectionRisk(invoice)
-                    Text("Collection risk: \(risk)")
-                        .font(.caption2.weight(.semibold))
+                    Text("Collection risk: \(risk)").font(.caption2.weight(.semibold))
                         .foregroundStyle(risk >= 60 ? EBPColor.warning : EBPColor.success)
                     Spacer()
                 }
-
-                // Stripe link status
                 if !invoice.stripePaymentLinkUrl.isEmpty {
                     HStack(spacing: EBPSpacing.xs) {
-                        Image(systemName: "link")
-                            .font(.caption)
-                            .foregroundStyle(.purple)
-                        Text("Payment link active")
-                            .font(.caption2)
-                            .foregroundStyle(.purple)
+                        Image(systemName: "link").font(.caption).foregroundStyle(.purple)
+                        Text("Payment link active").font(.caption2).foregroundStyle(.purple)
                     }
                 }
             }
             .padding(EBPSpacing.md)
             .background(EBPColor.surface, in: RoundedRectangle(cornerRadius: EBPRadius.md))
             .ebpShadowSubtle()
-            .overlay(
-                invoice.isOverdue
-                    ? RoundedRectangle(cornerRadius: EBPRadius.md)
-                        .strokeBorder(EBPColor.danger.opacity(0.3), lineWidth: 1)
-                    : nil
-            )
+            .overlay(invoice.isOverdue ? RoundedRectangle(cornerRadius: EBPRadius.md).strokeBorder(EBPColor.danger.opacity(0.3), lineWidth: 1) : nil)
         }
         .buttonStyle(.plain)
     }
@@ -418,18 +299,6 @@ struct InvoicingView: View {
 
     private func statusColor(_ invoice: Invoice) -> Color {
         WorkflowStatusPalette.invoice(invoice.status, isOverdue: invoice.isOverdue)
-    }
-
-    private func summaryCell(value: String, label: String, color: Color) -> some View {
-        VStack(spacing: 2) {
-            Text(value)
-                .font(.caption.weight(.bold))
-                .foregroundStyle(color)
-            Text(label)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-        }
-        .frame(maxWidth: .infinity)
     }
 
     private func createInvoiceFromSignedBid(_ bid: Bid) {
@@ -470,6 +339,5 @@ struct InvoicingView: View {
         modelContext.insert(invoice)
         try? modelContext.save()
         selectedInvoice = invoice
-        workflowRouter.navigate(to: .payments, handoffMessage: "Invoice drafted from signed bid")
     }
 }

@@ -78,7 +78,7 @@ enum WorkflowKPIService {
                 subtitle: "\(snapshot.readyLeads) lead\(snapshot.readyLeads == 1 ? "" : "s") are ready for contact",
                 icon: "person.badge.clock",
                 kind: .leads,
-                targetTab: .crm
+                targetTab: .pipeline
             )
         }
 
@@ -88,7 +88,7 @@ enum WorkflowKPIService {
                 subtitle: "\(snapshot.collectionRisks) invoice\(snapshot.collectionRisks == 1 ? "" : "s") need payment follow-up",
                 icon: "creditcard.trianglebadge.exclamationmark",
                 kind: .collections,
-                targetTab: .more
+                targetTab: .payments
             )
         }
 
@@ -108,7 +108,7 @@ enum WorkflowKPIService {
                 subtitle: "\(snapshot.bidsNeedingAction) bid\(snapshot.bidsNeedingAction == 1 ? "" : "s") waiting on send or close",
                 icon: "doc.text.fill",
                 kind: .bids,
-                targetTab: .bids
+                targetTab: .pipeline
             )
         }
 

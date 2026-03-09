@@ -1,0 +1,203 @@
+{
+  "identifier" : "EpoxyBidPro",
+  "nonConsumableProducts" : [
+
+  ],
+  "nonRenewingSubscriptionProducts" : [
+
+  ],
+  "products" : [
+
+  ],
+  "settings" : {
+    "_applicationInternalID" : "1234567890",
+    "_developerTeamID" : "XXXXXXXXXX",
+    "_failTransactionsEnabled" : false,
+    "_locale" : "en_US",
+    "_storefront" : "USA",
+    "_storeKitErrors" : [
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Load Products"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Purchase"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Verification"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Store Sync"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Refresh Receipt"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Fetch Offers"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Redeem Offer"
+      }
+    ]
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "EPOXYBIDPRO_SUBS",
+      "localizations" : [
+
+      ],
+      "name" : "EpoxyBidPro Subscriptions",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "displayPrice" : "49.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "solo_monthly_001",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Solo plan for independent contractors — monthly billing",
+              "displayName" : "Solo Monthly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.epoxyBidPro.app.solo.monthly",
+          "referenceName" : "Solo Monthly",
+          "subscriptionGroupID" : "EPOXYBIDPRO_SUBS",
+          "subscriptionPeriod" : "P1M",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "displayPrice" : "469.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "solo_annual_001",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Solo plan — annual billing (save 20%)",
+              "displayName" : "Solo Annual",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.epoxyBidPro.app.solo.annual",
+          "referenceName" : "Solo Annual",
+          "subscriptionGroupID" : "EPOXYBIDPRO_SUBS",
+          "subscriptionPeriod" : "P1Y",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "displayPrice" : "79.99",
+          "familyShareable" : false,
+          "groupNumber" : 2,
+          "internalID" : "pro_monthly_001",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Pro plan with AI insights and analytics — monthly billing",
+              "displayName" : "Pro Monthly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.epoxyBidPro.app.pro.monthly",
+          "referenceName" : "Pro Monthly",
+          "subscriptionGroupID" : "EPOXYBIDPRO_SUBS",
+          "subscriptionPeriod" : "P1M",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "displayPrice" : "757.99",
+          "familyShareable" : false,
+          "groupNumber" : 2,
+          "internalID" : "pro_annual_001",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Pro plan — annual billing (save 20%)",
+              "displayName" : "Pro Annual",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.epoxyBidPro.app.pro.annual",
+          "referenceName" : "Pro Annual",
+          "subscriptionGroupID" : "EPOXYBIDPRO_SUBS",
+          "subscriptionPeriod" : "P1Y",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "displayPrice" : "149.99",
+          "familyShareable" : false,
+          "groupNumber" : 3,
+          "internalID" : "team_monthly_001",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Team plan for multi-crew operations — monthly billing",
+              "displayName" : "Team Monthly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.epoxyBidPro.app.team.monthly",
+          "referenceName" : "Team Monthly",
+          "subscriptionGroupID" : "EPOXYBIDPRO_SUBS",
+          "subscriptionPeriod" : "P1M",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "displayPrice" : "1429.99",
+          "familyShareable" : false,
+          "groupNumber" : 3,
+          "internalID" : "team_annual_001",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Team plan — annual billing (save 20%)",
+              "displayName" : "Team Annual",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.epoxyBidPro.app.team.annual",
+          "referenceName" : "Team Annual",
+          "subscriptionGroupID" : "EPOXYBIDPRO_SUBS",
+          "subscriptionPeriod" : "P1Y",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 2,
+    "minor" : 0
+  }
+}

@@ -118,9 +118,6 @@ struct BidsView: View {
                     }
                 }
                 .coordinateSpace(name: "bidsScroll")
-                .onPreferenceChange(VerticalScrollOffsetKey.self) { offset in
-                    workflowRouter.setDockCompact(offset < -30, for: .bids)
-                }
             }
             .navigationTitle("Bids & Proposals")
             .navigationBarTitleDisplayMode(.large)
@@ -225,7 +222,7 @@ struct BidsView: View {
                 Button {
                     if let latestMeasurement {
                         measurementForBidBuilder = latestMeasurement
-                        workflowRouter.navigate(to: .bids, handoffMessage: "Prefilling bid from latest scan")
+                        workflowRouter.navigate(to: .pipeline, handoffMessage: "Prefilling bid from latest scan")
                     } else {
                         isPresentingNewBid = true
                     }

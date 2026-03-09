@@ -277,7 +277,7 @@ struct MoreView: View {
                 Section {
                     Button {
                         hasSeenFirstTimeTabTooltips = false
-                        workflowRouter.navigate(to: .dashboard, handoffMessage: "App tour will replay on next launch")
+                        workflowRouter.navigate(to: .home, handoffMessage: "App tour will replay on next launch")
                     } label: {
                         Label("Replay App Tips", systemImage: "lightbulb")
                     }
