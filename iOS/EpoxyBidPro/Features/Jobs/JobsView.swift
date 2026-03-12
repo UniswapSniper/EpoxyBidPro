@@ -22,6 +22,7 @@ struct JobsView: View {
     @State private var selectedJob: Job? = nil
     @State private var calendarDate = Date()
     @State private var showOnlyAtRisk = false
+    @State private var jobsSearchText = ""
 
     enum JobsSection: String, CaseIterable, Identifiable {
         case board    = "Board"
@@ -57,11 +58,20 @@ struct JobsView: View {
     }
 
     private var filteredJobs: [Job] {
-        let base: [Job]
+        var base: [Job]
         if selectedFilter == .all {
             base = Array(allJobs)
         } else {
             base = allJobs.filter { $0.status == selectedFilter.rawValue }
+        }
+
+        if !jobsSearchText.isEmpty {
+            let lower = jobsSearchText.lowercased()
+            base = base.filter {
+                $0.title.lowercased().contains(lower) ||
+                ($0.client?.displayName.lowercased().contains(lower) ?? false) ||
+                $0.coatingSystem.lowercased().contains(lower)
+            }
         }
 
         if showOnlyAtRisk {
@@ -141,6 +151,7 @@ struct JobsView: View {
             }
             .navigationTitle("Jobs")
             .navigationBarTitleDisplayMode(.large)
+            .searchable(text: $jobsSearchText, prompt: "Search by client, title, coating…")
             .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -194,11 +205,33 @@ struct JobsView: View {
 
             // Job list
             if filteredJobs.isEmpty {
-                EBPEmptyState(
-                    icon: "hammer.fill",
-                    title: "No Jobs",
-                    subtitle: "Create a job from a signed bid to get started."
-                )
+                ContentUnavailableView {
+                    Label(
+                        jobsSearchText.isEmpty
+                            ? (selectedFilter == .all ? "No Jobs Yet" : "No \(selectedFilter.label) Jobs")
+                            : "No Results",
+                        systemImage: jobsSearchText.isEmpty ? "hammer.fill" : "magnifyingglass"
+                    )
+                } description: {
+                    if !jobsSearchText.isEmpty {
+                        Text("No jobs match \"\(jobsSearchText)\".")
+                    } else if selectedFilter != .all {
+                        Text("No jobs with status \"\(selectedFilter.label)\".")
+                    } else {
+                        Text("Create a job from a signed bid to get started.")
+                    }
+                } actions: {
+                    if jobsSearchText.isEmpty && selectedFilter == .all {
+                        Button("Create Job") { showAddJob = true }
+                            .buttonStyle(.borderedProminent)
+                            .tint(EBPColor.accent)
+                            .foregroundStyle(.black)
+                    } else if !jobsSearchText.isEmpty {
+                        Button("Clear Search") { jobsSearchText = "" }
+                    } else {
+                        Button("Show All Jobs") { selectedFilter = .all }
+                    }
+                }
                 .padding(.top, EBPSpacing.xl)
                 .padding(.horizontal, EBPSpacing.md)
             } else {

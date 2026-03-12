@@ -314,7 +314,7 @@ struct BidsView: View {
         if filteredBids.isEmpty {
             emptyState
         } else {
-            LazyVStack(spacing: EBPSpacing.sm) {
+            List {
                 ForEach(filteredBids) { bid in
                     Button {
                         selectedBid = bid
@@ -322,7 +322,33 @@ struct BidsView: View {
                         BidCardView(bid: bid)
                     }
                     .buttonStyle(.pressScale)
-                    .padding(.horizontal, EBPSpacing.md)
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+                    .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
+                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                        Button(role: .destructive) {
+                            vm.deleteBid(bid, context: modelContext)
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
+
+                        Button {
+                            Task { await vm.cloneBid(bid, context: modelContext) }
+                        } label: {
+                            Label("Clone", systemImage: "doc.on.doc")
+                        }
+                        .tint(.blue)
+                    }
+                    .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                        if bid.status == "DRAFT" {
+                            Button {
+                                selectedBid = bid
+                            } label: {
+                                Label("Send", systemImage: "paperplane.fill")
+                            }
+                            .tint(EBPColor.success)
+                        }
+                    }
                     .contextMenu {
                         if bid.status == "DRAFT" {
                             Button {
@@ -346,7 +372,9 @@ struct BidsView: View {
                     }
                 }
             }
-            .padding(.bottom, EBPSpacing.md)
+            .listStyle(.plain)
+            .scrollDisabled(true)
+            .frame(minHeight: CGFloat(filteredBids.count) * 90)
         }
     }
 
