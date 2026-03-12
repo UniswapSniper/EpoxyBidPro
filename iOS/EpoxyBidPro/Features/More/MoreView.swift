@@ -8,6 +8,9 @@ struct MoreView: View {
     @AppStorage("appLanguage") private var appLanguageRawValue = AppLanguage.system.rawValue
     @AppStorage("dockHapticMode") private var dockHapticMode = "strong"
     @AppStorage("hasSeenFirstTimeTabTooltips") private var hasSeenFirstTimeTabTooltips = false
+    @AppStorage("assistantAPIBaseURL") private var assistantAPIBaseURL = "http://localhost:3000"
+    @State private var showServerURLEditor = false
+    @State private var serverURLDraft = ""
     @EnvironmentObject private var authStore: AuthStore
     @EnvironmentObject private var workflowRouter: WorkflowRouter
 
@@ -107,7 +110,7 @@ struct MoreView: View {
                         }
                     }
                     NavigationLink {
-                        JobsView()
+                        CrewManagementView()
                     } label: {
                         Label {
                             Text(NSLocalizedString("more.crew", comment: ""))
@@ -117,7 +120,7 @@ struct MoreView: View {
                         }
                     }
                     NavigationLink {
-                        BidsView()
+                        MaterialsCatalogView()
                     } label: {
                         Label {
                             Text(NSLocalizedString("more.materials", comment: ""))
@@ -127,7 +130,7 @@ struct MoreView: View {
                         }
                     }
                     NavigationLink {
-                        BidsView()
+                        BidTemplatesView()
                     } label: {
                         Label {
                             Text(NSLocalizedString("more.templates", comment: ""))
@@ -219,6 +222,7 @@ struct MoreView: View {
                             .foregroundStyle(.secondary)
                             .multilineTextAlignment(.trailing)
                     }
+                    serverURLRow
                 } header: {
                     Text("AI + Scanning")
                 } footer: {
@@ -769,6 +773,161 @@ private struct AssistantMessage: Identifiable {
     let id = UUID()
     let role: Role
     let text: String
+}
+
+// ─── Server URL Row ───────────────────────────────────────────────────────────
+
+extension MoreView {
+    var serverURLRow: some View {
+        Button {
+            serverURLDraft = assistantAPIBaseURL
+            showServerURLEditor = true
+        } label: {
+            HStack {
+                Label("Server URL", systemImage: "network")
+                Spacer()
+                Text(assistantAPIBaseURL)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                    .frame(maxWidth: 140, alignment: .trailing)
+                Image(systemName: "chevron.right")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.tertiary)
+            }
+        }
+        .foregroundStyle(.primary)
+        .alert("Backend Server URL", isPresented: $showServerURLEditor) {
+            TextField("http://localhost:3000", text: $serverURLDraft)
+                .keyboardType(.URL)
+                .autocorrectionDisabled()
+                .textInputAutocapitalization(.never)
+            Button("Save") {
+                let trimmed = serverURLDraft.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !trimmed.isEmpty {
+                    assistantAPIBaseURL = trimmed
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Enter your backend server base URL (e.g. https://api.epoxybidpro.com)")
+        }
+    }
+}
+
+// ─── Crew Management View ─────────────────────────────────────────────────────
+
+struct CrewManagementView: View {
+    @Query(sort: \CrewMember.firstName) private var crewMembers: [CrewMember]
+
+    var body: some View {
+        Group {
+            if crewMembers.isEmpty {
+                ContentUnavailableView(
+                    "No Crew Members",
+                    systemImage: "person.3.fill",
+                    description: Text("Add crew members in the full crew management module.")
+                )
+            } else {
+                List(crewMembers) { member in
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text([member.firstName, member.lastName].filter { !$0.isEmpty }.joined(separator: " "))
+                            .font(.headline)
+                        HStack {
+                            Text(member.role.isEmpty ? "No role" : member.role)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                            EBPBadge(
+                                text: member.isActive ? "Active" : "Inactive",
+                                color: member.isActive ? EBPColor.success : .secondary
+                            )
+                        }
+                    }
+                    .padding(.vertical, 2)
+                }
+            }
+        }
+        .navigationTitle("Crew")
+        .navigationBarTitleDisplayMode(.large)
+    }
+}
+
+// ─── Materials Catalog View ───────────────────────────────────────────────────
+
+struct MaterialsCatalogView: View {
+    @Query(sort: \Material.name) private var materials: [Material]
+
+    var body: some View {
+        Group {
+            if materials.isEmpty {
+                ContentUnavailableView(
+                    "No Materials",
+                    systemImage: "paintbrush.fill",
+                    description: Text("Your epoxy product catalog will appear here once materials are added.")
+                )
+            } else {
+                List(materials) { material in
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(material.name)
+                            .font(.headline)
+                        HStack(spacing: EBPSpacing.md) {
+                            if material.costPerUnit > 0 {
+                                Label("$\(String(format: "%.2f", Double(truncating: material.costPerUnit as NSNumber)))/\(material.unit)", systemImage: "dollarsign.circle")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            if material.coverageRate > 0 {
+                                Label("\(Int(material.coverageRate)) sf/\(material.unit)", systemImage: "square.dashed")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            if !material.brand.isEmpty {
+                                Text(material.brand)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                    .padding(.vertical, 4)
+                }
+            }
+        }
+        .navigationTitle("Materials")
+        .navigationBarTitleDisplayMode(.large)
+    }
+}
+
+// ─── Bid Templates View ───────────────────────────────────────────────────────
+
+struct BidTemplatesView: View {
+    @Query(sort: \Template.name) private var templates: [Template]
+
+    var body: some View {
+        Group {
+            if templates.isEmpty {
+                ContentUnavailableView(
+                    "No Templates",
+                    systemImage: "doc.richtext",
+                    description: Text("Save a completed bid as a template to reuse scope, pricing, and line items for similar jobs.")
+                )
+            } else {
+                List(templates) { template in
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(template.name)
+                            .font(.headline)
+                        Text(template.type.capitalized)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.vertical, 4)
+                }
+            }
+        }
+        .navigationTitle("Templates")
+        .navigationBarTitleDisplayMode(.large)
+    }
 }
 
 // ─── Color helper for tertiaryLabel ──────────────────────────────────────────

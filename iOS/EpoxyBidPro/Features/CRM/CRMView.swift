@@ -23,6 +23,8 @@ struct CRMView: View {
     @State private var selectedLead: Lead? = nil
     @State private var selectedClient: Client? = nil
     @State private var draggedLeadId: UUID? = nil
+    @State private var lostReasonLead: Lead? = nil
+    @State private var lostReasonText: String = "Price"
 
     enum CRMSection: String, CaseIterable {
         case pipeline = "pipeline"
@@ -135,6 +137,12 @@ struct CRMView: View {
             }
             .sheet(item: $selectedClient) { client in
                 ClientDetailSheet(client: client)
+            }
+            .sheet(item: $lostReasonLead) { lead in
+                LostReasonSheet(lead: lead, selectedReason: $lostReasonText) {
+                    moveLead(lead, to: .lost, reason: lostReasonText)
+                    lostReasonLead = nil
+                }
             }
         }
     }
@@ -392,7 +400,12 @@ struct CRMView: View {
             ForEach(CRMLeadStage.allCases) { s in
                 if s.rawValue != lead.status {
                     Button {
-                        moveLead(lead, to: s)
+                        if s == .lost {
+                            lostReasonText = "Price"
+                            lostReasonLead = lead
+                        } else {
+                            moveLead(lead, to: s)
+                        }
                     } label: {
                         Label(String(format: NSLocalizedString("move.to", comment: ""), s.label), systemImage: "arrow.right.circle")
                     }
@@ -601,10 +614,13 @@ struct CRMView: View {
         }
     }
 
-    private func moveLead(_ lead: Lead, to stage: CRMLeadStage) {
+    private func moveLead(_ lead: Lead, to stage: CRMLeadStage, reason: String = "") {
         lead.status = stage.rawValue
         if stage == .won {
             lead.convertedAt = Date()
+        }
+        if stage == .lost && !reason.isEmpty {
+            lead.lostReason = reason
         }
         try? modelContext.save()
     }
@@ -787,6 +803,98 @@ struct CRMView: View {
         .padding(EBPSpacing.md)
         .ebpGlassmorphism(cornerRadius: EBPRadius.md)
         .ebpHPadding()
+    }
+}
+
+// ─── Lost Reason Sheet ───────────────────────────────────────────────────────
+
+struct LostReasonSheet: View {
+
+    let lead: Lead
+    @Binding var selectedReason: String
+    let onConfirm: () -> Void
+
+    @Environment(\.dismiss) private var dismiss
+
+    private let reasons = ["Price", "Competitor", "Timing", "No Response", "Project Cancelled", "Other"]
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 20) {
+                // Lead info
+                VStack(spacing: 4) {
+                    Text(lead.displayName)
+                        .font(.headline)
+                    if !lead.company.isEmpty {
+                        Text(lead.company)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .padding(.top, 8)
+
+                // Reason picker
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Why was this lead lost?")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                        .padding(.horizontal, 16)
+
+                    ForEach(reasons, id: \.self) { reason in
+                        Button {
+                            selectedReason = reason
+                        } label: {
+                            HStack {
+                                Text(reason)
+                                    .font(.body)
+                                    .foregroundStyle(.primary)
+                                Spacer()
+                                if selectedReason == reason {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundStyle(EBPColor.accent)
+                                }
+                            }
+                            .padding(.vertical, 12)
+                            .padding(.horizontal, 16)
+                            .background(
+                                selectedReason == reason
+                                    ? EBPColor.accent.opacity(0.08)
+                                    : Color.clear
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                        }
+                        .buttonStyle(.plain)
+                        .padding(.horizontal, 8)
+                    }
+                }
+
+                Spacer()
+
+                // Confirm
+                Button {
+                    onConfirm()
+                    dismiss()
+                } label: {
+                    Text("Mark as Lost")
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(Color.red.opacity(0.8))
+                        .clipShape(RoundedRectangle(cornerRadius: EBPRadius.md))
+                }
+                .padding(.horizontal, 16)
+                .padding(.bottom, 16)
+            }
+            .navigationTitle("Lost Reason")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") { dismiss() }
+                }
+            }
+        }
+        .presentationDetents([.medium])
     }
 }
 

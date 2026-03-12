@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import Charts
 
 // ─── REDESIGNED DASHBOARD ─────────────────────────────────────────────────────
 // Modern, bold, beautiful dashboard for epoxy floor contractors
@@ -12,7 +13,10 @@ struct DashboardView: View {
     @Query(sort: \Job.createdAt, order: .reverse) private var workflowJobs: [Job]
     @Query(sort: \Invoice.createdAt, order: .reverse) private var workflowInvoices: [Invoice]
     @Query(sort: \Measurement.scanDate, order: .reverse) private var workflowMeasurements: [Measurement]
+    @Query private var allMaterials: [Material]
+    @Query(sort: \Client.createdAt, order: .reverse) private var recentClients: [Client]
 
+    @EnvironmentObject private var authStore: AuthStore
     @StateObject private var vm = AnalyticsViewModel()
     @State private var heroAppeared = false
     @State private var animateBackground = false
@@ -21,6 +25,13 @@ struct DashboardView: View {
     @State private var showBidBuilder = false
     @State private var showAddClient = false
     @State private var showNewInvoice = false
+
+    private var userInitials: String {
+        let name = authStore.userName
+        let parts = name.split(separator: " ").prefix(2)
+        if parts.isEmpty { return "?" }
+        return parts.compactMap { $0.first }.map { String($0).uppercased() }.joined()
+    }
 
     private var greeting: String {
         let h = Calendar.current.component(.hour, from: Date())
@@ -80,7 +91,17 @@ struct DashboardView: View {
 
                         todayBoardCard
                             .padding(.horizontal, EBPSpacing.md)
-                        
+
+                        // ── MATERIAL COST ALERT ─────────────────────────────
+                        if !allMaterials.isEmpty {
+                            let unsyncedCount = allMaterials.filter { !$0.isSynced }.count
+                            if unsyncedCount > 0 {
+                                materialCostAlert(count: unsyncedCount)
+                                    .padding(.horizontal, EBPSpacing.md)
+                                    .transition(.move(edge: .top).combined(with: .opacity))
+                            }
+                        }
+
                         // ── HERO REVENUE CARD ───────────────────────────────
                         heroRevenueCard
                             .padding(.horizontal, EBPSpacing.md)
@@ -88,6 +109,9 @@ struct DashboardView: View {
                             .opacity(heroAppeared ? 1 : 0)
                             .animation(EBPAnimation.handoff.delay(0.1), value: heroAppeared)
                         
+                        // ── RECENTLY VIEWED ─────────────────────────────────
+                        recentlyViewedRow
+
                         // ── POWER ACTIONS ───────────────────────────────────
                         powerActionsSection
                             .padding(.horizontal, EBPSpacing.md)
@@ -215,7 +239,7 @@ struct DashboardView: View {
                         )
                         .frame(width: 50, height: 50)
                     
-                    Text("JG")
+                    Text(userInitials)
                         .font(.system(size: 18, weight: .bold))
                         .foregroundStyle(.white)
                 }
@@ -313,6 +337,9 @@ struct DashboardView: View {
                 Divider().frame(height: 30).background(.white.opacity(0.1))
                 quickStat(value: "$\(Int((vm.dashboardData?.monthRevenue ?? 0) / 1000))K", label: "This Month")
             }
+
+            // 7-day revenue sparkline
+            revenueSparkline
         }
         .padding(28)
         .background(
@@ -346,6 +373,244 @@ struct DashboardView: View {
                 .foregroundStyle(.white.opacity(0.6))
         }
         .frame(maxWidth: .infinity)
+    }
+
+    // MARK: - Material Cost Alert
+
+    private func materialCostAlert(count: Int) -> some View {
+        Button {
+            workflowRouter.navigate(to: .more, handoffMessage: "Review unsynced material prices")
+        } label: {
+            HStack(spacing: 10) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(.orange)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("\(count) material price\(count == 1 ? "" : "s") not synced")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.white)
+                    Text("Bids using these may have inaccurate costs — tap to review")
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.7))
+                        .lineLimit(2)
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.orange.opacity(0.7))
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 12)
+            .background(Color.orange.opacity(0.12))
+            .background(.ultraThinMaterial)
+            .clipShape(RoundedRectangle(cornerRadius: EBPRadius.md))
+            .overlay(
+                RoundedRectangle(cornerRadius: EBPRadius.md)
+                    .stroke(Color.orange.opacity(0.3), lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Recently Viewed
+
+    private enum RecentItem: Identifiable {
+        case bid(Bid)
+        case job(Job)
+        case client(Client)
+
+        var id: UUID {
+            switch self {
+            case .bid(let b): return b.id
+            case .job(let j): return j.id
+            case .client(let c): return c.id
+            }
+        }
+
+        var icon: String {
+            switch self {
+            case .bid: return "doc.text.fill"
+            case .job: return "hammer.fill"
+            case .client: return "person.fill"
+            }
+        }
+
+        var title: String {
+            switch self {
+            case .bid(let b): return b.title.isEmpty ? b.bidNumber : b.title
+            case .job(let j): return j.title.isEmpty ? "Job" : j.title
+            case .client(let c): return c.displayName
+            }
+        }
+
+        var subtitle: String {
+            switch self {
+            case .bid(let b): return b.status.capitalized
+            case .job(let j): return j.status.replacingOccurrences(of: "_", with: " ").capitalized
+            case .client(let c): return c.clientType.capitalized
+            }
+        }
+
+        var tint: Color {
+            switch self {
+            case .bid: return .purple
+            case .job: return .orange
+            case .client: return .cyan
+            }
+        }
+
+        var date: Date {
+            switch self {
+            case .bid(let b): return b.createdAt
+            case .job(let j): return j.createdAt
+            case .client(let c): return c.createdAt
+            }
+        }
+    }
+
+    private var recentItems: [RecentItem] {
+        let bids   = workflowBids.prefix(5).map   { RecentItem.bid($0) }
+        let jobs   = workflowJobs.prefix(5).map   { RecentItem.job($0) }
+        let clients = recentClients.prefix(5).map { RecentItem.client($0) }
+        return (bids + jobs + clients)
+            .sorted { $0.date > $1.date }
+            .prefix(8)
+            .map { $0 }
+    }
+
+    private var recentlyViewedRow: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Recently Active")
+                .font(.title3.weight(.bold))
+                .foregroundStyle(.white)
+                .padding(.horizontal, EBPSpacing.md)
+
+            if recentItems.isEmpty {
+                Text("No recent activity yet.")
+                    .font(.caption)
+                    .foregroundStyle(.white.opacity(0.5))
+                    .padding(.horizontal, EBPSpacing.md)
+            } else {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 10) {
+                        ForEach(recentItems) { item in
+                            recentItemChip(item)
+                        }
+                    }
+                    .padding(.horizontal, EBPSpacing.md)
+                    .padding(.vertical, 4)
+                }
+            }
+        }
+    }
+
+    private func recentItemChip(_ item: RecentItem) -> some View {
+        Button {
+            switch item {
+            case .bid:    workflowRouter.navigate(to: .bids, handoffMessage: "Opening recent bid")
+            case .job:    workflowRouter.navigate(to: .jobs, handoffMessage: "Opening recent job")
+            case .client: workflowRouter.navigate(to: .crm,  handoffMessage: "Opening recent client")
+            }
+        } label: {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 6) {
+                    Image(systemName: item.icon)
+                        .font(.caption2.weight(.bold))
+                        .foregroundStyle(item.tint)
+                    Text(item.subtitle)
+                        .font(.system(size: 9, weight: .semibold))
+                        .foregroundStyle(item.tint.opacity(0.8))
+                        .lineLimit(1)
+                }
+                Text(item.title)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .lineLimit(2)
+                    .frame(maxWidth: 120, alignment: .leading)
+                    .multilineTextAlignment(.leading)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
+            .background(item.tint.opacity(0.1))
+            .background(.ultraThinMaterial)
+            .clipShape(RoundedRectangle(cornerRadius: EBPRadius.md))
+            .overlay(
+                RoundedRectangle(cornerRadius: EBPRadius.md)
+                    .stroke(item.tint.opacity(0.2), lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Revenue Sparkline
+
+    private struct SparkPoint: Identifiable {
+        let id = UUID()
+        let day: Date
+        let amount: Double
+    }
+
+    private var sparklineData: [SparkPoint] {
+        let cal = Calendar.current
+        let today = cal.startOfDay(for: Date())
+        return (0..<7).reversed().map { offset -> SparkPoint in
+            let day = cal.date(byAdding: .day, value: -offset, to: today)!
+            let total = workflowBids
+                .filter { cal.isDate($0.createdAt, inSameDayAs: day) }
+                .reduce(0.0) { $0 + Double(truncating: $1.totalPrice as NSNumber) }
+            return SparkPoint(day: day, amount: total)
+        }
+    }
+
+    private var revenueSparkline: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text("7-Day Bid Activity")
+                    .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                    .foregroundStyle(.white.opacity(0.55))
+                Spacer()
+                let total7 = sparklineData.reduce(0) { $0 + $1.amount }
+                if total7 > 0 {
+                    Text(total7, format: .currency(code: "USD").precision(.fractionLength(0)))
+                        .font(.system(size: 10, weight: .bold, design: .monospaced))
+                        .foregroundStyle(Color.cyan.opacity(0.9))
+                }
+            }
+
+            Chart(sparklineData) { point in
+                AreaMark(
+                    x: .value("Day", point.day),
+                    y: .value("Amount", point.amount)
+                )
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [Color.cyan.opacity(0.4), Color.cyan.opacity(0.05)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                LineMark(
+                    x: .value("Day", point.day),
+                    y: .value("Amount", point.amount)
+                )
+                .foregroundStyle(Color.cyan)
+                .lineStyle(StrokeStyle(lineWidth: 1.5))
+                .interpolationMethod(.catmullRom)
+                PointMark(
+                    x: .value("Day", point.day),
+                    y: .value("Amount", point.amount)
+                )
+                .foregroundStyle(Color.cyan)
+                .symbolSize(point.amount > 0 ? 20 : 8)
+            }
+            .chartXAxis(.hidden)
+            .chartYAxis(.hidden)
+            .chartYScale(domain: 0...(sparklineData.map(\.amount).max().map { $0 * 1.2 } ?? 100))
+            .frame(height: 44)
+        }
     }
     
     // MARK: - Power Actions

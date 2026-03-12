@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import PhotosUI
 
 // ─── Add Job Sheet ───────────────────────────────────────────────────────────
 
@@ -160,6 +161,9 @@ struct JobDetailSheet: View {
     @Bindable var job: Job
 
     @State private var showInvoiceCreation = false
+    @State private var checklistPhotoItem: PhotosPickerItem? = nil
+    @State private var checklistPhotoTargetItem: JobChecklistItem? = nil
+    @State private var checklistPhotoImages: [UUID: UIImage] = [:]
 
     var body: some View {
         NavigationStack {
@@ -198,6 +202,21 @@ struct JobDetailSheet: View {
                         try? modelContext.save()
                         dismiss()
                     }
+                }
+            }
+            .onChange(of: checklistPhotoItem) { _, newItem in
+                guard let newItem, let targetItem = checklistPhotoTargetItem else { return }
+                Task {
+                    if let data = try? await newItem.loadTransferable(type: Data.self),
+                       let uiImage = UIImage(data: data) {
+                        await MainActor.run {
+                            checklistPhotoImages[targetItem.id] = uiImage
+                            // Store a local reference indicator in the model
+                            targetItem.photoUrl = "local:\(targetItem.id)"
+                            try? modelContext.save()
+                        }
+                    }
+                    await MainActor.run { checklistPhotoItem = nil }
                 }
             }
         }
@@ -352,42 +371,65 @@ struct JobDetailSheet: View {
             }
 
             ForEach(items) { item in
-                Button {
-                    withAnimation(EBPAnimation.snappy) {
-                        item.isComplete.toggle()
-                        item.completedAt = item.isComplete ? Date() : nil
-                        try? modelContext.save()
-                    }
-                } label: {
-                    HStack(spacing: EBPSpacing.sm) {
-                        Image(systemName: item.isComplete ? "checkmark.circle.fill" : "circle")
-                            .font(.title3)
-                            .foregroundStyle(item.isComplete ? EBPColor.success : .secondary)
+                VStack(alignment: .leading, spacing: 6) {
+                    Button {
+                        withAnimation(EBPAnimation.snappy) {
+                            item.isComplete.toggle()
+                            item.completedAt = item.isComplete ? Date() : nil
+                            try? modelContext.save()
+                        }
+                    } label: {
+                        HStack(spacing: EBPSpacing.sm) {
+                            Image(systemName: item.isComplete ? "checkmark.circle.fill" : "circle")
+                                .font(.title3)
+                                .foregroundStyle(item.isComplete ? EBPColor.success : .secondary)
 
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(item.title)
-                                .font(.subheadline)
-                                .foregroundStyle(item.isComplete ? .secondary : .primary)
-                                .strikethrough(item.isComplete)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(item.title)
+                                    .font(.subheadline)
+                                    .foregroundStyle(item.isComplete ? .secondary : .primary)
+                                    .strikethrough(item.isComplete)
 
-                            if let date = item.completedAt {
-                                Text("Done \(date.formatted(date: .abbreviated, time: .shortened))")
-                                    .font(.caption2)
-                                    .foregroundStyle(.secondary)
+                                if let date = item.completedAt {
+                                    Text("Done \(date.formatted(date: .abbreviated, time: .shortened))")
+                                        .font(.caption2)
+                                        .foregroundStyle(.secondary)
+                                }
                             }
-                        }
 
-                        Spacer()
+                            Spacer()
 
-                        if !item.photoUrl.isEmpty {
-                            Image(systemName: "photo")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                            // Photo picker trigger
+                            PhotosPicker(
+                                selection: Binding(
+                                    get: { checklistPhotoTargetItem?.id == item.id ? checklistPhotoItem : nil },
+                                    set: { newItem in
+                                        checklistPhotoTargetItem = item
+                                        checklistPhotoItem = newItem
+                                    }
+                                ),
+                                matching: .images
+                            ) {
+                                Image(systemName: item.photoUrl.isEmpty ? "camera.badge.plus" : "photo.badge.checkmark")
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundStyle(item.photoUrl.isEmpty ? .secondary : EBPColor.success)
+                            }
+                            .buttonStyle(.plain)
                         }
                     }
-                    .padding(.vertical, 4)
+                    .buttonStyle(.plain)
+
+                    // Show photo thumbnail if a local image was captured
+                    if let img = checklistPhotoImages[item.id] {
+                        Image(uiImage: img)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(height: 90)
+                            .clipped()
+                            .clipShape(RoundedRectangle(cornerRadius: EBPRadius.sm))
+                    }
                 }
-                .buttonStyle(.plain)
+                .padding(.vertical, 4)
             }
         }
         .padding(EBPSpacing.md)
