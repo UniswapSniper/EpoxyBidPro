@@ -46,6 +46,7 @@ final class ScanSessionManager: NSObject, ObservableObject {
     @Published var guidanceMessage: String      = "Point your device at the floor"
     @Published var aiCoachMessage: String       = "AI coach: Keep the device chest-high and tilted toward floor edges."
     @Published var scanQualityScore: Int        = 35
+    @Published var isLowLight: Bool             = false
     @Published var isSessionReady: Bool         = false
     @Published var cornerCount: Int             = 0
 
@@ -232,6 +233,12 @@ final class ScanSessionManager: NSObject, ObservableObject {
         let computed = base + trackingPoints + cornerPoints + completionPoints - speedPenalty
         scanQualityScore = max(12, min(98, computed))
 
+        // Low-light overrides all other messages
+        if isLowLight {
+            aiCoachMessage = "⚠️ AI coach: Too dark — move to better lighting for accurate measurements."
+            return
+        }
+
         switch phase {
         case .detectingFloor:
             aiCoachMessage = "AI coach: Sweep left-to-right over floor edges in good light to lock the plane faster."
@@ -301,9 +308,13 @@ extension ScanSessionManager: ARSessionDelegate {
     func session(_ session: ARSession, didUpdate frame: ARFrame) {
         let t = frame.camera.transform
         let cam = SIMD3<Float>(t.columns.3.x, t.columns.3.y, t.columns.3.z)
+        // Check scene lighting for low-light warning (ISO > 800 is dark)
+        let lightEstimate = frame.lightEstimate
+        let lowLightDetected = (lightEstimate?.ambientIntensity ?? 1000) < 500
 
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
+            self.isLowLight = lowLightDetected
 
             // Raycast from screen center instead of dropping the camera exactly down
             let screenCenter = CGPoint(x: UIScreen.main.bounds.midX, y: UIScreen.main.bounds.midY)

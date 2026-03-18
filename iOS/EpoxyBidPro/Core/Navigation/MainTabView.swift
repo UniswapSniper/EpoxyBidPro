@@ -30,6 +30,7 @@ struct MainTabView: View {
     @State private var presentingCreateJob = false
     @State private var presentingCreateInvoice = false
     @StateObject private var workflowRouter = WorkflowRouter()
+    @StateObject private var reachability = ReachabilityMonitor()
     @AppStorage("hasSeenCompactDockHint") private var hasSeenCompactDockHint = false
     @AppStorage("hasSeenFirstTimeTabTooltips") private var hasSeenFirstTimeTabTooltips = false
     @State private var showCompactDockHint = false
@@ -157,7 +158,13 @@ struct MainTabView: View {
                     .transition(.move(edge: .bottom).combined(with: .opacity))
             }
 
-            if let handoff = workflowRouter.handoffMessage {
+            if !reachability.isConnected {
+                offlineBanner
+                    .padding(.top, 8)
+                    .frame(maxHeight: .infinity, alignment: .top)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .zIndex(5)
+            } else if let handoff = workflowRouter.handoffMessage {
                 handoffBanner(handoff)
                     .padding(.top, 8)
                     .frame(maxHeight: .infinity, alignment: .top)
@@ -379,6 +386,24 @@ struct MainTabView: View {
             .compactMap { $0 as? UIWindowScene }
             .first?.windows.first?.safeAreaInsets.bottom) ?? 0
         return 49 + safeBottom + 8
+    }
+
+    private var offlineBanner: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "wifi.slash")
+                .font(.caption.weight(.bold))
+                .foregroundStyle(.orange)
+            Text("Offline — changes will sync when connected")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.white)
+                .lineLimit(1)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 8)
+        .background(Color.orange.opacity(0.18))
+        .background(.ultraThinMaterial)
+        .clipShape(Capsule())
+        .overlay(Capsule().stroke(Color.orange.opacity(0.35), lineWidth: 1))
     }
 
     private func handoffBanner(_ handoff: String) -> some View {
