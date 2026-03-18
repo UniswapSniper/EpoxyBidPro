@@ -49,7 +49,7 @@ final class BidViewModel: ObservableObject {
         var result = bids
 
         if selectedFilter != .all {
-            result = result.filter { $0.status == (selectedFilter.apiStatus ?? "") }
+            result = result.filter { $0.statusRaw == (selectedFilter.apiStatus ?? "") }
         }
 
         if !searchText.isEmpty {
@@ -91,7 +91,7 @@ final class BidViewModel: ObservableObject {
         let bid = Bid()
         bid.bidNumber = "BID-\(Int.random(in: 1001...9999))"   // temp — overwritten on sync
         bid.title = client != nil ? "\(client!.displayName) — Epoxy Floor" : "New Bid"
-        bid.status = "DRAFT"
+        bid.status = .draft
         bid.client = client
         bid.measurement = measurement
         bid.totalSqFt = measurement?.totalSqFt ?? 0
@@ -138,7 +138,7 @@ final class BidViewModel: ObservableObject {
             }
 
             if let json = try? JSONDecoder().decode(APIResponse<SendBidResult>.self, from: data) {
-                bid.status = "SENT"
+                bid.status = .sent
                 bid.pdfUrl = json.data.pdfUrl ?? ""
                 bid.sentAt = Date()
             }
@@ -176,7 +176,7 @@ final class BidViewModel: ObservableObject {
 
     func declineBid(_ bid: Bid, reason: String? = nil, context: ModelContext) async {
         guard let bidId = bid.backendId.isEmpty ? nil : bid.backendId else {
-            bid.status = "DECLINED"
+            bid.status = .declined
             bid.declinedAt = Date()
             try? context.save()
             return
@@ -191,7 +191,7 @@ final class BidViewModel: ObservableObject {
             errorMessage = error.localizedDescription
         }
 
-        bid.status = "DECLINED"
+        bid.status = .declined
         bid.declinedAt = Date()
         try? context.save()
         loadBids(from: context)
@@ -260,7 +260,7 @@ final class BidViewModel: ObservableObject {
             sig.signatureDataBase64 = dataUrl
             sig.signedAt = Date()
             bid.signature = sig
-            bid.status = "SIGNED"
+            bid.status = .signed
             bid.signedAt = Date()
             try? context.save()
             return
@@ -280,7 +280,7 @@ final class BidViewModel: ObservableObject {
                 throw APIError.httpError((response as? HTTPURLResponse)?.statusCode ?? 0)
             }
 
-            bid.status = "SIGNED"
+            bid.status = .signed
             bid.signedAt = Date()
             let sig = BidSignature()
             sig.signerName = signerName

@@ -17,13 +17,12 @@ enum EpoxyAIWorkflowAdvisor {
         var score = 25
 
         switch lead.status {
-        case "NEW": score += 5
-        case "CONTACTED": score += 15
-        case "SITE_VISIT": score += 30
-        case "BID_SENT": score += 40
-        case "WON": score = 100
-        case "LOST": score = 0
-        default: break
+        case .new:       score += 5
+        case .contacted: score += 15
+        case .siteVisit: score += 30
+        case .bidSent:   score += 40
+        case .won:       score = 100
+        case .lost:      score = 0
         }
 
         if let followUp = lead.followUpDate {
@@ -33,7 +32,7 @@ enum EpoxyAIWorkflowAdvisor {
         }
 
         if lead.estimatedValue >= 8000 { score += 8 }
-        if !lead.source.isEmpty, ["REFERRAL", "WEBSITE"].contains(lead.source.uppercased()) { score += 6 }
+        if lead.source == .referral || lead.source == .website { score += 6 }
 
         return min(max(score, 0), 100)
     }
@@ -53,9 +52,9 @@ enum EpoxyAIWorkflowAdvisor {
         score += min(Int(lead.estimatedValue / 1000), 20)
 
         switch lead.status {
-        case "BID_SENT": score += 18
-        case "SITE_VISIT": score += 14
-        case "CONTACTED": score += 8
+        case .bidSent:   score += 18
+        case .siteVisit: score += 14
+        case .contacted: score += 8
         default: break
         }
 
@@ -64,13 +63,13 @@ enum EpoxyAIWorkflowAdvisor {
 
     static func nextBestAction(for lead: Lead) -> String {
         switch lead.status {
-        case "NEW":
+        case .new:
             return "Call within 15 minutes and confirm project goals before quoting."
-        case "CONTACTED":
+        case .contacted:
             return "Lock a site visit slot and capture substrate prep notes."
-        case "SITE_VISIT":
+        case .siteVisit:
             return "Build proposal from measured scope and send same day."
-        case "BID_SENT":
+        case .bidSent:
             return "Run close call with financing/timeline options to secure signature."
         default:
             return "Review account and update next follow-up commitment."
@@ -78,7 +77,7 @@ enum EpoxyAIWorkflowAdvisor {
     }
 
     static func jobRiskScore(_ job: Job) -> Int {
-        guard ["SCHEDULED", "IN_PROGRESS", "PUNCH_LIST"].contains(job.status) else { return 0 }
+        guard job.status.isActive else { return 0 }
 
         var score = 10
 
@@ -96,7 +95,7 @@ enum EpoxyAIWorkflowAdvisor {
             if ratio < 0.4 { score += 15 }
         }
 
-        if let scheduled = job.scheduledDate, scheduled < Date(), job.status == "SCHEDULED" {
+        if let scheduled = job.scheduledDate, scheduled < Date(), job.status == .scheduled {
             score += 20
         }
 
@@ -104,7 +103,7 @@ enum EpoxyAIWorkflowAdvisor {
     }
 
     static func invoiceCollectionRisk(_ invoice: Invoice) -> Int {
-        if invoice.status == "PAID" { return 0 }
+        if invoice.status == .paid { return 0 }
 
         var score = 15
         if invoice.isOverdue {

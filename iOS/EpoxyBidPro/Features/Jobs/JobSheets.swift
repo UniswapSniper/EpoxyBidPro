@@ -9,7 +9,7 @@ struct AddJobSheet: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @Query(sort: \Client.firstName) private var clients: [Client]
-    @Query(filter: #Predicate<Bid> { $0.status == "SIGNED" }) private var signedBids: [Bid]
+    @Query(filter: #Predicate<Bid> { $0.statusRaw == "SIGNED" }) private var signedBids: [Bid]
 
     @State private var title = ""
     @State private var coatingSystem = ""
@@ -277,16 +277,16 @@ struct JobDetailSheet: View {
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: EBPSpacing.xs) {
-                    ForEach(["SCHEDULED", "IN_PROGRESS", "PUNCH_LIST", "COMPLETE", "INVOICED"], id: \.self) { status in
+                    ForEach(JobStatus.allCases, id: \.self) { status in
                         Button {
                             withAnimation {
                                 job.status = status
-                                if status == "IN_PROGRESS" { job.startedAt = Date() }
-                                if status == "COMPLETE" { job.completedAt = Date() }
+                                if status == .inProgress { job.startedAt = Date() }
+                                if status == .complete { job.completedAt = Date() }
                                 try? modelContext.save()
                             }
                         } label: {
-                            Text(statusLabel(status))
+                            Text(status.label)
                                 .font(.caption.weight(.semibold))
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 6)
@@ -488,15 +488,15 @@ struct JobDetailSheet: View {
 
     private var actionsSection: some View {
         VStack(spacing: EBPSpacing.sm) {
-            if job.status == "COMPLETE" {
+            if job.status == .complete {
                 EBPButton(title: "Create Invoice", icon: "dollarsign.circle", style: .primary) {
                     showInvoiceCreation = true
                 }
             }
 
-            if job.status != "COMPLETE" && job.status != "INVOICED" && job.status != "PAID" {
+            if job.status != .complete && job.status != .invoiced {
                 EBPButton(title: "Mark Complete & Create Invoice", icon: "checkmark.circle.fill", style: .primary) {
-                    job.status = "COMPLETE"
+                    job.status = .complete
                     job.completedAt = Date()
                     try? modelContext.save()
                     showInvoiceCreation = true
@@ -513,37 +513,21 @@ struct JobDetailSheet: View {
 
     private var statusIcon: String {
         switch job.status {
-        case "SCHEDULED":   return "calendar.badge.clock"
-        case "IN_PROGRESS": return "hammer.fill"
-        case "PUNCH_LIST":  return "list.bullet.clipboard"
-        case "COMPLETE":    return "checkmark.seal.fill"
-        case "INVOICED":    return "dollarsign.circle.fill"
-        case "PAID":        return "banknote.fill"
-        default:            return "questionmark.circle"
+        case .scheduled:   return "calendar.badge.clock"
+        case .inProgress:  return "hammer.fill"
+        case .punchList:   return "list.bullet.clipboard"
+        case .complete:    return "checkmark.seal.fill"
+        case .invoiced:    return "dollarsign.circle.fill"
         }
     }
 
-    private func colorForStatus(_ status: String) -> Color {
+    private func colorForStatus(_ status: JobStatus) -> Color {
         switch status {
-        case "SCHEDULED":   return .blue
-        case "IN_PROGRESS": return EBPColor.primary
-        case "PUNCH_LIST":  return .orange
-        case "COMPLETE":    return EBPColor.success
-        case "INVOICED":    return .purple
-        case "PAID":        return .mint
-        default:            return .secondary
-        }
-    }
-
-    private func statusLabel(_ status: String) -> String {
-        switch status {
-        case "SCHEDULED":   return "Scheduled"
-        case "IN_PROGRESS": return "In Progress"
-        case "PUNCH_LIST":  return "Punch List"
-        case "COMPLETE":    return "Complete"
-        case "INVOICED":    return "Invoiced"
-        case "PAID":        return "Paid"
-        default:            return status.capitalized
+        case .scheduled:   return .blue
+        case .inProgress:  return EBPColor.primary
+        case .punchList:   return .orange
+        case .complete:    return EBPColor.success
+        case .invoiced:    return .purple
         }
     }
 

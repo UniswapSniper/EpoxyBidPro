@@ -6,7 +6,7 @@ import SwiftUI
 
 struct BusinessSetupView: View {
 
-    @EnvironmentObject private var authStore: AuthStore
+    @Environment(AuthManager.self) private var authManager
     @State private var step: SetupStep = .company
     @State private var showImagePicker = false
 
@@ -139,10 +139,10 @@ struct BusinessSetupView: View {
 
                 // Company fields
                 VStack(spacing: EBPSpacing.md) {
-                    floatingField("Company Name", text: $authStore.businessName, icon: "building.2")
-                    floatingField("Business Phone", text: $authStore.businessPhone, icon: "phone.fill", keyboard: .phonePad)
-                    floatingField("Business Email", text: $authStore.businessEmail, icon: "envelope.fill", keyboard: .emailAddress)
-                    floatingField("License / Registration #", text: $authStore.businessLicenseNumber, icon: "doc.text.fill")
+                    floatingField("Company Name", text: $authManager.businessName, icon: "building.2")
+                    floatingField("Business Phone", text: $authManager.businessPhone, icon: "phone.fill", keyboard: .phonePad)
+                    floatingField("Business Email", text: $authManager.businessEmail, icon: "envelope.fill", keyboard: .emailAddress)
+                    floatingField("License / Registration #", text: $authManager.businessLicenseNumber, icon: "doc.text.fill")
                 }
 
                 Divider()
@@ -152,12 +152,12 @@ struct BusinessSetupView: View {
                     Text("Business Address")
                         .font(.headline)
 
-                    floatingField("Street Address", text: $authStore.businessAddress, icon: "mappin")
+                    floatingField("Street Address", text: $authManager.businessAddress, icon: "mappin")
                     HStack(spacing: EBPSpacing.sm) {
-                        floatingField("City", text: $authStore.businessCity, icon: "")
-                        floatingField("State", text: $authStore.businessState, icon: "")
+                        floatingField("City", text: $authManager.businessCity, icon: "")
+                        floatingField("State", text: $authManager.businessState, icon: "")
                             .frame(width: 80)
-                        floatingField("ZIP", text: $authStore.businessZip, icon: "", keyboard: .numberPad)
+                        floatingField("ZIP", text: $authManager.businessZip, icon: "", keyboard: .numberPad)
                             .frame(width: 90)
                     }
                 }
@@ -183,7 +183,7 @@ struct BusinessSetupView: View {
                 VStack(spacing: EBPSpacing.md) {
                     pricingRow(
                         label: "Labor Rate",
-                        value: $authStore.defaultLaborRate,
+                        value: $authManager.defaultLaborRate,
                         unit: "$/hr",
                         icon: "person.fill",
                         tint: .orange,
@@ -192,7 +192,7 @@ struct BusinessSetupView: View {
 
                     pricingRow(
                         label: "Overhead",
-                        value: $authStore.defaultOverheadRate,
+                        value: $authManager.defaultOverheadRate,
                         unit: "%",
                         icon: "building.fill",
                         tint: .purple,
@@ -201,7 +201,7 @@ struct BusinessSetupView: View {
 
                     pricingRow(
                         label: "Default Markup",
-                        value: $authStore.defaultMarkup,
+                        value: $authManager.defaultMarkup,
                         unit: "%",
                         icon: "arrow.up.right",
                         tint: EBPColor.success,
@@ -210,7 +210,7 @@ struct BusinessSetupView: View {
 
                     pricingRow(
                         label: "Tax Rate",
-                        value: $authStore.defaultTaxRate,
+                        value: $authManager.defaultTaxRate,
                         unit: "%",
                         icon: "doc.text",
                         tint: .secondary,
@@ -219,7 +219,7 @@ struct BusinessSetupView: View {
 
                     pricingRow(
                         label: "Mobilization Fee",
-                        value: $authStore.defaultMobilizationFee,
+                        value: $authManager.defaultMobilizationFee,
                         unit: "$",
                         icon: "truck.box.fill",
                         tint: .teal,
@@ -228,7 +228,7 @@ struct BusinessSetupView: View {
 
                     pricingRow(
                         label: "Minimum Job Price",
-                        value: $authStore.defaultMinimumJobPrice,
+                        value: $authManager.defaultMinimumJobPrice,
                         unit: "$",
                         icon: "banknote",
                         tint: EBPColor.primary,
@@ -283,25 +283,25 @@ struct BusinessSetupView: View {
 
                 // Company summary
                 reviewSection(title: "Company", icon: "building.2.fill") {
-                    reviewRow("Name", authStore.businessName.isEmpty ? "—" : authStore.businessName)
-                    reviewRow("Phone", authStore.businessPhone.isEmpty ? "—" : authStore.businessPhone)
-                    reviewRow("Email", authStore.businessEmail.isEmpty ? "—" : authStore.businessEmail)
-                    if !authStore.businessAddress.isEmpty {
-                        reviewRow("Address", "\(authStore.businessAddress), \(authStore.businessCity) \(authStore.businessState) \(authStore.businessZip)")
+                    reviewRow("Name", authManager.businessName.isEmpty ? "—" : authManager.businessName)
+                    reviewRow("Phone", authManager.businessPhone.isEmpty ? "—" : authManager.businessPhone)
+                    reviewRow("Email", authManager.businessEmail.isEmpty ? "—" : authManager.businessEmail)
+                    if !authManager.businessAddress.isEmpty {
+                        reviewRow("Address", "\(authManager.businessAddress), \(authManager.businessCity) \(authManager.businessState) \(authManager.businessZip)")
                     }
-                    if !authStore.businessLicenseNumber.isEmpty {
-                        reviewRow("License", authStore.businessLicenseNumber)
+                    if !authManager.businessLicenseNumber.isEmpty {
+                        reviewRow("License", authManager.businessLicenseNumber)
                     }
                 }
 
                 // Pricing summary
                 reviewSection(title: "Pricing Defaults", icon: "dollarsign.circle.fill") {
-                    reviewRow("Labor Rate", "$\(Int(authStore.defaultLaborRate))/hr")
-                    reviewRow("Overhead", "\(Int(authStore.defaultOverheadRate))%")
-                    reviewRow("Markup", "\(Int(authStore.defaultMarkup))%")
-                    reviewRow("Tax Rate", "\(Int(authStore.defaultTaxRate))%")
-                    reviewRow("Mobilization", "$\(Int(authStore.defaultMobilizationFee))")
-                    reviewRow("Min Job Price", "$\(Int(authStore.defaultMinimumJobPrice))")
+                    reviewRow("Labor Rate", "$\(Int(authManager.defaultLaborRate))/hr")
+                    reviewRow("Overhead", "\(Int(authManager.defaultOverheadRate))%")
+                    reviewRow("Markup", "\(Int(authManager.defaultMarkup))%")
+                    reviewRow("Tax Rate", "\(Int(authManager.defaultTaxRate))%")
+                    reviewRow("Mobilization", "$\(Int(authManager.defaultMobilizationFee))")
+                    reviewRow("Min Job Price", "$\(Int(authManager.defaultMinimumJobPrice))")
                 }
 
                 Text("You can change these anytime in Settings → Company Profile.")
@@ -328,7 +328,7 @@ struct BusinessSetupView: View {
 
             if step == .review {
                 EBPButton(title: "Launch EpoxyBidPro", icon: "rocket.fill", style: .primary, isFullWidth: false) {
-                    authStore.completeBusinessSetup()
+                    authManager.completeBusinessSetup()
                 }
             } else {
                 Button {

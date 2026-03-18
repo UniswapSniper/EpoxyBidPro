@@ -1,6 +1,12 @@
 import Foundation
 import SwiftData
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// CoreModels.swift
+// SwiftData @Model classes with typed enums, sync tracking, and updatedAt.
+// Phase 2 rebuild — replaces raw String status fields with proper Swift enums.
+// ═══════════════════════════════════════════════════════════════════════════════
+
 // ─── Client ──────────────────────────────────────────────────────────────────
 
 @Model final class Client {
@@ -14,18 +20,25 @@ import SwiftData
     var city: String
     var state: String
     var zip: String
-    var clientType: String
+    var clientTypeRaw: String
     var notes: String
     var tags: [String]
     var isVip: Bool
     var totalRevenue: Decimal
     var createdAt: Date
+    var updatedAt: Date
     var backendId: String
     var isSynced: Bool
 
     @Relationship(deleteRule: .cascade) var measurements: [Measurement]
     @Relationship(deleteRule: .cascade) var bids: [Bid]
     @Relationship(deleteRule: .cascade) var jobs: [Job]
+
+    // Typed accessor
+    var clientType: ClientType {
+        get { ClientType(rawValue: clientTypeRaw) ?? .residential }
+        set { clientTypeRaw = newValue.rawValue }
+    }
 
     init(
         id: UUID = UUID(),
@@ -38,12 +51,13 @@ import SwiftData
         city: String = "",
         state: String = "",
         zip: String = "",
-        clientType: String = "RESIDENTIAL",
+        clientType: ClientType = .residential,
         notes: String = "",
         tags: [String] = [],
         isVip: Bool = false,
         totalRevenue: Decimal = 0,
         createdAt: Date = Date(),
+        updatedAt: Date = Date(),
         backendId: String = "",
         isSynced: Bool = false,
         measurements: [Measurement] = [],
@@ -60,12 +74,13 @@ import SwiftData
         self.city = city
         self.state = state
         self.zip = zip
-        self.clientType = clientType
+        self.clientTypeRaw = clientType.rawValue
         self.notes = notes
         self.tags = tags
         self.isVip = isVip
         self.totalRevenue = totalRevenue
         self.createdAt = createdAt
+        self.updatedAt = updatedAt
         self.backendId = backendId
         self.isSynced = isSynced
         self.measurements = measurements
@@ -76,6 +91,11 @@ import SwiftData
     var displayName: String {
         let full = "\(firstName) \(lastName)".trimmingCharacters(in: .whitespaces)
         return full.isEmpty ? (company.isEmpty ? "Unnamed Client" : company) : full
+    }
+
+    func markUpdated() {
+        updatedAt = Date()
+        isSynced = false
     }
 }
 
@@ -89,16 +109,28 @@ import SwiftData
     var phone: String
     var company: String
     var address: String
-    var status: String
-    var source: String
+    var statusRaw: String
+    var sourceRaw: String
     var estimatedValue: Double
     var notes: String
     var lostReason: String
     var followUpAt: Date?
     var convertedAt: Date?
     var createdAt: Date
+    var updatedAt: Date
     var backendId: String
     var isSynced: Bool
+
+    // Typed accessors
+    var status: LeadStatus {
+        get { LeadStatus(rawValue: statusRaw) ?? .new }
+        set { statusRaw = newValue.rawValue }
+    }
+
+    var source: LeadSource {
+        get { LeadSource(rawValue: sourceRaw) ?? .manual }
+        set { sourceRaw = newValue.rawValue }
+    }
 
     init(
         id: UUID = UUID(),
@@ -108,14 +140,15 @@ import SwiftData
         phone: String = "",
         company: String = "",
         address: String = "",
-        status: String = "NEW",
-        source: String = "MANUAL",
+        status: LeadStatus = .new,
+        source: LeadSource = .manual,
         estimatedValue: Double = 0,
         notes: String = "",
         lostReason: String = "",
         followUpAt: Date? = nil,
         convertedAt: Date? = nil,
         createdAt: Date = Date(),
+        updatedAt: Date = Date(),
         backendId: String = "",
         isSynced: Bool = false
     ) {
@@ -126,14 +159,15 @@ import SwiftData
         self.phone = phone
         self.company = company
         self.address = address
-        self.status = status
-        self.source = source
+        self.statusRaw = status.rawValue
+        self.sourceRaw = source.rawValue
         self.estimatedValue = estimatedValue
         self.notes = notes
         self.lostReason = lostReason
         self.followUpAt = followUpAt
         self.convertedAt = convertedAt
         self.createdAt = createdAt
+        self.updatedAt = updatedAt
         self.backendId = backendId
         self.isSynced = isSynced
     }
@@ -145,6 +179,11 @@ import SwiftData
     var followUpDate: Date? {
         get { followUpAt }
         set { followUpAt = newValue }
+    }
+
+    func markUpdated() {
+        updatedAt = Date()
+        isSynced = false
     }
 }
 
@@ -158,6 +197,9 @@ import SwiftData
     var scanDate: Date
     var floorPlanUrl: String
     var scanDataJson: String
+    var isLidar: Bool
+    var createdAt: Date
+    var updatedAt: Date
     var backendId: String
     var isSynced: Bool
 
@@ -174,6 +216,9 @@ import SwiftData
         scanDate: Date = Date(),
         floorPlanUrl: String = "",
         scanDataJson: String = "{}",
+        isLidar: Bool = false,
+        createdAt: Date = Date(),
+        updatedAt: Date = Date(),
         backendId: String = "",
         isSynced: Bool = false,
         client: Client? = nil,
@@ -186,6 +231,9 @@ import SwiftData
         self.scanDate = scanDate
         self.floorPlanUrl = floorPlanUrl
         self.scanDataJson = scanDataJson
+        self.isLidar = isLidar
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
         self.backendId = backendId
         self.isSynced = isSynced
         self.client = client
@@ -194,6 +242,11 @@ import SwiftData
 
     var areaCount: Int { areas.count }
     var computedTotal: Double { areas.reduce(0) { $0 + $1.squareFeet } }
+
+    func markUpdated() {
+        updatedAt = Date()
+        isSynced = false
+    }
 }
 
 // ─── Area (sub-room within a Measurement) ────────────────────────────────────
@@ -233,20 +286,23 @@ import SwiftData
     var id: UUID
     var bidNumber: String
     var title: String
-    var status: String
-    var tier: String
-    var coatingSystem: String
+    var statusRaw: String
+    var tierRaw: String
+    var coatingSystemRaw: String
+    var surfaceConditionRaw: String
     var totalSqFt: Double
 
     // Pricing
     var materialCost: Decimal
     var laborCost: Decimal
+    var overheadCost: Decimal
     var markup: Decimal
     var taxRate: Decimal
     var taxAmount: Decimal
     var subtotal: Decimal
     var totalPrice: Decimal
-    var profitMargin: Decimal
+    var profitMargin: Double
+    var estimatedHours: Double
 
     // Proposal
     var executiveSummary: String
@@ -265,6 +321,7 @@ import SwiftData
 
     var notes: String
     var createdAt: Date
+    var updatedAt: Date
     var backendId: String
     var isSynced: Bool
 
@@ -273,23 +330,47 @@ import SwiftData
 
     @Relationship(deleteRule: .cascade) var lineItems: [BidLineItem]
     var signature: BidSignature?
-    
+
+    // Typed accessors
+    var status: BidStatus {
+        get { BidStatus(rawValue: statusRaw) ?? .draft }
+        set { statusRaw = newValue.rawValue }
+    }
+
+    var tier: BidTier {
+        get { BidTier(rawValue: tierRaw) ?? .better }
+        set { tierRaw = newValue.rawValue }
+    }
+
+    var coatingSystem: CoatingSystem {
+        get { CoatingSystem(rawValue: coatingSystemRaw) ?? .singleCoatClear }
+        set { coatingSystemRaw = newValue.rawValue }
+    }
+
+    var surfaceCondition: SurfaceCondition {
+        get { SurfaceCondition(rawValue: surfaceConditionRaw) ?? .good }
+        set { surfaceConditionRaw = newValue.rawValue }
+    }
+
     init(
         id: UUID = UUID(),
         bidNumber: String = "",
         title: String = "",
-        status: String = "DRAFT",
-        tier: String = "BETTER",
-        coatingSystem: String = "",
+        status: BidStatus = .draft,
+        tier: BidTier = .better,
+        coatingSystem: CoatingSystem = .singleCoatClear,
+        surfaceCondition: SurfaceCondition = .good,
         totalSqFt: Double = 0,
         materialCost: Decimal = 0,
         laborCost: Decimal = 0,
+        overheadCost: Decimal = 0,
         markup: Decimal = 0,
         taxRate: Decimal = 0,
         taxAmount: Decimal = 0,
         subtotal: Decimal = 0,
         totalPrice: Decimal = 0,
-        profitMargin: Decimal = 0,
+        profitMargin: Double = 0,
+        estimatedHours: Double = 0,
         executiveSummary: String = "",
         scopeNotes: String = "",
         validUntil: Date? = nil,
@@ -303,6 +384,7 @@ import SwiftData
         aiUpsells: [String] = [],
         notes: String = "",
         createdAt: Date = Date(),
+        updatedAt: Date = Date(),
         backendId: String = "",
         isSynced: Bool = false,
         client: Client? = nil,
@@ -313,18 +395,21 @@ import SwiftData
         self.id = id
         self.bidNumber = bidNumber
         self.title = title
-        self.status = status
-        self.tier = tier
-        self.coatingSystem = coatingSystem
+        self.statusRaw = status.rawValue
+        self.tierRaw = tier.rawValue
+        self.coatingSystemRaw = coatingSystem.rawValue
+        self.surfaceConditionRaw = surfaceCondition.rawValue
         self.totalSqFt = totalSqFt
         self.materialCost = materialCost
         self.laborCost = laborCost
+        self.overheadCost = overheadCost
         self.markup = markup
         self.taxRate = taxRate
         self.taxAmount = taxAmount
         self.subtotal = subtotal
         self.totalPrice = totalPrice
         self.profitMargin = profitMargin
+        self.estimatedHours = estimatedHours
         self.executiveSummary = executiveSummary
         self.scopeNotes = scopeNotes
         self.validUntil = validUntil
@@ -338,12 +423,18 @@ import SwiftData
         self.aiUpsells = aiUpsells
         self.notes = notes
         self.createdAt = createdAt
+        self.updatedAt = updatedAt
         self.backendId = backendId
         self.isSynced = isSynced
         self.client = client
         self.measurement = measurement
         self.lineItems = lineItems
         self.signature = signature
+    }
+
+    func markUpdated() {
+        updatedAt = Date()
+        isSynced = false
     }
 }
 
@@ -353,8 +444,8 @@ import SwiftData
     var id: UUID
     var jobNumber: String
     var title: String
-    var status: String
-    var coatingSystem: String
+    var statusRaw: String
+    var coatingSystemRaw: String
     var scheduledDate: Date?
     var startedAt: Date?
     var completedAt: Date?
@@ -365,6 +456,7 @@ import SwiftData
     var actualCost: Decimal
     var notes: String
     var createdAt: Date
+    var updatedAt: Date
     var backendId: String
     var isSynced: Bool
 
@@ -372,12 +464,23 @@ import SwiftData
     var bid: Bid?
     @Relationship(deleteRule: .cascade) var checklistItems: [JobChecklistItem]
 
+    // Typed accessors
+    var status: JobStatus {
+        get { JobStatus(rawValue: statusRaw) ?? .scheduled }
+        set { statusRaw = newValue.rawValue }
+    }
+
+    var coatingSystem: CoatingSystem {
+        get { CoatingSystem(rawValue: coatingSystemRaw) ?? .singleCoatClear }
+        set { coatingSystemRaw = newValue.rawValue }
+    }
+
     init(
         id: UUID = UUID(),
         jobNumber: String = "",
         title: String = "",
-        status: String = "SCHEDULED",
-        coatingSystem: String = "",
+        status: JobStatus = .scheduled,
+        coatingSystem: CoatingSystem = .singleCoatClear,
         scheduledDate: Date? = nil,
         startedAt: Date? = nil,
         completedAt: Date? = nil,
@@ -388,6 +491,7 @@ import SwiftData
         actualCost: Decimal = 0,
         notes: String = "",
         createdAt: Date = Date(),
+        updatedAt: Date = Date(),
         backendId: String = "",
         isSynced: Bool = false,
         client: Client? = nil,
@@ -397,8 +501,8 @@ import SwiftData
         self.id = id
         self.jobNumber = jobNumber
         self.title = title
-        self.status = status
-        self.coatingSystem = coatingSystem
+        self.statusRaw = status.rawValue
+        self.coatingSystemRaw = coatingSystem.rawValue
         self.scheduledDate = scheduledDate
         self.startedAt = startedAt
         self.completedAt = completedAt
@@ -409,11 +513,30 @@ import SwiftData
         self.actualCost = actualCost
         self.notes = notes
         self.createdAt = createdAt
+        self.updatedAt = updatedAt
         self.backendId = backendId
         self.isSynced = isSynced
         self.client = client
         self.bid = bid
         self.checklistItems = checklistItems
+    }
+
+    var profitMargin: Double {
+        guard revenue > 0 else { return 0 }
+        let revenueDouble = NSDecimalNumber(decimal: revenue).doubleValue
+        let costDouble = NSDecimalNumber(decimal: actualCost).doubleValue
+        return ((revenueDouble - costDouble) / revenueDouble) * 100
+    }
+
+    var checklistProgress: Double {
+        guard !checklistItems.isEmpty else { return 0 }
+        let completed = checklistItems.filter(\.isComplete).count
+        return Double(completed) / Double(checklistItems.count)
+    }
+
+    func markUpdated() {
+        updatedAt = Date()
+        isSynced = false
     }
 }
 
@@ -452,7 +575,7 @@ import SwiftData
 @Model final class Invoice {
     var id: UUID
     var invoiceNumber: String
-    var status: String
+    var statusRaw: String
     var issueDate: Date
     var dueDate: Date
     var paidDate: Date?
@@ -469,10 +592,11 @@ import SwiftData
     // Payment
     var stripePaymentLinkUrl: String
     var stripePaymentIntentId: String
-    var paymentMethod: String
+    var paymentMethodRaw: String
 
     var notes: String
     var createdAt: Date
+    var updatedAt: Date
     var backendId: String
     var isSynced: Bool
 
@@ -480,10 +604,21 @@ import SwiftData
     var job: Job?
     @Relationship(deleteRule: .cascade) var lineItems: [InvoiceLineItem]
 
+    // Typed accessors
+    var status: InvoiceStatus {
+        get { InvoiceStatus(rawValue: statusRaw) ?? .draft }
+        set { statusRaw = newValue.rawValue }
+    }
+
+    var paymentMethod: PaymentMethod? {
+        get { PaymentMethod(rawValue: paymentMethodRaw) }
+        set { paymentMethodRaw = newValue?.rawValue ?? "" }
+    }
+
     init(
         id: UUID = UUID(),
         invoiceNumber: String = "",
-        status: String = "DRAFT",
+        status: InvoiceStatus = .draft,
         issueDate: Date = Date(),
         dueDate: Date = Date(),
         paidDate: Date? = nil,
@@ -496,9 +631,10 @@ import SwiftData
         depositPaid: Bool = false,
         stripePaymentLinkUrl: String = "",
         stripePaymentIntentId: String = "",
-        paymentMethod: String = "",
+        paymentMethod: PaymentMethod? = nil,
         notes: String = "",
         createdAt: Date = Date(),
+        updatedAt: Date = Date(),
         backendId: String = "",
         isSynced: Bool = false,
         client: Client? = nil,
@@ -507,7 +643,7 @@ import SwiftData
     ) {
         self.id = id
         self.invoiceNumber = invoiceNumber
-        self.status = status
+        self.statusRaw = status.rawValue
         self.issueDate = issueDate
         self.dueDate = dueDate
         self.paidDate = paidDate
@@ -520,9 +656,10 @@ import SwiftData
         self.depositPaid = depositPaid
         self.stripePaymentLinkUrl = stripePaymentLinkUrl
         self.stripePaymentIntentId = stripePaymentIntentId
-        self.paymentMethod = paymentMethod
+        self.paymentMethodRaw = paymentMethod?.rawValue ?? ""
         self.notes = notes
         self.createdAt = createdAt
+        self.updatedAt = updatedAt
         self.backendId = backendId
         self.isSynced = isSynced
         self.client = client
@@ -535,7 +672,12 @@ import SwiftData
     }
 
     var isOverdue: Bool {
-        dueDate < Date() && balanceDue > 0 && status != "PAID" && status != "VOID"
+        dueDate < Date() && balanceDue > 0 && status != .paid && status != .void
+    }
+
+    func markUpdated() {
+        updatedAt = Date()
+        isSynced = false
     }
 }
 

@@ -8,7 +8,7 @@ import SwiftData
 struct InvoicingView: View {
 
     @Environment(\.modelContext) private var modelContext
-    @EnvironmentObject private var workflowRouter: WorkflowRouter
+    @Environment(WorkflowRouter.self) private var workflowRouter
     @Query(sort: \Lead.createdAt, order: .reverse) private var workflowLeads: [Lead]
     @Query(sort: \Invoice.createdAt, order: .reverse) private var allInvoices: [Invoice]
     @Query(sort: \Bid.createdAt, order: .reverse) private var allBids: [Bid]
@@ -60,7 +60,7 @@ struct InvoicingView: View {
         case .overdue:
             results = results.filter { $0.isOverdue }
         default:
-            results = results.filter { $0.status == selectedFilter.rawValue }
+            results = results.filter { $0.statusRaw == selectedFilter.rawValue }
         }
 
         // Apply search
@@ -84,7 +84,7 @@ struct InvoicingView: View {
         })
 
         return allBids.filter {
-            $0.status == "SIGNED" && !alreadyInvoicedNumbers.contains($0.bidNumber)
+            $0.status == .signed && !alreadyInvoicedNumbers.contains($0.bidNumber)
         }
     }
 
@@ -129,7 +129,7 @@ struct InvoicingView: View {
                                 switch filter {
                                 case .all:     return allInvoices.count
                                 case .overdue: return allInvoices.filter { $0.isOverdue }.count
-                                default:       return allInvoices.filter { $0.status == filter.rawValue }.count
+                                default:       return allInvoices.filter { $0.statusRaw == filter.rawValue }.count
                                 }
                             }()
                             FilterChip(title: filter.label, count: count, isSelected: selectedFilter == filter, action: {
@@ -253,10 +253,10 @@ struct InvoicingView: View {
 
     private var summaryBar: some View {
         let totalOutstanding = allInvoices
-            .filter { !["PAID", "VOID"].contains($0.status) }
+            .filter { $0.status != .paid && $0.status != .void }
             .reduce(Decimal(0)) { $0 + $1.balanceDue }
         let totalPaid = allInvoices
-            .filter { $0.status == "PAID" }
+            .filter { $0.status == .paid }
             .reduce(Decimal(0)) { $0 + $1.totalAmount }
         let overdue = allInvoices.filter { $0.isOverdue }
         let overdueAmount = overdue.reduce(Decimal(0)) { $0 + $1.balanceDue }
@@ -408,19 +408,11 @@ struct InvoicingView: View {
 
     private func displayStatus(_ invoice: Invoice) -> String {
         if invoice.isOverdue { return "Overdue" }
-        switch invoice.status {
-        case "DRAFT":   return "Draft"
-        case "SENT":    return "Sent"
-        case "VIEWED":  return "Viewed"
-        case "PARTIAL": return "Partial"
-        case "PAID":    return "Paid"
-        case "VOID":    return "Void"
-        default:        return invoice.status.capitalized
-        }
+        return invoice.status.label
     }
 
     private func statusColor(_ invoice: Invoice) -> Color {
-        WorkflowStatusPalette.invoice(invoice.status, isOverdue: invoice.isOverdue)
+        WorkflowStatusPalette.invoice(invoice.statusRaw, isOverdue: invoice.isOverdue)
     }
 
     private func summaryCell(value: String, label: String, color: Color) -> some View {
@@ -438,7 +430,7 @@ struct InvoicingView: View {
     private func createInvoiceFromSignedBid(_ bid: Bid) {
         let invoice = Invoice()
         invoice.invoiceNumber = "INV-\(Int.random(in: 10001...99999))"
-        invoice.status = "DRAFT"
+        invoice.status = .draft
         invoice.issueDate = Date()
         invoice.dueDate = Calendar.current.date(byAdding: .day, value: 30, to: Date()) ?? Date()
         invoice.client = bid.client

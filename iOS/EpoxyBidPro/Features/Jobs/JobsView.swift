@@ -9,7 +9,7 @@ import SwiftData
 struct JobsView: View {
 
     @Environment(\.modelContext) private var modelContext
-    @EnvironmentObject private var workflowRouter: WorkflowRouter
+    @Environment(WorkflowRouter.self) private var workflowRouter
     @Query(sort: \Lead.createdAt, order: .reverse) private var workflowLeads: [Lead]
     @Query(sort: \Job.scheduledDate, order: .forward) private var allJobs: [Job]
     @Query(sort: \Bid.createdAt, order: .reverse) private var allBids: [Bid]
@@ -62,7 +62,7 @@ struct JobsView: View {
         if selectedFilter == .all {
             base = Array(allJobs)
         } else {
-            base = allJobs.filter { $0.status == selectedFilter.rawValue }
+            base = allJobs.filter { $0.statusRaw == selectedFilter.rawValue }
         }
 
         if !jobsSearchText.isEmpty {
@@ -83,7 +83,7 @@ struct JobsView: View {
 
     private var readySignedBids: [Bid] {
         let linkedBidIds = Set(allJobs.compactMap { $0.bid?.id })
-        return allBids.filter { $0.status == "SIGNED" && !linkedBidIds.contains($0.id) }
+        return allBids.filter { $0.status == .signed && !linkedBidIds.contains($0.id) }
     }
 
     private var workflowSnapshot: WorkflowKPISnapshot {
@@ -188,7 +188,7 @@ struct JobsView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: EBPSpacing.xs) {
                     ForEach(JobStatusFilter.allCases, id: \.rawValue) { filter in
-                        let count = filter == .all ? allJobs.count : allJobs.filter({ $0.status == filter.rawValue }).count
+                        let count = filter == .all ? allJobs.count : allJobs.filter({ $0.statusRaw == filter.rawValue }).count
                         FilterChip(
                             title: filter.label,
                             count: count,
@@ -313,11 +313,11 @@ struct JobsView: View {
 
     private var statusPipeline: some View {
         let statuses: [(String, String, Color)] = [
-            ("Scheduled", "\(allJobs.filter { $0.status == "SCHEDULED" }.count)", .blue),
-            ("In Progress", "\(allJobs.filter { $0.status == "IN_PROGRESS" }.count)", EBPColor.accent),
-            ("Punch List", "\(allJobs.filter { $0.status == "PUNCH_LIST" }.count)", .orange),
-            ("Complete", "\(allJobs.filter { $0.status == "COMPLETE" }.count)", EBPColor.success),
-            ("Invoiced", "\(allJobs.filter { $0.status == "INVOICED" }.count)", .purple),
+            ("Scheduled", "\(allJobs.filter { $0.status == .scheduled }.count)", .blue),
+            ("In Progress", "\(allJobs.filter { $0.status == .inProgress }.count)", EBPColor.accent),
+            ("Punch List", "\(allJobs.filter { $0.status == .punchList }.count)", .orange),
+            ("Complete", "\(allJobs.filter { $0.status == .complete }.count)", EBPColor.success),
+            ("Invoiced", "\(allJobs.filter { $0.status == .invoiced }.count)", .purple),
         ]
 
         return ScrollView(.horizontal, showsIndicators: false) {
@@ -452,19 +452,19 @@ struct JobsView: View {
         }
         .buttonStyle(.plain)
         .contextMenu {
-            if job.status != "IN_PROGRESS" {
-                Button { advanceStatus(job, to: "IN_PROGRESS") } label: {
+            if job.status != .inProgress {
+                Button { advanceStatus(job, to: .inProgress) } label: {
                     Label("Start Job", systemImage: "play.fill")
                 }
             }
-            if job.status != "COMPLETE" {
-                Button { advanceStatus(job, to: "COMPLETE") } label: {
+            if job.status != .complete {
+                Button { advanceStatus(job, to: .complete) } label: {
                     Label("Mark Complete", systemImage: "checkmark.circle")
                 }
             }
-            if job.status == "COMPLETE" {
+            if job.status == .complete {
                 Button {
-                    advanceStatus(job, to: "INVOICED")
+                    advanceStatus(job, to: .invoiced)
                     workflowRouter.navigate(to: .more, handoffMessage: "Job invoiced — review in Invoicing")
                 } label: {
                     Label("Create Invoice", systemImage: "dollarsign.circle")
@@ -531,7 +531,7 @@ struct JobsView: View {
 
     private func crewMemberCard(_ name: String) -> some View {
         let memberJobs = allJobs.filter { $0.assignedCrew.contains(name) }
-        let activeJobs = memberJobs.filter { ["SCHEDULED", "IN_PROGRESS"].contains($0.status) }
+        let activeJobs = memberJobs.filter { $0.status == .scheduled || $0.status == .inProgress }
 
         return VStack(alignment: .leading, spacing: EBPSpacing.sm) {
             HStack(spacing: EBPSpacing.md) {
@@ -583,10 +583,10 @@ struct JobsView: View {
 
     // MARK: - Helpers
 
-    private func advanceStatus(_ job: Job, to status: String) {
+    private func advanceStatus(_ job: Job, to status: JobStatus) {
         job.status = status
-        if status == "IN_PROGRESS" { job.startedAt = Date() }
-        if status == "COMPLETE" { job.completedAt = Date() }
+        if status == .inProgress { job.startedAt = Date() }
+        if status == .complete { job.completedAt = Date() }
         try? modelContext.save()
     }
 
@@ -599,7 +599,7 @@ struct JobsView: View {
         let job = Job(
             jobNumber: generatedNumber,
             title: bid.title.isEmpty ? "Job from \(bid.bidNumber.isEmpty ? generatedNumber : bid.bidNumber)" : bid.title,
-            status: "SCHEDULED",
+            status: .scheduled,
             coatingSystem: bid.coatingSystem,
             scheduledDate: Calendar.current.date(byAdding: .day, value: 1, to: Date()),
             totalSqFt: bid.totalSqFt,
@@ -640,19 +640,11 @@ struct JobsView: View {
         return Int(Double(margins.reduce(0, +)) / Double(margins.count))
     }
 
-    private func statusLabel(_ status: String) -> String {
-        switch status {
-        case "SCHEDULED":   return "Scheduled"
-        case "IN_PROGRESS": return "In Progress"
-        case "PUNCH_LIST":  return "Punch List"
-        case "COMPLETE":    return "Complete"
-        case "INVOICED":    return "Invoiced"
-        case "PAID":        return "Paid"
-        default:            return status.capitalized
-        }
+    private func statusLabel(_ status: JobStatus) -> String {
+        status.label
     }
 
-    private func statusColor(_ status: String) -> Color {
-        WorkflowStatusPalette.job(status)
+    private func statusColor(_ status: JobStatus) -> Color {
+        WorkflowStatusPalette.job(status.rawValue)
     }
 }

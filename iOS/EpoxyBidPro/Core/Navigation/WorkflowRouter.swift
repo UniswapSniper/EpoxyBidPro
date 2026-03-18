@@ -1,6 +1,13 @@
 import Foundation
 
-final class WorkflowRouter: ObservableObject {
+// ═══════════════════════════════════════════════════════════════════════════════
+// WorkflowRouter.swift
+// Cross-tab navigation with handoff messaging.
+// Phase 2: Updated to @Observable (iOS 17+).
+// ═══════════════════════════════════════════════════════════════════════════════
+
+@Observable
+final class WorkflowRouter {
     enum RouteTab: String {
         case dashboard
         case crm
@@ -9,9 +16,9 @@ final class WorkflowRouter: ObservableObject {
         case more
     }
 
-    @Published var requestedTab: RouteTab?
-    @Published var handoffMessage: String?
-    @Published private(set) var compactDockTabs: Set<RouteTab> = []
+    var requestedTab: RouteTab?
+    var handoffMessage: String?
+    private(set) var compactDockTabs: Set<RouteTab> = []
 
     func navigate(to tab: RouteTab, handoffMessage: String? = nil) {
         self.handoffMessage = handoffMessage

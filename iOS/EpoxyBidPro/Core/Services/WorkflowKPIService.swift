@@ -44,11 +44,11 @@ enum WorkflowKPIService {
         measurements: [Measurement]
     ) -> WorkflowKPISnapshot {
         let readyLeads = leads.filter {
-            !["WON", "LOST"].contains($0.status) && EpoxyAIWorkflowAdvisor.followUpPriorityScore($0) >= 65
+            $0.status != .won && $0.status != .lost && EpoxyAIWorkflowAdvisor.followUpPriorityScore($0) >= 65
         }.count
 
         let bidsNeedingAction = bids.filter {
-            ["DRAFT", "SENT", "VIEWED"].contains($0.status)
+            $0.status == .draft || $0.status == .sent || $0.status == .viewed
         }.count
 
         let atRiskJobs = jobs.filter {

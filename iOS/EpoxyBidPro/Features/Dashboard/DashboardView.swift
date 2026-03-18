@@ -7,7 +7,7 @@ import Charts
 
 struct DashboardView: View {
 
-    @EnvironmentObject private var workflowRouter: WorkflowRouter
+    @Environment(WorkflowRouter.self) private var workflowRouter
     @Query(sort: \Lead.createdAt, order: .reverse) private var workflowLeads: [Lead]
     @Query(sort: \Bid.createdAt, order: .reverse) private var workflowBids: [Bid]
     @Query(sort: \Job.createdAt, order: .reverse) private var workflowJobs: [Job]
@@ -16,8 +16,8 @@ struct DashboardView: View {
     @Query private var allMaterials: [Material]
     @Query(sort: \Client.createdAt, order: .reverse) private var recentClients: [Client]
 
-    @EnvironmentObject private var authStore: AuthStore
-    @StateObject private var vm = AnalyticsViewModel()
+    @Environment(AuthManager.self) private var authManager
+    @State private var vm = AnalyticsViewModel()
     @State private var heroAppeared = false
     @State private var animateBackground = false
     
@@ -27,7 +27,7 @@ struct DashboardView: View {
     @State private var showNewInvoice = false
 
     private var userInitials: String {
-        let name = authStore.userName
+        let name = authManager.userName
         let parts = name.split(separator: " ").prefix(2)
         if parts.isEmpty { return "?" }
         return parts.compactMap { $0.first }.map { String($0).uppercased() }.joined()
@@ -448,9 +448,9 @@ struct DashboardView: View {
 
         var subtitle: String {
             switch self {
-            case .bid(let b): return b.status.capitalized
-            case .job(let j): return j.status.replacingOccurrences(of: "_", with: " ").capitalized
-            case .client(let c): return c.clientType.capitalized
+            case .bid(let b): return b.status.label
+            case .job(let j): return j.status.label
+            case .client(let c): return c.clientType.label
             }
         }
 
@@ -807,7 +807,7 @@ struct DashboardView: View {
     
     private var activeJobsSection: some View {
         let activeJobs = workflowJobs
-            .filter { !["COMPLETE", "INVOICED"].contains($0.status) }
+            .filter { $0.status.isActive }
             .prefix(5)
 
         return VStack(alignment: .leading, spacing: 16) {
@@ -848,7 +848,7 @@ struct DashboardView: View {
                             } label: {
                                 jobCard(
                                     title: job.title.isEmpty ? job.jobNumber : job.title,
-                                    status: jobStatusLabel(job.status),
+                                    status: job.status.label,
                                     progress: checklistProgress(for: job),
                                     dueDate: job.scheduledDate?.formatted(date: .abbreviated, time: .omitted) ?? "Unscheduled"
                                 )
@@ -1042,14 +1042,4 @@ struct DashboardView: View {
         return Double(completed) / Double(total)
     }
 
-    private func jobStatusLabel(_ status: String) -> String {
-        switch status {
-        case "SCHEDULED": return "Scheduled"
-        case "IN_PROGRESS": return "In Progress"
-        case "PUNCH_LIST": return "Punch List"
-        case "COMPLETE": return "Complete"
-        case "INVOICED": return "Invoiced"
-        default: return status.replacingOccurrences(of: "_", with: " ").capitalized
-        }
-    }
 }

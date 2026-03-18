@@ -8,7 +8,7 @@ struct CreateInvoiceSheet: View {
 
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
-    @Query(filter: #Predicate<Job> { $0.status == "COMPLETE" }) private var completedJobs: [Job]
+    @Query(filter: #Predicate<Job> { $0.statusRaw == "COMPLETE" }) private var completedJobs: [Job]
     @Query(sort: \Client.firstName) private var clients: [Client]
 
     @State private var createFromJob = true
@@ -171,7 +171,7 @@ struct CreateInvoiceSheet: View {
             inv.depositAmount = total * Decimal(depositPercent / 100)
 
             // Mark job as invoiced
-            job.status = "INVOICED"
+            job.status = .invoiced
 
             // Generate line items from bid
             if let bid = job.bid {
@@ -482,7 +482,7 @@ struct InvoiceDetailSheet: View {
                 ? NSDecimalNumber(decimal: invoice.amountPaid / invoice.totalAmount).doubleValue
                 : 0
             ProgressView(value: min(paidFraction, 1.0))
-                .tint(invoice.status == "PAID" ? EBPColor.success : EBPColor.primary)
+                .tint(invoice.status == .paid ? EBPColor.success : EBPColor.primary)
         }
         .padding(EBPSpacing.md)
         .background(EBPColor.surface, in: RoundedRectangle(cornerRadius: EBPRadius.md))
@@ -593,16 +593,16 @@ struct InvoiceDetailSheet: View {
 
     private var actionsSection: some View {
         VStack(spacing: EBPSpacing.sm) {
-            if invoice.status == "DRAFT" {
+            if invoice.status == .draft {
                 EBPButton(title: "Send Invoice", icon: "paperplane.fill", style: .primary) {
-                    invoice.status = "SENT"
+                    invoice.status = .sent
                     try? modelContext.save()
                 }
             }
 
-            if invoice.status != "VOID" && invoice.status != "PAID" {
+            if invoice.status != .void && invoice.status != .paid {
                 Button(role: .destructive) {
-                    invoice.status = "VOID"
+                    invoice.status = .void
                     try? modelContext.save()
                 } label: {
                     HStack {
@@ -627,10 +627,10 @@ struct InvoiceDetailSheet: View {
         invoice.paymentMethod = paymentMethod
 
         if invoice.balanceDue <= 0 {
-            invoice.status = "PAID"
+            invoice.status = .paid
             invoice.paidDate = Date()
         } else {
-            invoice.status = "PARTIAL"
+            invoice.status = .partial
         }
 
         try? modelContext.save()
@@ -639,27 +639,19 @@ struct InvoiceDetailSheet: View {
 
     private var displayStatus: String {
         if invoice.isOverdue { return "Overdue" }
-        switch invoice.status {
-        case "DRAFT":   return "Draft"
-        case "SENT":    return "Sent"
-        case "VIEWED":  return "Viewed"
-        case "PARTIAL": return "Partial"
-        case "PAID":    return "Paid"
-        case "VOID":    return "Void"
-        default:        return invoice.status.capitalized
-        }
+        return invoice.status.label
     }
 
     private var statusColor: Color {
         if invoice.isOverdue { return EBPColor.danger }
         switch invoice.status {
-        case "DRAFT":   return .secondary
-        case "SENT":    return .blue
-        case "VIEWED":  return .indigo
-        case "PARTIAL": return EBPColor.warning
-        case "PAID":    return EBPColor.success
-        case "VOID":    return .gray
-        default:        return .secondary
+        case .draft:   return .secondary
+        case .sent:    return .blue
+        case .viewed:  return .indigo
+        case .partial: return EBPColor.warning
+        case .paid:    return EBPColor.success
+        case .void:    return .gray
+        case .overdue: return EBPColor.danger
         }
     }
 }

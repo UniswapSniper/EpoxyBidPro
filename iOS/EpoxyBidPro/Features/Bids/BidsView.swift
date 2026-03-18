@@ -10,7 +10,7 @@ struct BidsView: View {
     // MARK: - Environment
 
     @Environment(\.modelContext) private var modelContext
-    @EnvironmentObject private var workflowRouter: WorkflowRouter
+    @Environment(WorkflowRouter.self) private var workflowRouter
     @Query(sort: \Lead.createdAt, order: .reverse) private var workflowLeads: [Lead]
     @Query(sort: \Bid.createdAt, order: .reverse) private var allBids: [Bid]
     @Query(sort: \Job.createdAt, order: .reverse) private var workflowJobs: [Job]
@@ -36,7 +36,7 @@ struct BidsView: View {
         var result = allBids
 
         if selectedFilter != .all {
-            result = result.filter { $0.status == (selectedFilter.apiStatus ?? "") }
+            result = result.filter { $0.statusRaw == (selectedFilter.apiStatus ?? "") }
         }
 
         if !searchText.isEmpty {
@@ -56,7 +56,7 @@ struct BidsView: View {
         case .clientName:
             result.sort { ($0.client?.displayName ?? "") < ($1.client?.displayName ?? "") }
         case .status:
-            let order = ["SIGNED", "SENT", "VIEWED", "DRAFT", "DECLINED", "EXPIRED"]
+            let order: [BidStatus] = [.signed, .sent, .viewed, .draft, .declined, .expired]
             result.sort { (order.firstIndex(of: $0.status) ?? 99) < (order.firstIndex(of: $1.status) ?? 99) }
         }
 
@@ -250,8 +250,8 @@ struct BidsView: View {
 
     private var summaryBar: some View {
         let total = allBids.reduce(Decimal(0)) { $0 + $1.totalPrice }
-        let signed = allBids.filter { $0.status == "SIGNED" }.count
-        let pending = allBids.filter { ["SENT", "VIEWED"].contains($0.status) }.count
+        let signed = allBids.filter { $0.status == .signed }.count
+        let pending = allBids.filter { $0.status == .sent || $0.status == .viewed }.count
 
         return HStack(spacing: 0) {
             summaryCell(value: "\(allBids.count)", label: "Total")
@@ -304,7 +304,7 @@ struct BidsView: View {
     private func count(for filter: BidViewModel.BidStatusFilter) -> Int {
         filter == .all
             ? allBids.count
-            : allBids.filter { $0.status == (filter.apiStatus ?? "") }.count
+            : allBids.filter { $0.statusRaw == (filter.apiStatus ?? "") }.count
     }
 
     // MARK: - Bid List
@@ -340,7 +340,7 @@ struct BidsView: View {
                         .tint(.blue)
                     }
                     .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                        if bid.status == "DRAFT" {
+                        if bid.status == .draft {
                             Button {
                                 selectedBid = bid
                             } label: {
@@ -350,7 +350,7 @@ struct BidsView: View {
                         }
                     }
                     .contextMenu {
-                        if bid.status == "DRAFT" {
+                        if bid.status == .draft {
                             Button {
                                 selectedBid = bid
                             } label: {

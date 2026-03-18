@@ -2,7 +2,7 @@ import SwiftUI
 import AuthenticationServices
 
 struct OnboardingView: View {
-    @EnvironmentObject private var authStore: AuthStore
+    @Environment(AuthManager.self) private var authManager
 
     @State private var currentPage = 0
     @State private var appeared = false
@@ -103,14 +103,14 @@ struct OnboardingView: View {
                     SignInWithAppleButton(.signIn) { request in
                         request.requestedScopes = [.fullName, .email]
                     } onCompletion: { result in
-                        authStore.handleAppleSignIn(result: result)
+                        authManager.handleAppleSignIn(result: result)
                     }
                     .signInWithAppleButtonStyle(.white)
                     .frame(height: 52)
                     .clipShape(RoundedRectangle(cornerRadius: EBPRadius.md))
 
                     // Error message
-                    if let error = authStore.authError {
+                    if let error = authManager.authError {
                         Text(error)
                             .font(.caption)
                             .foregroundStyle(.red)
@@ -118,7 +118,7 @@ struct OnboardingView: View {
                     }
 
                     // Loading
-                    if authStore.isAuthenticating {
+                    if authManager.isAuthenticating {
                         ProgressView()
                             .tint(.white)
                     }

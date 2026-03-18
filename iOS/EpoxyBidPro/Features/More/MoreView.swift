@@ -11,8 +11,8 @@ struct MoreView: View {
     @AppStorage("assistantAPIBaseURL") private var assistantAPIBaseURL = "http://localhost:3000"
     @State private var showServerURLEditor = false
     @State private var serverURLDraft = ""
-    @EnvironmentObject private var authStore: AuthStore
-    @EnvironmentObject private var workflowRouter: WorkflowRouter
+    @Environment(AuthManager.self) private var authManager
+    @Environment(WorkflowRouter.self) private var workflowRouter
 
     private var selectedLanguage: Binding<AppLanguage> {
         Binding(
@@ -50,15 +50,15 @@ struct MoreView: View {
                             Circle()
                                 .fill(EBPColor.primaryGradient)
                                 .frame(width: 56, height: 56)
-                            Text(String(authStore.userName.prefix(1)).uppercased())
+                            Text(String(authManager.userName.prefix(1)).uppercased())
                                 .font(.title2.bold())
                                 .foregroundStyle(.white)
                         }
                         VStack(alignment: .leading, spacing: 3) {
-                            Text(authStore.userName.isEmpty ? NSLocalizedString("more.user", comment: "") : authStore.userName)
+                            Text(authManager.userName.isEmpty ? NSLocalizedString("more.user", comment: "") : authManager.userName)
                                 .font(.headline)
-                            if !authStore.businessName.isEmpty {
-                                Text(authStore.businessName)
+                            if !authManager.businessName.isEmpty {
+                                Text(authManager.businessName)
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
@@ -311,7 +311,7 @@ struct MoreView: View {
                 Section {
                     Button(role: .destructive) {
                         AppHaptics.trigger(.medium)
-                        authStore.signOut()
+                        authManager.signOut()
                     } label: {
                         HStack {
                             Spacer()
@@ -355,7 +355,7 @@ private struct MoreInfoView: View {
 private struct AIAssistantView: View {
     @StateObject private var viewModel = AIAssistantViewModel()
     @State private var draft = ""
-    @EnvironmentObject private var authStore: AuthStore
+    @Environment(AuthManager.self) private var authManager
     @Query(sort: \Lead.createdAt, order: .reverse) private var leads: [Lead]
     @Query(sort: \Bid.createdAt, order: .reverse) private var bids: [Bid]
     @Query(sort: \Job.createdAt, order: .reverse) private var jobs: [Job]
@@ -375,20 +375,16 @@ private struct AIAssistantView: View {
         let now = Date()
         return leads.filter {
             guard let followUp = $0.followUpAt else { return false }
-            let status = $0.status.uppercased()
-            return followUp < now && status != "WON" && status != "LOST" && status != "CONVERTED"
+            return followUp < now && $0.status.isActive
         }.count
     }
 
     private var draftBidCount: Int {
-        bids.filter { $0.status.uppercased() == "DRAFT" }.count
+        bids.filter { $0.status == .draft }.count
     }
 
     private var scheduledJobCount: Int {
-        jobs.filter {
-            let status = $0.status.uppercased()
-            return status == "SCHEDULED" || status == "IN_PROGRESS"
-        }.count
+        jobs.filter { $0.status == .scheduled || $0.status == .inProgress }.count
     }
 
     private var overdueInvoiceCount: Int {
@@ -404,7 +400,7 @@ private struct AIAssistantView: View {
     private var assistantContext: AssistantContextPayload {
         AssistantContextPayload(
             activeTab: "more",
-            businessName: authStore.businessName.isEmpty ? nil : authStore.businessName,
+            businessName: authManager.businessName.isEmpty ? nil : authManager.businessName,
             metrics: AssistantMetrics(
                 leadCount: leads.count,
                 overdueFollowUps: overdueFollowUps,

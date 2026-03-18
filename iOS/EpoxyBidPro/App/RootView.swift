@@ -1,19 +1,19 @@
 import SwiftUI
 
 struct RootView: View {
-    @EnvironmentObject private var authStore: AuthStore
+    @Environment(AuthManager.self) private var authManager
 
     var body: some View {
         Group {
-            if !authStore.isAuthenticated {
+            if !authManager.isAuthenticated {
                 OnboardingView()
-            } else if !authStore.hasCompletedBusinessSetup {
+            } else if !authManager.hasCompletedBusinessSetup {
                 BusinessSetupView()
             } else {
                 MainTabView()
             }
         }
-        .animation(EBPAnimation.smooth, value: authStore.isAuthenticated)
-        .animation(EBPAnimation.smooth, value: authStore.hasCompletedBusinessSetup)
+        .animation(EBPAnimation.smooth, value: authManager.isAuthenticated)
+        .animation(EBPAnimation.smooth, value: authManager.hasCompletedBusinessSetup)
     }
 }

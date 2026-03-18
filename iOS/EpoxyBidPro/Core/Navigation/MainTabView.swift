@@ -29,8 +29,8 @@ struct MainTabView: View {
     @State private var presentingBidBuilder = false
     @State private var presentingCreateJob = false
     @State private var presentingCreateInvoice = false
-    @StateObject private var workflowRouter = WorkflowRouter()
-    @StateObject private var reachability = ReachabilityMonitor()
+    @State private var workflowRouter = WorkflowRouter()
+    @State private var reachability = ReachabilityMonitor()
     @AppStorage("hasSeenCompactDockHint") private var hasSeenCompactDockHint = false
     @AppStorage("hasSeenFirstTimeTabTooltips") private var hasSeenFirstTimeTabTooltips = false
     @State private var showCompactDockHint = false
@@ -109,27 +109,27 @@ struct MainTabView: View {
             // ── Tab content area ───────────────────────────────────────────
             TabView(selection: $selectedTab) {
                 DashboardView()
-                    .environmentObject(workflowRouter)
+                    .environment(workflowRouter)
                     .tabItem { Label("Dashboard", systemImage: "house.fill") }
                     .tag(Tab.dashboard)
 
                 CRMView()
-                    .environmentObject(workflowRouter)
+                    .environment(workflowRouter)
                     .tabItem { Label("CRM", systemImage: "person.2.fill") }
                     .tag(Tab.crm)
 
                 BidsView()
-                    .environmentObject(workflowRouter)
+                    .environment(workflowRouter)
                     .tabItem { Label("Bids", systemImage: "doc.text.fill") }
                     .tag(Tab.bids)
 
                 JobsView()
-                    .environmentObject(workflowRouter)
+                    .environment(workflowRouter)
                     .tabItem { Label("Jobs", systemImage: "briefcase.fill") }
                     .tag(Tab.jobs)
 
                 MoreView()
-                    .environmentObject(workflowRouter)
+                    .environment(workflowRouter)
                     .tabItem { Label("More", systemImage: "ellipsis.circle.fill") }
                     .tag(Tab.more)
             }

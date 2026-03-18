@@ -387,7 +387,7 @@ final class BidBuilderViewModel: ObservableObject {
         bid.title = bidTitle.isEmpty
             ? "\(selectedClient?.displayName ?? "Client") — \(selectedCoatingSystem?.displayName ?? "Epoxy Floor")"
             : bidTitle
-        bid.status = "DRAFT"
+        bid.status = .draft
         bid.tier = selectedTier
         bid.coatingSystem = selectedCoatingSystem?.rawValue ?? ""
         bid.totalSqFt = totalSqFt

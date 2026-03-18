@@ -8,7 +8,7 @@ import SwiftData
 struct CRMView: View {
 
     @Environment(\.modelContext) private var modelContext
-    @EnvironmentObject private var workflowRouter: WorkflowRouter
+    @Environment(WorkflowRouter.self) private var workflowRouter
     @Query(sort: \Lead.createdAt, order: .reverse) private var allLeads: [Lead]
     @Query(sort: \Bid.createdAt, order: .reverse) private var workflowBids: [Bid]
     @Query(sort: \Job.createdAt, order: .reverse) private var workflowJobs: [Job]
@@ -149,7 +149,7 @@ struct CRMView: View {
 
     private var crmHeader: some View {
         let openPipelineValue = allLeads
-            .filter { !["WON", "LOST"].contains($0.status) }
+            .filter { $0.status != .won && $0.status != .lost }
             .reduce(0.0) { $0 + $1.estimatedValue }
 
         return VStack(alignment: .leading, spacing: EBPSpacing.sm) {
@@ -276,11 +276,11 @@ struct CRMView: View {
     }
 
     private var pipelineSummaryBar: some View {
-        let newCount = allLeads.filter { $0.status == "NEW" }.count
+        let newCount = allLeads.filter { $0.status == .new }.count
         let totalValue = allLeads
-            .filter { !["WON", "LOST"].contains($0.status) }
+            .filter { $0.status != .won && $0.status != .lost }
             .reduce(0.0) { $0 + $1.estimatedValue }
-        let wonCount = allLeads.filter { $0.status == "WON" }.count
+        let wonCount = allLeads.filter { $0.status == .won }.count
         let overdue = overdueFollowUps
 
         return LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: EBPSpacing.sm) {
@@ -398,7 +398,7 @@ struct CRMView: View {
         .buttonStyle(.plain)
         .contextMenu {
             ForEach(CRMLeadStage.allCases) { s in
-                if s.rawValue != lead.status {
+                if s.rawValue != lead.statusRaw {
                     Button {
                         if s == .lost {
                             lostReasonText = "Price"
@@ -512,7 +512,7 @@ struct CRMView: View {
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
-                        Text("• \(client.clientType.capitalized)")
+                        Text("• \(client.clientType.label)")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -548,8 +548,8 @@ struct CRMView: View {
 
     private var insightsView: some View {
         VStack(spacing: EBPSpacing.md) {
-            let wonLeads = allLeads.filter { $0.status == "WON" }.count
-            let decidedLeads = allLeads.filter { ["WON", "LOST"].contains($0.status) }.count
+            let wonLeads = allLeads.filter { $0.status == .won }.count
+            let decidedLeads = allLeads.filter { $0.status == .won || $0.status == .lost }.count
             let winRate = decidedLeads > 0 ? Int(Double(wonLeads) / Double(decidedLeads) * 100) : 0
 
             HStack(spacing: EBPSpacing.md) {
@@ -595,7 +595,7 @@ struct CRMView: View {
     // MARK: - Helpers
 
     private func filteredLeads(for stage: CRMLeadStage) -> [Lead] {
-        let stageLeads = allLeads.filter { $0.status == stage.rawValue }
+        let stageLeads = allLeads.filter { $0.statusRaw == stage.rawValue }
         if searchText.isEmpty { return stageLeads }
         let lower = searchText.lowercased()
         return stageLeads.filter {
@@ -615,7 +615,7 @@ struct CRMView: View {
     }
 
     private func moveLead(_ lead: Lead, to stage: CRMLeadStage, reason: String = "") {
-        lead.status = stage.rawValue
+        lead.status = LeadStatus(rawValue: stage.rawValue) ?? .new
         if stage == .won {
             lead.convertedAt = Date()
         }
@@ -636,13 +636,13 @@ struct CRMView: View {
         client.clientType = "residential"
         modelContext.insert(client)
 
-        lead.status = "WON"
+        lead.status = .won
         lead.convertedAt = Date()
         try? modelContext.save()
     }
 
     private var averageDaysToClose: Int {
-        let closed = allLeads.filter { $0.status == "WON" && $0.convertedAt != nil }
+        let closed = allLeads.filter { $0.status == .won && $0.convertedAt != nil }
         guard !closed.isEmpty else { return 0 }
         let totalDays = closed.reduce(0.0) {
             $0 + ($1.convertedAt?.timeIntervalSince($1.createdAt) ?? 0) / 86400
@@ -651,12 +651,12 @@ struct CRMView: View {
     }
 
     private var overdueFollowUps: Int {
-        allLeads.filter { ($0.followUpDate ?? .distantFuture) < Date() && !["WON", "LOST"].contains($0.status) }.count
+        allLeads.filter { ($0.followUpDate ?? .distantFuture) < Date() && $0.status != .won && $0.status != .lost }.count
     }
 
     private var actionableLeads: [Lead] {
         allLeads
-            .filter { !["WON", "LOST"].contains($0.status) }
+            .filter { $0.status != .won && $0.status != .lost }
             .sorted {
                 EpoxyAIWorkflowAdvisor.followUpPriorityScore($0) > EpoxyAIWorkflowAdvisor.followUpPriorityScore($1)
             }
@@ -674,12 +674,12 @@ struct CRMView: View {
         let previousStatus = lead.status
 
         switch lead.status {
-        case "NEW":
-            lead.status = "CONTACTED"
-        case "CONTACTED":
-            lead.status = "SITE_VISIT"
-        case "SITE_VISIT":
-            lead.status = "BID_SENT"
+        case .new:
+            lead.status = .contacted
+        case .contacted:
+            lead.status = .siteVisit
+        case .siteVisit:
+            lead.status = .bidSent
         default:
             break
         }
@@ -687,7 +687,7 @@ struct CRMView: View {
         lead.followUpDate = Calendar.current.date(byAdding: .day, value: 2, to: Date())
         try? modelContext.save()
 
-        if previousStatus == "SITE_VISIT" || lead.status == "BID_SENT" {
+        if previousStatus == .siteVisit || lead.status == .bidSent {
             workflowRouter.navigate(
                 to: .bids,
                 handoffMessage: "Lead ready for proposal — opening Bids"

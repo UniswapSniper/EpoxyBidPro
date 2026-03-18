@@ -220,8 +220,8 @@ struct LeadDetailSheet: View {
 
                 Section("Lead Info") {
                     Picker("Status", selection: $lead.status) {
-                        ForEach(CRMLeadStage.allCases) { stage in
-                            Text(stage.label).tag(stage.rawValue)
+                        ForEach(LeadStatus.allCases, id: \.self) { status in
+                            Text(status.label).tag(status)
                         }
                     }
                     LabeledContent("Source", value: lead.source.replacingOccurrences(of: "_", with: " ").capitalized)
@@ -256,7 +256,7 @@ struct LeadDetailSheet: View {
                         .frame(minHeight: 80)
                 }
 
-                if lead.status == "LOST" {
+                if lead.status == .lost {
                     Section("Lost Reason") {
                         TextField("Why was this lead lost?", text: $lead.lostReason)
                     }
@@ -329,7 +329,7 @@ struct ClientDetailSheet: View {
                     LabeledContent("Total Value") {
                         Text(totalValue, format: .currency(code: "USD"))
                     }
-                    let signedBids = client.bids.filter { $0.status == "SIGNED" }.count
+                    let signedBids = client.bids.filter { $0.status == .signed }.count
                     LabeledContent("Signed Bids", value: "\(signedBids)")
                     LabeledContent("Client Since") {
                         Text(client.createdAt.formatted(date: .abbreviated, time: .omitted))

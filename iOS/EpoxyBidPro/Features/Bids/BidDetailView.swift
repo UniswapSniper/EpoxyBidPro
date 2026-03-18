@@ -339,12 +339,12 @@ struct BidDetailView: View {
     private var actionButtons: some View {
         VStack(spacing: EBPSpacing.sm) {
             switch bid.status {
-            case "DRAFT":
+            case .draft:
                 primaryButton("Generate & Send Proposal", icon: "paperplane.fill") {
                     isPresentingSend = true
                 }
 
-            case "SENT", "VIEWED":
+            case .sent, .viewed:
                 HStack(spacing: EBPSpacing.sm) {
                     secondaryButton("Resend", icon: "arrow.clockwise") {
                         isPresentingSend = true
@@ -359,7 +359,7 @@ struct BidDetailView: View {
                 .font(.subheadline)
                 .foregroundStyle(.red)
 
-            case "SIGNED":
+            case .signed:
                 primaryButton("Convert to Job", icon: "briefcase.fill") {
                     isShowingConvertAlert = true
                 }
@@ -446,7 +446,7 @@ struct BidDetailView: View {
                     Label("Clone Bid", systemImage: "doc.on.doc")
                 }
 
-                if bid.status != "SIGNED" {
+                if bid.status != .signed {
                     Divider()
                     Button(role: .destructive) {
                         vm.deleteBid(bid, context: modelContext)
