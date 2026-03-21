@@ -18,6 +18,8 @@ struct CreateInvoiceSheet: View {
     @State private var depositPercent = 0.0
     @State private var notes = ""
     @State private var includeStripeLink = true
+    @State private var includeBtcOption = false
+    @AppStorage("btcPaymentsEnabled") private var btcPaymentsEnabled = false
 
     var body: some View {
         NavigationStack {
@@ -92,6 +94,21 @@ struct CreateInvoiceSheet: View {
                             Text("Clients can pay via credit card, Apple Pay, or bank transfer.")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
+                        }
+                    }
+
+                    if btcPaymentsEnabled {
+                        Toggle("Include Bitcoin Payment Option", isOn: $includeBtcOption)
+                            .tint(.orange)
+
+                        if includeBtcOption {
+                            HStack(spacing: EBPSpacing.sm) {
+                                Image(systemName: "bitcoinsign.circle.fill")
+                                    .foregroundStyle(.orange)
+                                Text("Clients can pay with Bitcoin or Lightning. You receive USD.")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
                         }
                     }
                 }
@@ -200,6 +217,11 @@ struct CreateInvoiceSheet: View {
             inv.client = selectedClient
         }
 
+        // Enable Bitcoin payment option
+        if includeBtcOption && btcPaymentsEnabled {
+            inv.btcPaymentEnabled = true
+        }
+
         // Generate Stripe payment link (mock for now)
         if includeStripeLink {
             let amountCents = NSDecimalNumber(decimal: inv.totalAmount * 100).intValue
@@ -225,7 +247,7 @@ struct InvoiceDetailSheet: View {
     @State private var paymentMethod = "STRIPE"
     @State private var copiedLink = false
 
-    private let paymentMethods = ["STRIPE", "CHECK", "CASH", "ZELLE", "VENMO"]
+    private let paymentMethods = ["STRIPE", "CHECK", "CASH", "ZELLE", "VENMO", "BITCOIN"]
 
     var body: some View {
         NavigationStack {
@@ -247,6 +269,11 @@ struct InvoiceDetailSheet: View {
                     // ── Stripe Link ───────────────────────────────────────
                     if !invoice.stripePaymentLinkUrl.isEmpty {
                         stripeLinkSection
+                    }
+
+                    // ── Bitcoin Payment ──────────────────────────────────
+                    if invoice.btcPaymentEnabled && invoice.balanceDue > 0 {
+                        BitcoinPaymentView(invoice: invoice)
                     }
 
                     // ── Record Payment ────────────────────────────────────

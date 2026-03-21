@@ -57,10 +57,16 @@ struct RevenueChartView: View {
                         VStack(alignment: .trailing, spacing: 4) {
                             ForEach(rev.byMethod.sorted(by: { $0.value > $1.value }).prefix(3), id: \.key) { method, amount in
                                 HStack(spacing: 6) {
+                                    if method.uppercased() == "BITCOIN" {
+                                        Image(systemName: "bitcoinsign.circle.fill")
+                                            .font(.caption2)
+                                            .foregroundStyle(.orange)
+                                    }
                                     Text(method.capitalized)
                                         .font(.caption2).foregroundStyle(.secondary)
                                     Text(amount.currencyFormatted)
                                         .font(.caption.weight(.semibold))
+                                        .foregroundStyle(method.uppercased() == "BITCOIN" ? .orange : .primary)
                                 }
                             }
                         }

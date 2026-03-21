@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Backend API",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "backend", "run", "dev"],
+      "port": 3000
+    },
+    {
+      "name": "PostgreSQL",
+      "runtimeExecutable": "docker",
+      "runtimeArgs": ["compose", "-f", "backend/docker-compose.yml", "up", "postgres"],
+      "port": 5432
+    },
+    {
+      "name": "Redis",
+      "runtimeExecutable": "docker",
+      "runtimeArgs": ["compose", "-f", "backend/docker-compose.yml", "up", "redis"],
+      "port": 6379
+    }
+  ]
+}

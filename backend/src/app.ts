@@ -10,6 +10,7 @@ import { router } from './routes';
 import { errorHandler } from './middleware/errorHandler';
 import { notFoundHandler } from './middleware/errorHandler';
 import { logger } from './utils/logger';
+import { bitcoinWebhookHandler } from './routes/payments';
 
 const app: Application = express();
 
@@ -72,6 +73,9 @@ app.get('/health', (_req: Request, res: Response) => {
     version: process.env.npm_package_version,
   });
 });
+
+// ─── Bitcoin Webhook (mounted before API routes — no JWT required) ──────────
+app.use('/api/v1/payments', bitcoinWebhookHandler);
 
 // ─── API Routes ─────────────────────────────────────────────────────────────
 app.use('/api/v1', router);

@@ -26,6 +26,7 @@
 		4F5491A3AD4B8FA7876BC9B9 /* BidBuilderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E00F9DAA443294F4CA3047FD /* BidBuilderView.swift */; };
 		55A928663F4D7A4B941F4329 /* icon_1024.png in Resources */ = {isa = PBXBuildFile; fileRef = 30C0F118E97992E3755EB124 /* icon_1024.png */; };
 		6B75C0A3D7D003AA425BF570 /* AuthStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C158EDBBC2874D4C2A4A58B /* AuthStore.swift */; };
+		707AAEC72F6F029400C04EBE /* BitcoinPaymentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 707AAEC62F6F029400C04EBE /* BitcoinPaymentView.swift */; };
 		7715AD85A83404BA7CBA6D80 /* CRMView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D52AF7E5D88CCF9B1B4743D /* CRMView.swift */; };
 		796630140B8B887A62597C28 /* BidBuilderSteps3_4.swift in Sources */ = {isa = PBXBuildFile; fileRef = 645E9E8C6336D0B85C6FEF0F /* BidBuilderSteps3_4.swift */; };
 		7B23B316BBB016B4008DA889 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874A9E5B03019F77AE33896B /* OnboardingView.swift */; };
@@ -105,6 +106,7 @@
 		645E9E8C6336D0B85C6FEF0F /* BidBuilderSteps3_4.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BidBuilderSteps3_4.swift; sourceTree = "<group>"; };
 		6A19EA74218731157A859D6D /* AdditionalModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdditionalModels.swift; sourceTree = "<group>"; };
 		6ECE42082A36D3C533118815 /* AnalyticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsView.swift; sourceTree = "<group>"; };
+		707AAEC62F6F029400C04EBE /* BitcoinPaymentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinPaymentView.swift; sourceTree = "<group>"; };
 		73D1344769F0B1B8AE81E83B /* EBPComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EBPComponents.swift; sourceTree = "<group>"; };
 		82ADBA811FCDBC164E47972E /* MoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreView.swift; sourceTree = "<group>"; };
 		8400C500F9EA7FBD15513C2E /* ARViewContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ARViewContainer.swift; sourceTree = "<group>"; };
@@ -388,6 +390,7 @@
 			children = (
 				C6B7A9486587821C196F01F5 /* InvoiceSheets.swift */,
 				87433FB77F3B199854DF26B7 /* InvoicingView.swift */,
+				707AAEC62F6F029400C04EBE /* BitcoinPaymentView.swift */,
 			);
 			path = Invoicing;
 			sourceTree = "<group>";
@@ -492,6 +495,7 @@
 				F790DDE0C55860FB81BE4C81 /* ARViewContainer.swift in Sources */,
 				244879217CFEBD85ADE7E2DD /* AdditionalModels.swift in Sources */,
 				7D3A8D874B3814A96293CEAA /* AnalyticsView.swift in Sources */,
+				707AAEC72F6F029400C04EBE /* BitcoinPaymentView.swift in Sources */,
 				D8B9AF0B03BB479008A0B426 /* AnalyticsViewModel.swift in Sources */,
 				93FFB610C883D0E397E94ACB /* AppLanguage.swift in Sources */,
 				6B75C0A3D7D003AA425BF570 /* AuthStore.swift in Sources */,

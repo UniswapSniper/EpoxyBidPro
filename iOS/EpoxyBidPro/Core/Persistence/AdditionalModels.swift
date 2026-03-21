@@ -60,14 +60,18 @@ import SwiftData
     var paidAt: Date
     var backendId: String
     var isSynced: Bool
-    
+    var btcAmountSats: Int
+    var exchangeRateUsed: Double
+
     init(
         id: UUID = UUID(),
         amount: Decimal = 0,
         method: String = "CASH",
         paidAt: Date = Date(),
         backendId: String = "",
-        isSynced: Bool = false
+        isSynced: Bool = false,
+        btcAmountSats: Int = 0,
+        exchangeRateUsed: Double = 0
     ) {
         self.id = id
         self.amount = amount
@@ -75,6 +79,8 @@ import SwiftData
         self.paidAt = paidAt
         self.backendId = backendId
         self.isSynced = isSynced
+        self.btcAmountSats = btcAmountSats
+        self.exchangeRateUsed = exchangeRateUsed
     }
 }
 

@@ -471,6 +471,11 @@ import SwiftData
     var stripePaymentIntentId: String
     var paymentMethod: String
 
+    // Bitcoin
+    var btcPaymentEnabled: Bool
+    var btcPaymentUri: String
+    var strikeInvoiceId: String
+
     var notes: String
     var createdAt: Date
     var backendId: String
@@ -497,6 +502,9 @@ import SwiftData
         stripePaymentLinkUrl: String = "",
         stripePaymentIntentId: String = "",
         paymentMethod: String = "",
+        btcPaymentEnabled: Bool = false,
+        btcPaymentUri: String = "",
+        strikeInvoiceId: String = "",
         notes: String = "",
         createdAt: Date = Date(),
         backendId: String = "",
@@ -521,6 +529,9 @@ import SwiftData
         self.stripePaymentLinkUrl = stripePaymentLinkUrl
         self.stripePaymentIntentId = stripePaymentIntentId
         self.paymentMethod = paymentMethod
+        self.btcPaymentEnabled = btcPaymentEnabled
+        self.btcPaymentUri = btcPaymentUri
+        self.strikeInvoiceId = strikeInvoiceId
         self.notes = notes
         self.createdAt = createdAt
         self.backendId = backendId
