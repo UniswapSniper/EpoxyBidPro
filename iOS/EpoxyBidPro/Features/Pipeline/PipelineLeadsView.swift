@@ -46,13 +46,13 @@ struct PipelineLeadsView: View {
 
         return LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: EBPSpacing.sm) {
             EBPStatCard(title: "Total Leads", value: "\(allLeads.count)", icon: "person.2.fill", tint: EBPColor.accent)
-            EBPStatCard(title: "New", value: "\(newCount)", icon: "sparkles", tint: .blue)
+            EBPStatCard(title: "New", value: "\(newCount)", icon: "sparkles", tint: EBPColor.primary)
             EBPStatCard(title: "Won", value: "\(wonCount)", icon: "checkmark.seal.fill", tint: EBPColor.success)
             EBPStatCard(
                 title: overdue > 0 ? "Overdue Follow-ups" : "Pipeline",
                 value: overdue > 0 ? "\(overdue)" : formatCurrency(totalValue),
                 icon: overdue > 0 ? "calendar.badge.exclamationmark" : "dollarsign.circle.fill",
-                tint: overdue > 0 ? EBPColor.warning : EBPColor.primary,
+                tint: overdue > 0 ? EBPColor.secondary : EBPColor.primary,
                 isAlert: overdue > 0
             )
         }
@@ -63,11 +63,11 @@ struct PipelineLeadsView: View {
             HStack {
                 Label("AI Follow-Up Queue", systemImage: "brain")
                     .font(.subheadline.weight(.bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(EBPColor.onSurface)
                 Spacer()
                 Text("\(actionableLeads.count) next")
                     .font(.caption2.weight(.semibold))
-                    .foregroundStyle(.white.opacity(0.7))
+                    .foregroundStyle(EBPColor.onSurfaceVariant)
             }
 
             if actionableLeads.isEmpty {
@@ -92,11 +92,11 @@ struct PipelineLeadsView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(lead.displayName.isEmpty ? "Unnamed Lead" : lead.displayName)
                         .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(EBPColor.onSurface)
                         .lineLimit(1)
                     Text(followUpSuggestion(for: lead))
                         .font(.caption)
-                        .foregroundStyle(.white.opacity(0.78))
+                        .foregroundStyle(EBPColor.onSurfaceVariant)
                         .lineLimit(2)
                 }
                 Spacer()
@@ -190,7 +190,7 @@ struct PipelineLeadsView: View {
                 HStack {
                     Text(lead.displayName.isEmpty ? "Unnamed Lead" : lead.displayName)
                         .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(EBPColor.onSurface)
                         .lineLimit(1)
                     Spacer()
                     if lead.estimatedValue > 0 {
@@ -202,7 +202,7 @@ struct PipelineLeadsView: View {
                 if !lead.company.isEmpty {
                     Text(lead.company)
                         .font(.caption)
-                        .foregroundStyle(.white.opacity(0.7))
+                        .foregroundStyle(EBPColor.onSurfaceVariant)
                         .lineLimit(1)
                 }
                 HStack(spacing: EBPSpacing.xs) {
@@ -213,16 +213,16 @@ struct PipelineLeadsView: View {
                         HStack(spacing: 2) {
                             Image(systemName: followUp < Date() ? "exclamationmark.triangle.fill" : "calendar")
                                 .font(.system(size: 8))
-                                .foregroundStyle(followUp < Date() ? EBPColor.danger : .secondary)
+                                .foregroundStyle(followUp < Date() ? EBPColor.error : .secondary)
                             Text(followUp.formatted(date: .abbreviated, time: .omitted))
                                 .font(.caption2)
-                                .foregroundStyle(followUp < Date() ? EBPColor.danger : .white.opacity(0.65))
+                                .foregroundStyle(followUp < Date() ? EBPColor.error : EBPColor.onSurfaceVariant)
                         }
                     }
                 }
                 Text(followUpSuggestion(for: lead))
                     .font(.caption2)
-                    .foregroundStyle(.white.opacity(0.72))
+                    .foregroundStyle(EBPColor.onSurfaceVariant)
                     .lineLimit(2)
             }
             .contentShape(Rectangle())
@@ -339,7 +339,7 @@ struct PipelineLeadsView: View {
                         .foregroundStyle(.black)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 8)
-                        .background(Color.green, in: RoundedRectangle(cornerRadius: EBPRadius.sm))
+                        .background(EBPColor.success, in: RoundedRectangle(cornerRadius: EBPRadius.sm))
                 }
                 .buttonStyle(.plain)
             } else if let url = emailURL(for: lead.email) {
@@ -349,7 +349,7 @@ struct PipelineLeadsView: View {
                         .foregroundStyle(.black)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 8)
-                        .background(Color.blue, in: RoundedRectangle(cornerRadius: EBPRadius.sm))
+                        .background(EBPColor.primary, in: RoundedRectangle(cornerRadius: EBPRadius.sm))
                 }
                 .buttonStyle(.plain)
             } else {
@@ -359,7 +359,7 @@ struct PipelineLeadsView: View {
                         .foregroundStyle(.black)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 8)
-                        .background(EBPColor.warning, in: RoundedRectangle(cornerRadius: EBPRadius.sm))
+                        .background(EBPColor.secondary, in: RoundedRectangle(cornerRadius: EBPRadius.sm))
                 }
                 .buttonStyle(.plain)
             }

@@ -3,10 +3,29 @@ import Foundation
 final class WorkflowRouter: ObservableObject {
     enum RouteTab: String {
         case dashboard
-        case crm
-        case bids
         case jobs
-        case more
+        case scan
+        case clients
+        case settings
+
+        // Backward-compatible aliases
+        case home       // → dashboard
+        case crm        // → clients
+        case bids       // → jobs (bids accessible within jobs flow)
+        case more       // → settings
+        case pipeline   // → clients
+
+        /// Canonical tab for navigation.
+        var canonical: RouteTab {
+            switch self {
+            case .home:     return .dashboard
+            case .crm:      return .clients
+            case .bids:     return .jobs
+            case .more:     return .settings
+            case .pipeline: return .clients
+            default:        return self
+            }
+        }
     }
 
     @Published var requestedTab: RouteTab?
@@ -15,7 +34,7 @@ final class WorkflowRouter: ObservableObject {
 
     func navigate(to tab: RouteTab, handoffMessage: String? = nil) {
         self.handoffMessage = handoffMessage
-        requestedTab = tab
+        requestedTab = tab.canonical
     }
 
     func consumeRoute() {
@@ -27,14 +46,15 @@ final class WorkflowRouter: ObservableObject {
     }
 
     func setDockCompact(_ compact: Bool, for tab: RouteTab) {
+        let t = tab.canonical
         if compact {
-            compactDockTabs.insert(tab)
+            compactDockTabs.insert(t)
         } else {
-            compactDockTabs.remove(tab)
+            compactDockTabs.remove(t)
         }
     }
 
     func isDockCompact(for tab: RouteTab) -> Bool {
-        compactDockTabs.contains(tab)
+        compactDockTabs.contains(tab.canonical)
     }
 }

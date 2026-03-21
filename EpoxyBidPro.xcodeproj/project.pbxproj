@@ -3,13 +3,15 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 63;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		06769687E85B91A28B1E214B /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CB132FC600D27BC010A3034 /* RootView.swift */; };
 		09F5F1AAF0D757EBA235980E /* AppIcon2x76.png in Resources */ = {isa = PBXBuildFile; fileRef = 53B774C67D535CBA3D24825B /* AppIcon2x76.png */; };
 		0A4BA0CE4F3DEC7BEDB7B518 /* ARKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 372E53CF92AC2515CF75C43C /* ARKit.framework */; };
+		1D47C0164D751F5877DE2128 /* BitcoinSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F579E8687782D54EFD3D22B /* BitcoinSettingsView.swift */; };
+		1EFBA0B285C3D402961219EC /* AIAssistantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47CFA9BA4E2D707F1A0AC8F0 /* AIAssistantView.swift */; };
 		2019890D2E84D239D0A267B1 /* BidViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98ABE198A1E6326AA174B667 /* BidViewModel.swift */; };
 		223B8C6FD69401E0511D5B4D /* JobsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B202AD97DD03408300C5DBC /* JobsView.swift */; };
 		244879217CFEBD85ADE7E2DD /* AdditionalModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A19EA74218731157A859D6D /* AdditionalModels.swift */; };
@@ -18,6 +20,7 @@
 		40D2F7320E0BEC5E59C2516C /* BidBuilderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF437396C48892A5B99B056 /* BidBuilderViewModel.swift */; };
 		41C2CF6A2423672D1F606728 /* DesignTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 623AFCAA35446E3E3160F98D /* DesignTokens.swift */; };
 		420A0EF88B3507A8B6E3387F /* BusinessSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD13CF086B9262B3D85C6101 /* BusinessSetupView.swift */; };
+		4553B24A8DE2E9B512503AC0 /* WorkflowRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 688DC488043A19CC7E9F2C65 /* WorkflowRouter.swift */; };
 		45F952A81DC96B578ED3C6FA /* InvoicingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87433FB77F3B199854DF26B7 /* InvoicingView.swift */; };
 		47DA7F9348753338EF261AAC /* AutoScanManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCC78523594C2AD4EACC8C4 /* AutoScanManager.swift */; };
 		49CAA7430FAE15340A2B699F /* ScanResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BB286853EC7F5121A6B1333 /* ScanResultView.swift */; };
@@ -25,8 +28,11 @@
 		4CA4665F7729384CE8270CF5 /* SignatureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 130FE8447CB24AA6C35DDB74 /* SignatureView.swift */; };
 		4F5491A3AD4B8FA7876BC9B9 /* BidBuilderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E00F9DAA443294F4CA3047FD /* BidBuilderView.swift */; };
 		55A928663F4D7A4B941F4329 /* icon_1024.png in Resources */ = {isa = PBXBuildFile; fileRef = 30C0F118E97992E3755EB124 /* icon_1024.png */; };
+		5EA424B6933CAB75887D5A69 /* AppHaptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EAADA9A9614D2F2B25654C4 /* AppHaptics.swift */; };
+		6A12C334284C7C2E462E700D /* WorkflowNextActionBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64519CD1FCB2EC0F057584DD /* WorkflowNextActionBanner.swift */; };
 		6B75C0A3D7D003AA425BF570 /* AuthStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C158EDBBC2874D4C2A4A58B /* AuthStore.swift */; };
-		707AAEC72F6F029400C04EBE /* BitcoinPaymentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 707AAEC62F6F029400C04EBE /* BitcoinPaymentView.swift */; };
+		6E287A1BC5C1BE8D42CF5B2D /* PipelineClientsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 533FFA2932F2B4D6260AC40E /* PipelineClientsView.swift */; };
+		7576F6FB82D91E8090F718BA /* BitcoinPaymentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 388677B4D148A374F54A2721 /* BitcoinPaymentView.swift */; };
 		7715AD85A83404BA7CBA6D80 /* CRMView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D52AF7E5D88CCF9B1B4743D /* CRMView.swift */; };
 		796630140B8B887A62597C28 /* BidBuilderSteps3_4.swift in Sources */ = {isa = PBXBuildFile; fileRef = 645E9E8C6336D0B85C6FEF0F /* BidBuilderSteps3_4.swift */; };
 		7B23B316BBB016B4008DA889 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874A9E5B03019F77AE33896B /* OnboardingView.swift */; };
@@ -38,19 +44,16 @@
 		8CF472BA84838CD35EA1FBA8 /* ScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3394DB4CD0C89D817B988644 /* ScanView.swift */; };
 		8E370C886DE4A60A5E26E0E2 /* PerimeterRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F7F1284168DFC3743EB8136 /* PerimeterRenderer.swift */; };
 		93FFB610C883D0E397E94ACB /* AppLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6F50F1FE1B81A3E902B4AE /* AppLanguage.swift */; };
+		94FF1424FCD337740C931E64 /* WorkflowStatusPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = F066E2CCA4322BDB4AAEB626 /* WorkflowStatusPalette.swift */; };
+		998153349A61DB81B428F3BB /* PipelineLeadsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEEDB32088390B5A9ED4C174 /* PipelineLeadsView.swift */; };
+		99BE191BAA855FEFB8CB358A /* VerticalScrollOffsetKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EA0A2DFFD280516F50950F3 /* VerticalScrollOffsetKey.swift */; };
+		9C8DC3D216D24F7C67C501D9 /* WorkflowKPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5413A629522707B614472DF9 /* WorkflowKPIService.swift */; };
+		9CFCE7F2DBA29201E668A655 /* WorkflowKPIBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD126FF0AB5CC29A56B622B8 /* WorkflowKPIBanner.swift */; };
 		A37BCE70E68210A58FBFBD9B /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6230CE7F787EF666C98046CE /* Localizable.strings */; };
 		A41B14821F84C3BF7C93EF5A /* AutoScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08FBA7AA38FE105B34FCB369 /* AutoScanView.swift */; };
 		A53F1D2287DE69334E9B6E69 /* BidCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95DE1879E8D073DB5CD621F1 /* BidCardView.swift */; };
 		A5F8AA3110723139AF867A49 /* BidBuilderSteps5_Pricing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BACFF7679D4B52E9AD9450E /* BidBuilderSteps5_Pricing.swift */; };
 		A69BB284B51C766104B48642 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAEE74BD9A7BA2A889405CAB /* MainTabView.swift */; };
-		AA1000000000000000000001 /* WorkflowKPIBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1000000000000000000001 /* WorkflowKPIBanner.swift */; };
-		AA1000000000000000000002 /* WorkflowNextActionBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1000000000000000000002 /* WorkflowNextActionBanner.swift */; };
-		AA1000000000000000000003 /* WorkflowStatusPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1000000000000000000003 /* WorkflowStatusPalette.swift */; };
-		AA1000000000000000000004 /* WorkflowRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1000000000000000000004 /* WorkflowRouter.swift */; };
-		AA1000000000000000000005 /* EpoxyAIWorkflowAdvisor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1000000000000000000005 /* EpoxyAIWorkflowAdvisor.swift */; };
-		AA1000000000000000000006 /* WorkflowKPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1000000000000000000006 /* WorkflowKPIService.swift */; };
-		AA1000000000000000000007 /* AppHaptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1000000000000000000007 /* AppHaptics.swift */; };
-		AA1000000000000000000008 /* VerticalScrollOffsetKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1000000000000000000008 /* VerticalScrollOffsetKey.swift */; };
 		AFD68F891FDB47AEBE5CB43C /* EBPComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73D1344769F0B1B8AE81E83B /* EBPComponents.swift */; };
 		B0E5FB3782D6EC60FDD16A46 /* MoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82ADBA811FCDBC164E47972E /* MoreView.swift */; };
 		B43421F8B043118A83015B62 /* BidBuilderSteps8_Review.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DC5885753ACBEB678C2AEAE /* BidBuilderSteps8_Review.swift */; };
@@ -59,14 +62,18 @@
 		B871DD2E63DAB8316ED865C7 /* SalesAnalyticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BAA4A770175AC871F67B6FA /* SalesAnalyticsView.swift */; };
 		B90EADD611305FA6C51A5741 /* ScanSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E7DBCF7A91F03E7E7195632 /* ScanSessionManager.swift */; };
 		BF017F8F460182D6624186CA /* JobProfitabilityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB92521F2EBB56AD448EAD23 /* JobProfitabilityView.swift */; };
+		BFA11AC0CE1F1CCE95BD3F8D /* EpoxyAIWorkflowAdvisor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0C720424E666F0278C1B0B4 /* EpoxyAIWorkflowAdvisor.swift */; };
+		C453143EF68EE5DF774B6269 /* PipelineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B17FAD85529FFD029883C07C /* PipelineView.swift */; };
 		C87BC7B6D3CA0925AB3D1BAD /* JobSheets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145239BB1FD776F3C8987232 /* JobSheets.swift */; };
 		CC1F190B15731FA8691E299C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D49401074204DDF4D794A59D /* Assets.xcassets */; };
+		D092C5ABF17968C2B92B907A /* SettingsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C07C489E712CB8E5CF5C4A88 /* SettingsSheet.swift */; };
 		D7C4459C3DAFCE782F54269F /* FloorMeshProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F14031A1293BC14E1765F5C8 /* FloorMeshProcessor.swift */; };
 		D8B9AF0B03BB479008A0B426 /* AnalyticsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC1B12D1F1A5250470D9B3F2 /* AnalyticsViewModel.swift */; };
 		DABD7264185CDC8F4C0ED549 /* ReachabilityMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0121FBCDE2DEF01F9FE46B28 /* ReachabilityMonitor.swift */; };
 		DB0F873535FFBDB75097F6B3 /* SyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D91E1AC3E1321DF1EC47473 /* SyncManager.swift */; };
 		DF32544426725C1871BEBFB1 /* RevenueChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1A16DA7EB4CA9763823E90E /* RevenueChartView.swift */; };
 		EBF1233476919DD81870CD43 /* AppIcon2x60.png in Resources */ = {isa = PBXBuildFile; fileRef = F36515FC408B7953FF4A499E /* AppIcon2x60.png */; };
+		F407F277C9B5F9B9FCB4C1C1 /* PipelineBidsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0F9957A19933355D85C593 /* PipelineBidsView.swift */; };
 		F6F5B59DC999EE629F331EE5 /* InvoiceSheets.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6B7A9486587821C196F01F5 /* InvoiceSheets.swift */; };
 		F790DDE0C55860FB81BE4C81 /* ARViewContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8400C500F9EA7FBD15513C2E /* ARViewContainer.swift */; };
 		F8D920FFAE1ADB8A2CAFB6DE /* BidBuilderSteps1_2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 635B969438D5C5FB7CA91760 /* BidBuilderSteps1_2.swift */; };
@@ -78,6 +85,8 @@
 		00FDF29A3375830AB7B7304C /* CRMAnalyticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CRMAnalyticsView.swift; sourceTree = "<group>"; };
 		0121FBCDE2DEF01F9FE46B28 /* ReachabilityMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReachabilityMonitor.swift; sourceTree = "<group>"; };
 		08FBA7AA38FE105B34FCB369 /* AutoScanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoScanView.swift; sourceTree = "<group>"; };
+		0A0F9957A19933355D85C593 /* PipelineBidsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PipelineBidsView.swift; sourceTree = "<group>"; };
+		0EA0A2DFFD280516F50950F3 /* VerticalScrollOffsetKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerticalScrollOffsetKey.swift; sourceTree = "<group>"; };
 		130FE8447CB24AA6C35DDB74 /* SignatureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignatureView.swift; sourceTree = "<group>"; };
 		145239BB1FD776F3C8987232 /* JobSheets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobSheets.swift; sourceTree = "<group>"; };
 		1BACFF7679D4B52E9AD9450E /* BidBuilderSteps5_Pricing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BidBuilderSteps5_Pricing.swift; sourceTree = "<group>"; };
@@ -91,22 +100,29 @@
 		30C0F118E97992E3755EB124 /* icon_1024.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_1024.png; sourceTree = "<group>"; };
 		3394DB4CD0C89D817B988644 /* ScanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanView.swift; sourceTree = "<group>"; };
 		351CA546258AF85D5B73131B /* RoomTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomTest.swift; sourceTree = "<group>"; };
-		35BD59888579575B36AC6805 /* EpoxyBidPro.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EpoxyBidPro.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		35BD59888579575B36AC6805 /* EpoxyBidPro.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = EpoxyBidPro.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		35EDB633806E5EE604267FCB /* BidDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BidDetailView.swift; sourceTree = "<group>"; };
 		372E53CF92AC2515CF75C43C /* ARKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ARKit.framework; path = System/Library/Frameworks/ARKit.framework; sourceTree = SDKROOT; };
+		388677B4D148A374F54A2721 /* BitcoinPaymentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinPaymentView.swift; sourceTree = "<group>"; };
 		3B202AD97DD03408300C5DBC /* JobsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobsView.swift; sourceTree = "<group>"; };
 		3EDA5C9EF68A3D84A5762A8B /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
 		479FE022B76DE03DF3D4B5A9 /* RoomPlan.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RoomPlan.framework; path = System/Library/Frameworks/RoomPlan.framework; sourceTree = SDKROOT; };
+		47CFA9BA4E2D707F1A0AC8F0 /* AIAssistantView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAssistantView.swift; sourceTree = "<group>"; };
 		49604944FA4F37FB7101AA90 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		4BAA4A770175AC871F67B6FA /* SalesAnalyticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalesAnalyticsView.swift; sourceTree = "<group>"; };
+		4EAADA9A9614D2F2B25654C4 /* AppHaptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppHaptics.swift; sourceTree = "<group>"; };
+		4F579E8687782D54EFD3D22B /* BitcoinSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinSettingsView.swift; sourceTree = "<group>"; };
+		533FFA2932F2B4D6260AC40E /* PipelineClientsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PipelineClientsView.swift; sourceTree = "<group>"; };
 		53B774C67D535CBA3D24825B /* AppIcon2x76.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AppIcon2x76.png; sourceTree = "<group>"; };
+		5413A629522707B614472DF9 /* WorkflowKPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkflowKPIService.swift; sourceTree = "<group>"; };
 		5D91E1AC3E1321DF1EC47473 /* SyncManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncManager.swift; sourceTree = "<group>"; };
 		623AFCAA35446E3E3160F98D /* DesignTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignTokens.swift; sourceTree = "<group>"; };
 		635B969438D5C5FB7CA91760 /* BidBuilderSteps1_2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BidBuilderSteps1_2.swift; sourceTree = "<group>"; };
+		64519CD1FCB2EC0F057584DD /* WorkflowNextActionBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkflowNextActionBanner.swift; sourceTree = "<group>"; };
 		645E9E8C6336D0B85C6FEF0F /* BidBuilderSteps3_4.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BidBuilderSteps3_4.swift; sourceTree = "<group>"; };
+		688DC488043A19CC7E9F2C65 /* WorkflowRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkflowRouter.swift; sourceTree = "<group>"; };
 		6A19EA74218731157A859D6D /* AdditionalModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdditionalModels.swift; sourceTree = "<group>"; };
 		6ECE42082A36D3C533118815 /* AnalyticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsView.swift; sourceTree = "<group>"; };
-		707AAEC62F6F029400C04EBE /* BitcoinPaymentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinPaymentView.swift; sourceTree = "<group>"; };
 		73D1344769F0B1B8AE81E83B /* EBPComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EBPComponents.swift; sourceTree = "<group>"; };
 		82ADBA811FCDBC164E47972E /* MoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreView.swift; sourceTree = "<group>"; };
 		8400C500F9EA7FBD15513C2E /* ARViewContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ARViewContainer.swift; sourceTree = "<group>"; };
@@ -119,30 +135,28 @@
 		9CB132FC600D27BC010A3034 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		9D52AF7E5D88CCF9B1B4743D /* CRMView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CRMView.swift; sourceTree = "<group>"; };
 		AB92521F2EBB56AD448EAD23 /* JobProfitabilityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobProfitabilityView.swift; sourceTree = "<group>"; };
+		AD126FF0AB5CC29A56B622B8 /* WorkflowKPIBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkflowKPIBanner.swift; sourceTree = "<group>"; };
+		B17FAD85529FFD029883C07C /* PipelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PipelineView.swift; sourceTree = "<group>"; };
 		BAEE74BD9A7BA2A889405CAB /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
-		BB1000000000000000000001 /* WorkflowKPIBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkflowKPIBanner.swift; sourceTree = "<group>"; };
-		BB1000000000000000000002 /* WorkflowNextActionBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkflowNextActionBanner.swift; sourceTree = "<group>"; };
-		BB1000000000000000000003 /* WorkflowStatusPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkflowStatusPalette.swift; sourceTree = "<group>"; };
-		BB1000000000000000000004 /* WorkflowRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkflowRouter.swift; sourceTree = "<group>"; };
-		BB1000000000000000000005 /* EpoxyAIWorkflowAdvisor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EpoxyAIWorkflowAdvisor.swift; sourceTree = "<group>"; };
-		BB1000000000000000000006 /* WorkflowKPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkflowKPIService.swift; sourceTree = "<group>"; };
-		BB1000000000000000000007 /* AppHaptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppHaptics.swift; sourceTree = "<group>"; };
-		BB1000000000000000000008 /* VerticalScrollOffsetKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerticalScrollOffsetKey.swift; sourceTree = "<group>"; };
 		BC1B12D1F1A5250470D9B3F2 /* AnalyticsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsViewModel.swift; sourceTree = "<group>"; };
 		BD13CF086B9262B3D85C6101 /* BusinessSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BusinessSetupView.swift; sourceTree = "<group>"; };
 		C02C25EE5927A8FCEDB383BB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		C07C489E712CB8E5CF5C4A88 /* SettingsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsSheet.swift; sourceTree = "<group>"; };
 		C6B7A9486587821C196F01F5 /* InvoiceSheets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceSheets.swift; sourceTree = "<group>"; };
 		CCC48C0E511E9C75BA04A129 /* BidBuilderSteps6_7.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BidBuilderSteps6_7.swift; sourceTree = "<group>"; };
 		D1A16DA7EB4CA9763823E90E /* RevenueChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RevenueChartView.swift; sourceTree = "<group>"; };
 		D49401074204DDF4D794A59D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		DBEC58CFEC337AFCE2F19476 /* BidsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BidsView.swift; sourceTree = "<group>"; };
 		E00F9DAA443294F4CA3047FD /* BidBuilderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BidBuilderView.swift; sourceTree = "<group>"; };
+		E0C720424E666F0278C1B0B4 /* EpoxyAIWorkflowAdvisor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EpoxyAIWorkflowAdvisor.swift; sourceTree = "<group>"; };
 		E3DCC4D5B8B5F365E2456B65 /* EpoxyBidProApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EpoxyBidProApp.swift; sourceTree = "<group>"; };
 		EF6F50F1FE1B81A3E902B4AE /* AppLanguage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLanguage.swift; sourceTree = "<group>"; };
+		F066E2CCA4322BDB4AAEB626 /* WorkflowStatusPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkflowStatusPalette.swift; sourceTree = "<group>"; };
 		F14031A1293BC14E1765F5C8 /* FloorMeshProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloorMeshProcessor.swift; sourceTree = "<group>"; };
 		F36515FC408B7953FF4A499E /* AppIcon2x60.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AppIcon2x60.png; sourceTree = "<group>"; };
 		FC6A75058F51627B6E68898A /* CoreModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreModels.swift; sourceTree = "<group>"; };
 		FE437B9A1E98A461ABC4C7D1 /* RealityKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RealityKit.framework; path = System/Library/Frameworks/RealityKit.framework; sourceTree = SDKROOT; };
+		FEEDB32088390B5A9ED4C174 /* PipelineLeadsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PipelineLeadsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -213,6 +227,17 @@
 			path = Persistence;
 			sourceTree = "<group>";
 		};
+		1258390173278C47232D59B0 /* Pipeline */ = {
+			isa = PBXGroup;
+			children = (
+				0A0F9957A19933355D85C593 /* PipelineBidsView.swift */,
+				533FFA2932F2B4D6260AC40E /* PipelineClientsView.swift */,
+				FEEDB32088390B5A9ED4C174 /* PipelineLeadsView.swift */,
+				B17FAD85529FFD029883C07C /* PipelineView.swift */,
+			);
+			path = Pipeline;
+			sourceTree = "<group>";
+		};
 		196EE05266C6188B0E11F63F /* Jobs */ = {
 			isa = PBXGroup;
 			children = (
@@ -261,11 +286,11 @@
 		4462F47592091C745CB5495A /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				6230CE7F787EF666C98046CE /* Localizable.strings */,
 				F36515FC408B7953FF4A499E /* AppIcon2x60.png */,
 				53B774C67D535CBA3D24825B /* AppIcon2x76.png */,
 				D49401074204DDF4D794A59D /* Assets.xcassets */,
 				30C0F118E97992E3755EB124 /* icon_1024.png */,
-				6230CE7F787EF666C98046CE /* Localizable.strings */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -274,7 +299,7 @@
 			isa = PBXGroup;
 			children = (
 				BAEE74BD9A7BA2A889405CAB /* MainTabView.swift */,
-				BB1000000000000000000004 /* WorkflowRouter.swift */,
+				688DC488043A19CC7E9F2C65 /* WorkflowRouter.swift */,
 			);
 			path = Navigation;
 			sourceTree = "<group>";
@@ -298,9 +323,9 @@
 			children = (
 				623AFCAA35446E3E3160F98D /* DesignTokens.swift */,
 				73D1344769F0B1B8AE81E83B /* EBPComponents.swift */,
-				BB1000000000000000000001 /* WorkflowKPIBanner.swift */,
-				BB1000000000000000000002 /* WorkflowNextActionBanner.swift */,
-				BB1000000000000000000003 /* WorkflowStatusPalette.swift */,
+				AD126FF0AB5CC29A56B622B8 /* WorkflowKPIBanner.swift */,
+				64519CD1FCB2EC0F057584DD /* WorkflowNextActionBanner.swift */,
+				F066E2CCA4322BDB4AAEB626 /* WorkflowStatusPalette.swift */,
 			);
 			path = DesignSystem;
 			sourceTree = "<group>";
@@ -308,10 +333,10 @@
 		8E7E881F7C614250B0B96C03 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
-				BB1000000000000000000007 /* AppHaptics.swift */,
+				4EAADA9A9614D2F2B25654C4 /* AppHaptics.swift */,
 				EF6F50F1FE1B81A3E902B4AE /* AppLanguage.swift */,
 				0121FBCDE2DEF01F9FE46B28 /* ReachabilityMonitor.swift */,
-				BB1000000000000000000008 /* VerticalScrollOffsetKey.swift */,
+				0EA0A2DFFD280516F50950F3 /* VerticalScrollOffsetKey.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -327,7 +352,9 @@
 				E4AF2080E5BFE8340E2AC503 /* Invoicing */,
 				196EE05266C6188B0E11F63F /* Jobs */,
 				D7702EB3310784F3A1532830 /* More */,
+				1258390173278C47232D59B0 /* Pipeline */,
 				3BB7633AF9CA7E75F7E906FF /* Scan */,
+				C9FFEB2BF446F178C946B0ED /* Settings */,
 			);
 			path = Features;
 			sourceTree = "<group>";
@@ -344,11 +371,21 @@
 		AC4BF552D0A2FD5CB127B87E /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				BB1000000000000000000005 /* EpoxyAIWorkflowAdvisor.swift */,
+				E0C720424E666F0278C1B0B4 /* EpoxyAIWorkflowAdvisor.swift */,
 				5D91E1AC3E1321DF1EC47473 /* SyncManager.swift */,
-				BB1000000000000000000006 /* WorkflowKPIService.swift */,
+				5413A629522707B614472DF9 /* WorkflowKPIService.swift */,
 			);
 			path = Services;
+			sourceTree = "<group>";
+		};
+		C9FFEB2BF446F178C946B0ED /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				47CFA9BA4E2D707F1A0AC8F0 /* AIAssistantView.swift */,
+				4F579E8687782D54EFD3D22B /* BitcoinSettingsView.swift */,
+				C07C489E712CB8E5CF5C4A88 /* SettingsSheet.swift */,
+			);
+			path = Settings;
 			sourceTree = "<group>";
 		};
 		D062527DE4FF0BD67162F34B /* CRM */ = {
@@ -388,9 +425,9 @@
 		E4AF2080E5BFE8340E2AC503 /* Invoicing */ = {
 			isa = PBXGroup;
 			children = (
+				388677B4D148A374F54A2721 /* BitcoinPaymentView.swift */,
 				C6B7A9486587821C196F01F5 /* InvoiceSheets.swift */,
 				87433FB77F3B199854DF26B7 /* InvoicingView.swift */,
-				707AAEC62F6F029400C04EBE /* BitcoinPaymentView.swift */,
 			);
 			path = Invoicing;
 			sourceTree = "<group>";
@@ -445,7 +482,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 2620;
+				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					8874907E5B259CAD4D3C1B47 = {
 						DevelopmentTeam = HR82BNYZHV;
@@ -453,7 +490,6 @@
 				};
 			};
 			buildConfigurationList = DE8BDC32B8B32024DC86BFA9 /* Build configuration list for PBXProject "EpoxyBidPro" */;
-			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -463,6 +499,8 @@
 			);
 			mainGroup = D5CD3ECB1CCEA5CEBB6FE84A;
 			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 2DE426243D27DAD887EBAE73 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -491,12 +529,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AA1000000000000000000007 /* AppHaptics.swift in Sources */,
+				1EFBA0B285C3D402961219EC /* AIAssistantView.swift in Sources */,
 				F790DDE0C55860FB81BE4C81 /* ARViewContainer.swift in Sources */,
 				244879217CFEBD85ADE7E2DD /* AdditionalModels.swift in Sources */,
 				7D3A8D874B3814A96293CEAA /* AnalyticsView.swift in Sources */,
-				707AAEC72F6F029400C04EBE /* BitcoinPaymentView.swift in Sources */,
 				D8B9AF0B03BB479008A0B426 /* AnalyticsViewModel.swift in Sources */,
+				5EA424B6933CAB75887D5A69 /* AppHaptics.swift in Sources */,
 				93FFB610C883D0E397E94ACB /* AppLanguage.swift in Sources */,
 				6B75C0A3D7D003AA425BF570 /* AuthStore.swift in Sources */,
 				47DA7F9348753338EF261AAC /* AutoScanManager.swift in Sources */,
@@ -512,6 +550,8 @@
 				FA70FE5FC00DBF5AB4941EEE /* BidDetailView.swift in Sources */,
 				2019890D2E84D239D0A267B1 /* BidViewModel.swift in Sources */,
 				3D62B100ECEC363EEBD5D234 /* BidsView.swift in Sources */,
+				7576F6FB82D91E8090F718BA /* BitcoinPaymentView.swift in Sources */,
+				1D47C0164D751F5877DE2128 /* BitcoinSettingsView.swift in Sources */,
 				420A0EF88B3507A8B6E3387F /* BusinessSetupView.swift in Sources */,
 				82104B8825057BB58DA87AB3 /* CRMAnalyticsView.swift in Sources */,
 				4B1C2C2EFDB81C86B98ECDBF /* CRMSheets.swift in Sources */,
@@ -520,6 +560,7 @@
 				B518756A0EFE7BB2A0B2C173 /* DashboardView.swift in Sources */,
 				41C2CF6A2423672D1F606728 /* DesignTokens.swift in Sources */,
 				AFD68F891FDB47AEBE5CB43C /* EBPComponents.swift in Sources */,
+				BFA11AC0CE1F1CCE95BD3F8D /* EpoxyAIWorkflowAdvisor.swift in Sources */,
 				2D87A1C8484093A6B4975843 /* EpoxyBidProApp.swift in Sources */,
 				D7C4459C3DAFCE782F54269F /* FloorMeshProcessor.swift in Sources */,
 				F6F5B59DC999EE629F331EE5 /* InvoiceSheets.swift in Sources */,
@@ -531,6 +572,10 @@
 				B0E5FB3782D6EC60FDD16A46 /* MoreView.swift in Sources */,
 				7B23B316BBB016B4008DA889 /* OnboardingView.swift in Sources */,
 				8E370C886DE4A60A5E26E0E2 /* PerimeterRenderer.swift in Sources */,
+				F407F277C9B5F9B9FCB4C1C1 /* PipelineBidsView.swift in Sources */,
+				6E287A1BC5C1BE8D42CF5B2D /* PipelineClientsView.swift in Sources */,
+				998153349A61DB81B428F3BB /* PipelineLeadsView.swift in Sources */,
+				C453143EF68EE5DF774B6269 /* PipelineView.swift in Sources */,
 				DABD7264185CDC8F4C0ED549 /* ReachabilityMonitor.swift in Sources */,
 				DF32544426725C1871BEBFB1 /* RevenueChartView.swift in Sources */,
 				87D0943ED5641D8E67D1F962 /* RoomTest.swift in Sources */,
@@ -539,15 +584,15 @@
 				49CAA7430FAE15340A2B699F /* ScanResultView.swift in Sources */,
 				B90EADD611305FA6C51A5741 /* ScanSessionManager.swift in Sources */,
 				8CF472BA84838CD35EA1FBA8 /* ScanView.swift in Sources */,
+				D092C5ABF17968C2B92B907A /* SettingsSheet.swift in Sources */,
 				4CA4665F7729384CE8270CF5 /* SignatureView.swift in Sources */,
 				DB0F873535FFBDB75097F6B3 /* SyncManager.swift in Sources */,
-				AA1000000000000000000008 /* VerticalScrollOffsetKey.swift in Sources */,
-				AA1000000000000000000005 /* EpoxyAIWorkflowAdvisor.swift in Sources */,
-				AA1000000000000000000001 /* WorkflowKPIBanner.swift in Sources */,
-				AA1000000000000000000002 /* WorkflowNextActionBanner.swift in Sources */,
-				AA1000000000000000000006 /* WorkflowKPIService.swift in Sources */,
-				AA1000000000000000000004 /* WorkflowRouter.swift in Sources */,
-				AA1000000000000000000003 /* WorkflowStatusPalette.swift in Sources */,
+				99BE191BAA855FEFB8CB358A /* VerticalScrollOffsetKey.swift in Sources */,
+				9CFCE7F2DBA29201E668A655 /* WorkflowKPIBanner.swift in Sources */,
+				9C8DC3D216D24F7C67C501D9 /* WorkflowKPIService.swift in Sources */,
+				6A12C334284C7C2E462E700D /* WorkflowNextActionBanner.swift in Sources */,
+				4553B24A8DE2E9B512503AC0 /* WorkflowRouter.swift in Sources */,
+				94FF1424FCD337740C931E64 /* WorkflowStatusPalette.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -573,6 +618,7 @@
 				CFBundleIconName = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = HR82BNYZHV;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = iOS/EpoxyBidPro/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "EpoxyBidPro needs camera access to measure floor areas using AR technology.";
@@ -597,6 +643,7 @@
 				CFBundleIconName = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = HR82BNYZHV;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = iOS/EpoxyBidPro/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "EpoxyBidPro needs camera access to measure floor areas using AR technology.";
@@ -618,7 +665,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -650,10 +696,8 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = HR82BNYZHV;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -667,7 +711,6 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
@@ -678,7 +721,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -710,10 +752,8 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = HR82BNYZHV;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -734,7 +774,6 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;

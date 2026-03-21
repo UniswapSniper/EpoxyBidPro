@@ -52,7 +52,7 @@ struct JobsView: View {
         }
 
         var color: Color {
-            if self == .all { return .white }
+            if self == .all { return EBPColor.onSurface }
             return WorkflowStatusPalette.job(rawValue)
         }
     }
@@ -250,10 +250,10 @@ struct JobsView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text("Execution Pipeline")
                     .font(.subheadline.weight(.bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(EBPColor.onSurface)
                 Text("\(readySignedBids.count) signed bid\(readySignedBids.count == 1 ? "" : "s") ready to schedule")
                     .font(.caption)
-                    .foregroundStyle(.white.opacity(0.7))
+                    .foregroundStyle(EBPColor.onSurfaceVariant)
             }
 
             Spacer()
@@ -277,7 +277,7 @@ struct JobsView: View {
             } label: {
                 Image(systemName: showOnlyAtRisk ? "exclamationmark.triangle.fill" : "line.3.horizontal.decrease.circle")
                     .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(showOnlyAtRisk ? EBPColor.warning : .white)
+                    .foregroundStyle(showOnlyAtRisk ? EBPColor.secondary : EBPColor.onSurface)
                     .frame(width: 36, height: 36)
                     .background(Color.white.opacity(0.08), in: Circle())
             }
@@ -294,17 +294,17 @@ struct JobsView: View {
         return HStack(spacing: EBPSpacing.sm) {
             HStack(spacing: EBPSpacing.xs) {
                 Image(systemName: riskCount > 0 ? "exclamationmark.triangle.fill" : "checkmark.seal")
-                    .foregroundStyle(riskCount > 0 ? EBPColor.warning : EBPColor.success)
+                    .foregroundStyle(riskCount > 0 ? EBPColor.secondary : EBPColor.success)
                 Text(riskCount > 0 ? "\(riskCount) at-risk job\(riskCount == 1 ? "" : "s")" : "No at-risk jobs")
                     .font(.caption.weight(.semibold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(EBPColor.onSurface)
             }
 
             Spacer()
 
             Text("Avg margin \(avgMargin)%")
                 .font(.caption.weight(.semibold))
-                .foregroundStyle(avgMargin < 25 ? EBPColor.warning : EBPColor.success)
+                .foregroundStyle(avgMargin < 25 ? EBPColor.secondary : EBPColor.success)
         }
         .padding(.horizontal, EBPSpacing.md)
         .padding(.vertical, EBPSpacing.sm)
@@ -313,11 +313,11 @@ struct JobsView: View {
 
     private var statusPipeline: some View {
         let statuses: [(String, String, Color)] = [
-            ("Scheduled", "\(allJobs.filter { $0.status == "SCHEDULED" }.count)", .blue),
+            ("Scheduled", "\(allJobs.filter { $0.status == "SCHEDULED" }.count)", EBPColor.primary),
             ("In Progress", "\(allJobs.filter { $0.status == "IN_PROGRESS" }.count)", EBPColor.accent),
-            ("Punch List", "\(allJobs.filter { $0.status == "PUNCH_LIST" }.count)", .orange),
+            ("Punch List", "\(allJobs.filter { $0.status == "PUNCH_LIST" }.count)", EBPColor.secondaryContainer),
             ("Complete", "\(allJobs.filter { $0.status == "COMPLETE" }.count)", EBPColor.success),
-            ("Invoiced", "\(allJobs.filter { $0.status == "INVOICED" }.count)", .purple),
+            ("Invoiced", "\(allJobs.filter { $0.status == "INVOICED" }.count)", EBPColor.tertiary),
         ]
 
         return ScrollView(.horizontal, showsIndicators: false) {
@@ -355,7 +355,7 @@ struct JobsView: View {
                     VStack(alignment: .leading, spacing: 3) {
                         Text(job.title.isEmpty ? "Job #\(job.jobNumber)" : job.title)
                             .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(.primary)
+                            .foregroundStyle(EBPColor.onSurface)
                             .lineLimit(1)
 
                         if let client = job.client {
@@ -403,11 +403,11 @@ struct JobsView: View {
 
                     EBPBadge(
                         text: "Risk \(EpoxyAIWorkflowAdvisor.jobRiskScore(job))",
-                        color: isAtRisk(job) ? EBPColor.warning : EBPColor.success
+                        color: isAtRisk(job) ? EBPColor.secondary : EBPColor.success
                     )
 
                     if isAtRisk(job) {
-                        EBPBadge(text: "At Risk", color: EBPColor.warning)
+                        EBPBadge(text: "At Risk", color: EBPColor.secondary)
                     }
                 }
 
@@ -465,7 +465,7 @@ struct JobsView: View {
             if job.status == "COMPLETE" {
                 Button {
                     advanceStatus(job, to: "INVOICED")
-                    workflowRouter.navigate(to: .more, handoffMessage: "Job invoiced — review in Invoicing")
+                    workflowRouter.navigate(to: .settings, handoffMessage: "Job invoiced — review in Invoicing")
                 } label: {
                     Label("Create Invoice", systemImage: "dollarsign.circle")
                 }
@@ -541,7 +541,7 @@ struct JobsView: View {
                         .frame(width: 44, height: 44)
                     Text(String(name.prefix(1)).uppercased())
                         .font(.headline.weight(.bold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(EBPColor.onSurface)
                 }
 
                 VStack(alignment: .leading, spacing: 3) {
@@ -556,7 +556,7 @@ struct JobsView: View {
 
                 EBPBadge(
                     text: activeJobs.isEmpty ? "Available" : "Busy",
-                    color: activeJobs.isEmpty ? EBPColor.success : EBPColor.warning
+                    color: activeJobs.isEmpty ? EBPColor.success : EBPColor.secondary
                 )
             }
 
@@ -625,7 +625,7 @@ struct JobsView: View {
 
     private func marginColor(_ margin: Int?) -> Color {
         guard let margin else { return .secondary }
-        if margin < 20 { return EBPColor.warning }
+        if margin < 20 { return EBPColor.secondary }
         if margin < 30 { return EBPColor.accent }
         return EBPColor.success
     }

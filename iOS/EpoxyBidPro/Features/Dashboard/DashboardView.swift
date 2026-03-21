@@ -2,8 +2,8 @@ import SwiftUI
 import SwiftData
 import Charts
 
-// ─── DASHBOARD v2 ───────────────────────────────────────────────────────────
-// Clean, focused, beautiful — everything at a glance, nothing in the way.
+// ─── DASHBOARD ────────────────────────────────────────────────────────────────
+// Industrial Precision design — tonal layering, no borders, neon accents.
 
 struct DashboardView: View {
 
@@ -83,7 +83,6 @@ struct DashboardView: View {
 
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 0) {
-                        // Scroll offset tracker
                         GeometryReader { geo in
                             Color.clear.preference(
                                 key: VerticalScrollOffsetKey.self,
@@ -112,7 +111,7 @@ struct DashboardView: View {
 
                             activityFeed
                         }
-                        .padding(.horizontal, 20)
+                        .padding(.horizontal, EBPSpacing.page)
                         .padding(.bottom, 120)
                     }
                 }
@@ -138,9 +137,9 @@ struct DashboardView: View {
     private var background: some View {
         LinearGradient(
             stops: [
-                .init(color: Color(red: 0.04, green: 0.04, blue: 0.08), location: 0),
-                .init(color: Color(red: 0.07, green: 0.07, blue: 0.14), location: 0.5),
-                .init(color: Color(red: 0.04, green: 0.04, blue: 0.08), location: 1),
+                .init(color: EBPColor.surfaceContainerLowest, location: 0),
+                .init(color: EBPColor.surface, location: 0.5),
+                .init(color: EBPColor.surfaceContainerLowest, location: 1),
             ],
             startPoint: .top,
             endPoint: .bottom
@@ -154,31 +153,25 @@ struct DashboardView: View {
         HStack(alignment: .center, spacing: 14) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(dateString.uppercased())
-                    .font(.system(size: 11, weight: .semibold, design: .rounded))
+                    .font(EBPFont.labelSm)
                     .tracking(1.2)
-                    .foregroundStyle(.white.opacity(0.45))
+                    .foregroundStyle(EBPColor.onSurfaceVariant.opacity(0.6))
 
                 Text(greeting)
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
-                    .foregroundStyle(.white)
+                    .font(EBPFont.title)
+                    .foregroundStyle(EBPColor.onSurface)
             }
 
             Spacer()
 
             Button {
-                workflowRouter.navigate(to: .more, handoffMessage: "Open profile and settings")
+                workflowRouter.navigate(to: .settings, handoffMessage: "Open profile and settings")
             } label: {
                 Text(userInitials)
-                    .font(.system(size: 15, weight: .bold, design: .rounded))
-                    .foregroundStyle(.white)
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundStyle(EBPColor.onPrimary)
                     .frame(width: 44, height: 44)
-                    .background(
-                        LinearGradient(
-                            colors: [Color.cyan.opacity(0.8), Color.blue.opacity(0.6)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
+                    .background(EBPColor.primaryGradient)
                     .clipShape(Circle())
             }
         }
@@ -206,11 +199,11 @@ struct DashboardView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(nextAction.title)
                         .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(EBPColor.onSurface)
 
                     Text(nextAction.subtitle)
                         .font(.caption)
-                        .foregroundStyle(.white.opacity(0.55))
+                        .foregroundStyle(EBPColor.onSurfaceVariant)
                         .lineLimit(1)
                 }
 
@@ -224,24 +217,21 @@ struct DashboardView: View {
             }
             .padding(16)
             .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(.ultraThinMaterial)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .strokeBorder(nextActionTint.opacity(0.25), lineWidth: 1)
-                    )
+                RoundedRectangle(cornerRadius: EBPRadius.xl)
+                    .fill(EBPColor.surfaceContainerHigh)
             )
+            .ebpGhostBorder(radius: EBPRadius.xl)
         }
         .buttonStyle(.pressScale)
     }
 
     private var nextActionTint: Color {
         switch nextAction.kind {
-        case .leads:      return .blue
-        case .bids:       return .cyan
-        case .jobs:       return .orange
-        case .collections: return .red
-        case .healthy:    return .green
+        case .leads:      return EBPColor.primary
+        case .bids:       return EBPColor.primaryContainer
+        case .jobs:       return EBPColor.secondaryContainer
+        case .collections: return EBPColor.error
+        case .healthy:    return EBPColor.success
         }
     }
 
@@ -249,17 +239,16 @@ struct DashboardView: View {
 
     private var revenueCard: some View {
         VStack(spacing: 20) {
-            // Revenue headline
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("REVENUE")
-                        .font(.system(size: 11, weight: .bold, design: .rounded))
+                        .font(EBPFont.labelSm)
                         .tracking(1.5)
-                        .foregroundStyle(.white.opacity(0.45))
+                        .foregroundStyle(EBPColor.onSurfaceVariant.opacity(0.6))
 
                     Text(vm.dashboardData?.monthRevenue.currencyFormatted ?? "$0")
                         .font(.system(size: 42, weight: .black, design: .rounded))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(EBPColor.onSurface)
                         .contentTransition(.numericText())
 
                     HStack(spacing: 4) {
@@ -277,57 +266,45 @@ struct DashboardView: View {
                 Spacer()
             }
 
-            // Sparkline
             sparkline
 
-            // Stat pills
             HStack(spacing: 0) {
                 statPill(
                     value: "\(vm.dashboardData?.openBids ?? workflowBids.filter { ["DRAFT", "SENT", "VIEWED"].contains($0.status) }.count)",
                     label: "Open Bids",
-                    color: .purple
+                    color: EBPColor.tertiary
                 )
                 pillDivider
                 statPill(
                     value: "\(vm.dashboardData?.activeJobs ?? activeJobs.count)",
                     label: "Active Jobs",
-                    color: .cyan
+                    color: EBPColor.primaryContainer
                 )
                 pillDivider
                 statPill(
                     value: "\(workflowSnapshot.collectionRisks)",
                     label: "Overdue",
-                    color: workflowSnapshot.collectionRisks > 0 ? .orange : .green
+                    color: workflowSnapshot.collectionRisks > 0 ? EBPColor.secondaryContainer : EBPColor.success
                 )
             }
         }
         .padding(24)
         .background(
             ZStack {
-                RoundedRectangle(cornerRadius: 24)
-                    .fill(.ultraThinMaterial)
+                RoundedRectangle(cornerRadius: EBPRadius.xl)
+                    .fill(EBPColor.surfaceContainer)
 
-                // Subtle top-left glow
-                RoundedRectangle(cornerRadius: 24)
+                RoundedRectangle(cornerRadius: EBPRadius.xl)
                     .fill(
                         LinearGradient(
-                            colors: [Color.cyan.opacity(0.06), .clear],
+                            colors: [EBPColor.primaryContainer.opacity(0.06), .clear],
                             startPoint: .topLeading,
                             endPoint: .center
                         )
                     )
-
-                RoundedRectangle(cornerRadius: 24)
-                    .strokeBorder(
-                        LinearGradient(
-                            colors: [Color.white.opacity(0.12), Color.white.opacity(0.04)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        lineWidth: 1
-                    )
             }
         )
+        .ebpGhostBorder(radius: EBPRadius.xl)
     }
 
     private func statPill(value: String, label: String, color: Color) -> some View {
@@ -337,14 +314,14 @@ struct DashboardView: View {
                 .foregroundStyle(color)
             Text(label)
                 .font(.system(size: 10, weight: .medium))
-                .foregroundStyle(.white.opacity(0.5))
+                .foregroundStyle(EBPColor.onSurfaceVariant.opacity(0.6))
         }
         .frame(maxWidth: .infinity)
     }
 
     private var pillDivider: some View {
         Rectangle()
-            .fill(.white.opacity(0.08))
+            .fill(EBPColor.outlineVariant.opacity(0.15))
             .frame(width: 1, height: 32)
     }
 
@@ -373,14 +350,14 @@ struct DashboardView: View {
             AreaMark(x: .value("Day", point.day), y: .value("$", point.amount))
                 .foregroundStyle(
                     LinearGradient(
-                        colors: [Color.cyan.opacity(0.25), Color.cyan.opacity(0.02)],
+                        colors: [EBPColor.primaryContainer.opacity(0.25), EBPColor.primaryContainer.opacity(0.02)],
                         startPoint: .top, endPoint: .bottom
                     )
                 )
                 .interpolationMethod(.catmullRom)
 
             LineMark(x: .value("Day", point.day), y: .value("$", point.amount))
-                .foregroundStyle(Color.cyan.opacity(0.7))
+                .foregroundStyle(EBPColor.primaryContainer.opacity(0.7))
                 .lineStyle(StrokeStyle(lineWidth: 1.5))
                 .interpolationMethod(.catmullRom)
         }
@@ -394,10 +371,10 @@ struct DashboardView: View {
 
     private var todayStrip: some View {
         HStack(spacing: 10) {
-            todayChip(icon: "calendar", value: "\(todayFollowUps)", label: "Follow-ups", tint: .blue)
-            todayChip(icon: "wrench.and.screwdriver", value: "\(todayInstalls)", label: "Installs", tint: .cyan)
-            todayChip(icon: "exclamationmark.triangle", value: "\(workflowSnapshot.atRiskJobs)", label: "At Risk", tint: .orange)
-            todayChip(icon: "scan.3d", value: "\(workflowSnapshot.scansThisWeek)", label: "Scans", tint: .purple)
+            todayChip(icon: "calendar", value: "\(todayFollowUps)", label: "Follow-ups", tint: EBPColor.primary)
+            todayChip(icon: "wrench.and.screwdriver", value: "\(todayInstalls)", label: "Installs", tint: EBPColor.primaryContainer)
+            todayChip(icon: "exclamationmark.triangle", value: "\(workflowSnapshot.atRiskJobs)", label: "At Risk", tint: EBPColor.secondaryContainer)
+            todayChip(icon: "scan.3d", value: "\(workflowSnapshot.scansThisWeek)", label: "Scans", tint: EBPColor.tertiary)
         }
     }
 
@@ -409,38 +386,35 @@ struct DashboardView: View {
 
             Text(value)
                 .font(.system(size: 18, weight: .bold, design: .rounded))
-                .foregroundStyle(.white)
+                .foregroundStyle(EBPColor.onSurface)
 
             Text(label)
                 .font(.system(size: 9, weight: .medium))
-                .foregroundStyle(.white.opacity(0.45))
+                .foregroundStyle(EBPColor.onSurfaceVariant.opacity(0.6))
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 14)
         .background(
-            RoundedRectangle(cornerRadius: 14)
-                .fill(.ultraThinMaterial)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 14)
-                        .strokeBorder(tint.opacity(0.12), lineWidth: 1)
-                )
+            RoundedRectangle(cornerRadius: EBPRadius.md)
+                .fill(EBPColor.surfaceContainerHigh)
         )
+        .ebpGhostBorder(radius: EBPRadius.md)
     }
 
     // MARK: - Quick Actions
 
     private var quickActions: some View {
         HStack(spacing: 12) {
-            actionButton(icon: "person.2.fill", label: "Pipeline", color: .cyan) {
-                workflowRouter.navigate(to: .crm, handoffMessage: "Review lead pipeline")
+            actionButton(icon: "person.2.fill", label: "Pipeline", color: EBPColor.primaryContainer) {
+                workflowRouter.navigate(to: .clients, handoffMessage: "Review lead pipeline")
             }
-            actionButton(icon: "doc.badge.plus", label: "New Bid", color: .purple) {
+            actionButton(icon: "doc.badge.plus", label: "New Bid", color: EBPColor.tertiary) {
                 showBidBuilder = true
             }
-            actionButton(icon: "person.badge.plus", label: "Client", color: .orange) {
+            actionButton(icon: "person.badge.plus", label: "Client", color: EBPColor.secondaryContainer) {
                 showAddClient = true
             }
-            actionButton(icon: "dollarsign.circle.fill", label: "Invoice", color: .green) {
+            actionButton(icon: "dollarsign.circle.fill", label: "Invoice", color: EBPColor.success) {
                 showNewInvoice = true
             }
         }
@@ -459,19 +433,16 @@ struct DashboardView: View {
                     .background(color.opacity(0.12), in: RoundedRectangle(cornerRadius: 12))
 
                 Text(label)
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundStyle(.white.opacity(0.7))
+                    .font(EBPFont.labelSm)
+                    .foregroundStyle(EBPColor.onSurfaceVariant)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)
             .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(.ultraThinMaterial)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .strokeBorder(.white.opacity(0.06), lineWidth: 1)
-                    )
+                RoundedRectangle(cornerRadius: EBPRadius.lg)
+                    .fill(EBPColor.surfaceContainerHigh)
             )
+            .ebpGhostBorder(radius: EBPRadius.lg)
         }
         .buttonStyle(.pressScale)
     }
@@ -482,8 +453,8 @@ struct DashboardView: View {
         VStack(alignment: .leading, spacing: 14) {
             HStack {
                 Text("Active Jobs")
-                    .font(.system(size: 17, weight: .bold, design: .rounded))
-                    .foregroundStyle(.white)
+                    .font(.system(size: 17, weight: .bold))
+                    .foregroundStyle(EBPColor.onSurface)
 
                 Spacer()
 
@@ -492,7 +463,7 @@ struct DashboardView: View {
                 } label: {
                     Text("See All")
                         .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(.cyan.opacity(0.8))
+                        .foregroundStyle(EBPColor.primary)
                 }
                 .buttonStyle(.plain)
             }
@@ -514,12 +485,14 @@ struct DashboardView: View {
 
     private func jobTile(_ job: Job) -> some View {
         let progress = checklistProgress(for: job)
-        let statusColor = jobStatusColor(job.status)
+        let statusColor = WorkflowStatusPalette.job(job.status)
 
         return VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Text(jobStatusLabel(job.status))
-                    .font(.system(size: 10, weight: .bold))
+                    .font(EBPFont.micro)
+                    .textCase(.uppercase)
+                    .tracking(0.6)
                     .foregroundStyle(statusColor)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
@@ -530,23 +503,22 @@ struct DashboardView: View {
                 if let date = job.scheduledDate {
                     Text(date, format: .dateTime.month(.abbreviated).day())
                         .font(.system(size: 10, weight: .medium))
-                        .foregroundStyle(.white.opacity(0.45))
+                        .foregroundStyle(EBPColor.onSurfaceVariant.opacity(0.6))
                 }
             }
 
             Text(job.title.isEmpty ? job.jobNumber : job.title)
                 .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.white)
+                .foregroundStyle(EBPColor.onSurface)
                 .lineLimit(2)
 
             Spacer()
 
-            // Progress
             VStack(alignment: .leading, spacing: 4) {
                 GeometryReader { geo in
                     ZStack(alignment: .leading) {
                         RoundedRectangle(cornerRadius: 3)
-                            .fill(.white.opacity(0.08))
+                            .fill(EBPColor.surfaceContainerHighest)
 
                         RoundedRectangle(cornerRadius: 3)
                             .fill(statusColor)
@@ -557,19 +529,16 @@ struct DashboardView: View {
 
                 Text("\(Int(progress * 100))%")
                     .font(.system(size: 10, weight: .bold, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.4))
+                    .foregroundStyle(EBPColor.onSurfaceVariant.opacity(0.5))
             }
         }
         .frame(width: 170, height: 130)
         .padding(14)
         .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(.ultraThinMaterial)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .strokeBorder(.white.opacity(0.06), lineWidth: 1)
-                )
+            RoundedRectangle(cornerRadius: EBPRadius.lg)
+                .fill(EBPColor.surfaceContainerHigh)
         )
+        .ebpGhostBorder(radius: EBPRadius.lg)
     }
 
     // MARK: - Activity Feed
@@ -579,8 +548,8 @@ struct DashboardView: View {
             if let activity = vm.dashboardData?.recentActivity, !activity.isEmpty {
                 VStack(alignment: .leading, spacing: 14) {
                     Text("Recent Activity")
-                        .font(.system(size: 17, weight: .bold, design: .rounded))
-                        .foregroundStyle(.white)
+                        .font(.system(size: 17, weight: .bold))
+                        .foregroundStyle(EBPColor.onSurface)
 
                     VStack(spacing: 0) {
                         ForEach(Array(activity.prefix(5).enumerated()), id: \.element.id) { idx, item in
@@ -599,13 +568,13 @@ struct DashboardView: View {
                                     VStack(alignment: .leading, spacing: 2) {
                                         Text(item.description ?? item.action ?? "Activity")
                                             .font(.subheadline.weight(.medium))
-                                            .foregroundStyle(.white)
+                                            .foregroundStyle(EBPColor.onSurface)
                                             .lineLimit(1)
 
                                         if let date = item.createdAt {
                                             Text(date.relativeFormatted)
                                                 .font(.caption2)
-                                                .foregroundStyle(.white.opacity(0.4))
+                                                .foregroundStyle(EBPColor.onSurfaceVariant.opacity(0.5))
                                         }
                                     }
 
@@ -613,7 +582,7 @@ struct DashboardView: View {
 
                                     Image(systemName: "chevron.right")
                                         .font(.system(size: 10, weight: .semibold))
-                                        .foregroundStyle(.white.opacity(0.2))
+                                        .foregroundStyle(EBPColor.outlineVariant)
                                 }
                                 .padding(.horizontal, 14)
                                 .padding(.vertical, 11)
@@ -621,21 +590,16 @@ struct DashboardView: View {
                             .buttonStyle(.plain)
 
                             if idx < min(4, activity.count - 1) {
-                                Rectangle()
-                                    .fill(.white.opacity(0.04))
-                                    .frame(height: 1)
-                                    .padding(.leading, 62)
+                                // Spacing instead of divider line (No-Line Rule)
+                                Spacer().frame(height: 1)
                             }
                         }
                     }
                     .background(
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(.ultraThinMaterial)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 16)
-                                    .strokeBorder(.white.opacity(0.06), lineWidth: 1)
-                            )
+                        RoundedRectangle(cornerRadius: EBPRadius.lg)
+                            .fill(EBPColor.surfaceContainerHigh)
                     )
+                    .ebpGhostBorder(radius: EBPRadius.lg)
                 }
             }
         }
@@ -660,16 +624,6 @@ struct DashboardView: View {
         }
     }
 
-    private func jobStatusColor(_ status: String) -> Color {
-        switch status {
-        case "SCHEDULED":   return .blue
-        case "IN_PROGRESS": return .cyan
-        case "PUNCH_LIST":  return .orange
-        case "COMPLETE":    return .green
-        default: return .gray
-        }
-    }
-
     private func activityIcon(for type: String?) -> String {
         switch type {
         case "bid":     return "doc.text.fill"
@@ -682,20 +636,20 @@ struct DashboardView: View {
 
     private func activityColor(for type: String?) -> Color {
         switch type {
-        case "bid":     return .purple
-        case "job":     return .cyan
-        case "invoice": return .green
-        case "client":  return .orange
-        default:        return .blue
+        case "bid":     return EBPColor.tertiary
+        case "job":     return EBPColor.primaryContainer
+        case "invoice": return EBPColor.success
+        case "client":  return EBPColor.secondaryContainer
+        default:        return EBPColor.primary
         }
     }
 
     private func routeTab(for entityType: String?) -> WorkflowRouter.RouteTab? {
         switch entityType {
-        case "bid":     return .bids
+        case "bid":     return .jobs
         case "job":     return .jobs
-        case "invoice": return .more
-        case "client":  return .crm
+        case "invoice": return .settings
+        case "client":  return .clients
         default:        return .dashboard
         }
     }

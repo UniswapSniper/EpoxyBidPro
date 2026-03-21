@@ -14,11 +14,11 @@ struct WorkflowNextActionBanner: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(action.title)
                     .font(.caption.weight(.bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(EBPColor.onSurface)
                     .lineLimit(1)
                 Text(action.subtitle)
                     .font(.caption2)
-                    .foregroundStyle(.white.opacity(0.75))
+                    .foregroundStyle(EBPColor.onSurfaceVariant)
                     .lineLimit(2)
             }
 
@@ -30,7 +30,7 @@ struct WorkflowNextActionBanner: View {
                 } label: {
                     Text("Open")
                         .font(.caption2.weight(.bold))
-                        .foregroundStyle(.black)
+                        .foregroundStyle(EBPColor.onPrimary)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 6)
                         .background(tintColor, in: Capsule())
@@ -39,16 +39,16 @@ struct WorkflowNextActionBanner: View {
             }
         }
         .padding(EBPSpacing.md)
-        .ebpGlassmorphism(cornerRadius: EBPRadius.md)
+        .ebpGlassmorphism(cornerRadius: EBPRadius.xl)
     }
 
     private var tintColor: Color {
         switch action.kind {
-        case .leads: return .blue
-        case .bids: return EBPColor.accent
-        case .jobs: return EBPColor.warning
-        case .collections: return EBPColor.danger
-        case .healthy: return EBPColor.success
+        case .leads:      return EBPColor.primary
+        case .bids:       return EBPColor.primaryContainer
+        case .jobs:       return EBPColor.secondaryContainer
+        case .collections: return EBPColor.error
+        case .healthy:    return EBPColor.success
         }
     }
 }

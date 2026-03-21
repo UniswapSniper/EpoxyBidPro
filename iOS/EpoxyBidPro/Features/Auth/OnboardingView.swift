@@ -10,7 +10,7 @@ struct OnboardingView: View {
     private let features: [OnboardingFeature] = [
         OnboardingFeature(
             icon: "ruler.fill",
-            color: Color.indigo,
+            color: EBPColor.primaryFixedDim,
             title: "Measure in Seconds",
             body: "LiDAR scanning turns your iPhone into a precision floor-measurement tool. Capture sq footage instantly — no tape measure needed."
         ),
@@ -113,7 +113,7 @@ struct OnboardingView: View {
                     if let error = authStore.authError {
                         Text(error)
                             .font(.caption)
-                            .foregroundStyle(.red)
+                            .foregroundStyle(EBPColor.error)
                             .multilineTextAlignment(.center)
                     }
 
@@ -125,7 +125,7 @@ struct OnboardingView: View {
 
                     Text("By continuing, you agree to our Terms of Service and Privacy Policy.")
                         .font(.caption2)
-                        .foregroundStyle(.white.opacity(0.40))
+                        .foregroundStyle(EBPColor.onSurfaceVariant)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, EBPSpacing.xl)
                 }
@@ -161,7 +161,7 @@ struct OnboardingView: View {
 
                 Text(feature.body)
                     .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.70))
+                    .foregroundStyle(EBPColor.onSurfaceVariant)
                     .multilineTextAlignment(.center)
                     .lineSpacing(3)
             }

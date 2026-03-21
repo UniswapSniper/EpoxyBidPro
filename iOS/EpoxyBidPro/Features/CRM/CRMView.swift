@@ -157,10 +157,10 @@ struct CRMView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("CRM")
                         .font(.system(size: 30, weight: .black, design: .rounded))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(EBPColor.onSurface)
                     Text("Leads, clients, and follow-up health")
                         .font(.caption)
-                        .foregroundStyle(.white.opacity(0.7))
+                        .foregroundStyle(EBPColor.onSurfaceVariant)
                 }
 
                 Spacer()
@@ -169,7 +169,7 @@ struct CRMView: View {
                     .font(.system(size: 24, weight: .bold))
                     .foregroundStyle(EBPColor.accent)
                     .padding(12)
-                    .background(.ultraThinMaterial)
+                    .background(EBPColor.surfaceContainerHigh)
                     .clipShape(RoundedRectangle(cornerRadius: EBPRadius.md))
             }
 
@@ -205,11 +205,11 @@ struct CRMView: View {
             HStack {
                 Label("AI Follow-Up Queue", systemImage: "brain")
                     .font(.subheadline.weight(.bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(EBPColor.onSurface)
                 Spacer()
                 Text("\(actionableLeads.count) next")
                     .font(.caption2.weight(.semibold))
-                    .foregroundStyle(.white.opacity(0.7))
+                    .foregroundStyle(EBPColor.onSurfaceVariant)
             }
 
             if actionableLeads.isEmpty {
@@ -223,12 +223,12 @@ struct CRMView: View {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(lead.displayName)
                                 .font(.caption.weight(.semibold))
-                                .foregroundStyle(.white)
+                                .foregroundStyle(EBPColor.onSurface)
                                 .lineLimit(1)
 
                             Text(followUpSuggestion(for: lead))
                                 .font(.caption2)
-                                .foregroundStyle(.white.opacity(0.75))
+                                .foregroundStyle(EBPColor.onSurfaceVariant)
                                 .lineLimit(2)
 
                             Text("Close probability: \(EpoxyAIWorkflowAdvisor.leadCloseProbability(lead))%")
@@ -255,10 +255,10 @@ struct CRMView: View {
                         } label: {
                             Text("+1d")
                                 .font(.caption2.weight(.bold))
-                                .foregroundStyle(.white)
+                                .foregroundStyle(EBPColor.onSurface)
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 6)
-                                .background(Color.white.opacity(0.15), in: Capsule())
+                                .background(EBPColor.onSurface.opacity(0.15), in: Capsule())
                         }
                         .buttonStyle(.pressScale)
                     }
@@ -295,7 +295,7 @@ struct CRMView: View {
                 title: NSLocalizedString("new", comment: ""),
                 value: "\(newCount)",
                 icon: "sparkles",
-                tint: .blue
+                tint: EBPColor.primary
             )
 
             EBPStatCard(
@@ -309,7 +309,7 @@ struct CRMView: View {
                 title: overdue > 0 ? NSLocalizedString("overdue.followups", comment: "") : NSLocalizedString("pipeline", comment: ""),
                 value: overdue > 0 ? "\(overdue)" : formatCurrency(totalValue),
                 icon: overdue > 0 ? "calendar.badge.exclamationmark" : "dollarsign.circle.fill",
-                tint: overdue > 0 ? EBPColor.warning : EBPColor.primary,
+                tint: overdue > 0 ? EBPColor.secondary : EBPColor.primary,
                 isAlert: overdue > 0
             )
         }
@@ -357,7 +357,7 @@ struct CRMView: View {
                 HStack {
                     Text(lead.displayName)
                         .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(EBPColor.onSurface)
                         .lineLimit(1)
                     Spacer()
                     if lead.estimatedValue > 0 {
@@ -383,10 +383,10 @@ struct CRMView: View {
                         HStack(spacing: 2) {
                             Image(systemName: followUp < Date() ? "exclamationmark.triangle.fill" : "calendar")
                                 .font(.system(size: 8))
-                                .foregroundStyle(followUp < Date() ? EBPColor.danger : .secondary)
+                                .foregroundStyle(followUp < Date() ? EBPColor.error : .secondary)
                             Text(followUp.formatted(date: .abbreviated, time: .omitted))
                                 .font(.caption2)
-                                .foregroundStyle(followUp < Date() ? EBPColor.danger : .secondary)
+                                .foregroundStyle(followUp < Date() ? EBPColor.error : .secondary)
                         }
                     }
                 }
@@ -498,13 +498,13 @@ struct CRMView: View {
                         .frame(width: 44, height: 44)
                     Text(String(client.displayName.prefix(1)).uppercased())
                         .font(.headline.weight(.bold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(EBPColor.onSurface)
                 }
 
                 VStack(alignment: .leading, spacing: 3) {
                     Text(client.displayName)
                         .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(EBPColor.onSurface)
                         .lineLimit(1)
                     HStack(spacing: EBPSpacing.xs) {
                         if !client.company.isEmpty {
@@ -555,7 +555,7 @@ struct CRMView: View {
             HStack(spacing: EBPSpacing.md) {
                 insightStatCard(value: "\(winRate)%", label: NSLocalizedString("win.rate", comment: ""), icon: "trophy.fill", tint: EBPColor.gold)
                 let avgDays = averageDaysToClose
-                insightStatCard(value: "\(avgDays)d", label: NSLocalizedString("avg.close", comment: ""), icon: "clock.fill", tint: .blue)
+                insightStatCard(value: "\(avgDays)d", label: NSLocalizedString("avg.close", comment: ""), icon: "clock.fill", tint: EBPColor.primary)
             }
             .ebpHPadding()
 
@@ -578,7 +578,7 @@ struct CRMView: View {
             )
             insightCard(
                 icon: "calendar.badge.exclamationmark",
-                tint: EBPColor.warning,
+                tint: EBPColor.secondary,
                 title: NSLocalizedString("overdue.followups", comment: ""),
                 body: String(format: "You have %d leads with past-due follow-up dates. Update them now.", overdueFollowUps)
             )
@@ -710,14 +710,14 @@ struct CRMView: View {
         return formatter.string(from: NSNumber(value: value)) ?? "$0"
     }
 
-    private func summaryCell(value: String, label: String, color: Color = .primary) -> some View {
+    private func summaryCell(value: String, label: String, color: Color = EBPColor.onSurface) -> some View {
         VStack(spacing: 2) {
             Text(value)
                 .font(.subheadline.weight(.bold))
                 .foregroundStyle(color)
             Text(label)
                 .font(.caption2)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(EBPColor.onSurfaceVariant)
         }
         .frame(maxWidth: .infinity)
     }
@@ -880,7 +880,7 @@ struct LostReasonSheet: View {
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
-                        .background(Color.red.opacity(0.8))
+                        .background(EBPColor.error.opacity(0.8))
                         .clipShape(RoundedRectangle(cornerRadius: EBPRadius.md))
                 }
                 .padding(.horizontal, 16)

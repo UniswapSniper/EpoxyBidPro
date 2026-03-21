@@ -110,11 +110,11 @@ struct PipelineBidsView: View {
             
             Text("No Bids Yet")
                 .font(.title2.weight(.bold))
-                .foregroundStyle(.white)
+                .foregroundStyle(EBPColor.onSurface)
             
             Text("Create a standard proposal or scan a room to automatically build one using AI.")
                 .font(.subheadline)
-                .foregroundStyle(.white.opacity(0.7))
+                .foregroundStyle(EBPColor.onSurfaceVariant)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, EBPSpacing.lg)
             
@@ -132,10 +132,10 @@ struct PipelineBidsView: View {
                 Button { isPresentingNewBid = true } label: {
                     Label("Create Bid Manually", systemImage: "doc.text.fill")
                         .font(.headline)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(EBPColor.onSurface)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 14)
-                        .background(Color.white.opacity(0.12), in: RoundedRectangle(cornerRadius: EBPRadius.md))
+                        .background(EBPColor.onSurface.opacity(0.12), in: RoundedRectangle(cornerRadius: EBPRadius.md))
                 }
                 .buttonStyle(.plain)
             }
@@ -153,11 +153,11 @@ struct PipelineBidsView: View {
                     .foregroundStyle(EBPColor.accent)
                 Text("Estimation Workflow")
                     .font(.subheadline.weight(.bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(EBPColor.onSurface)
                 Spacer()
                 Text("Scan → AI → Bid")
                     .font(.caption2.weight(.semibold))
-                    .foregroundStyle(.white.opacity(0.65))
+                    .foregroundStyle(EBPColor.onSurfaceVariant)
             }
 
             HStack(spacing: EBPSpacing.sm) {
@@ -180,10 +180,10 @@ struct PipelineBidsView: View {
                 Button { isPresentingScan = true } label: {
                     Label("Precision Scan", systemImage: "ruler")
                         .font(.caption.weight(.semibold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(EBPColor.onSurface)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
-                        .background(Color.white.opacity(0.12), in: RoundedRectangle(cornerRadius: EBPRadius.sm))
+                        .background(EBPColor.onSurface.opacity(0.12), in: RoundedRectangle(cornerRadius: EBPRadius.sm))
                 }
                 .buttonStyle(.plain)
             }
@@ -199,9 +199,9 @@ struct PipelineBidsView: View {
         return HStack(spacing: 0) {
             bidSummaryCell(value: "\(allBids.count)", label: "Total")
             Divider().frame(height: 36)
-            bidSummaryCell(value: "\(pendingBids.count)", label: "Pending", color: .orange)
+            bidSummaryCell(value: "\(pendingBids.count)", label: "Pending", color: EBPColor.secondaryContainer)
             Divider().frame(height: 36)
-            bidSummaryCell(value: "\(signedBids.count)", label: "Signed", color: .green)
+            bidSummaryCell(value: "\(signedBids.count)", label: "Signed", color: EBPColor.success)
             Divider().frame(height: 36)
             bidSummaryCell(value: total.formatted(.currency(code: "USD")), label: "Pipeline", color: EBPColor.accent)
         }
@@ -226,7 +226,7 @@ struct PipelineBidsView: View {
         }
     }
 
-    private func bidSummaryCell(value: String, label: String, color: Color = .white) -> some View {
+    private func bidSummaryCell(value: String, label: String, color: Color = EBPColor.onSurface) -> some View {
         VStack(spacing: 2) {
             Text(value)
                 .font(.subheadline.weight(.bold))

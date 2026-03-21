@@ -171,18 +171,18 @@ struct BidsView: View {
                     .foregroundStyle(EBPColor.accent)
                 Text("Estimation Workflow")
                     .font(.subheadline.weight(.bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(EBPColor.onSurface)
                 Spacer()
                 Text("Scan → AI → Bid")
                     .font(.caption2.weight(.semibold))
-                    .foregroundStyle(.white.opacity(0.65))
+                    .foregroundStyle(EBPColor.onSurfaceVariant)
             }
 
             if let latestMeasurement {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(latestMeasurement.label.isEmpty ? "Latest measurement" : latestMeasurement.label)
                         .font(.caption.weight(.semibold))
-                        .foregroundStyle(.white.opacity(0.85))
+                        .foregroundStyle(EBPColor.onSurface)
 
                     HStack {
                         Label("\(Int(latestMeasurement.totalSqFt)) sq ft", systemImage: "ruler.fill")
@@ -191,12 +191,12 @@ struct BidsView: View {
                         Spacer()
                         Text(latestMeasurement.scanDate.relativeFormatted)
                             .font(.caption2)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(EBPColor.onSurfaceVariant)
                     }
 
                     Text(aiEstimateHint(for: latestMeasurement.totalSqFt))
                         .font(.caption2)
-                        .foregroundStyle(.white.opacity(0.75))
+                        .foregroundStyle(EBPColor.onSurfaceVariant)
                         .lineLimit(2)
                 }
                 .padding(EBPSpacing.sm)
@@ -204,7 +204,7 @@ struct BidsView: View {
             } else {
                 Text("Run a LiDAR/AR scan first to auto-fill measurements and AI pricing guidance.")
                     .font(.caption)
-                    .foregroundStyle(.white.opacity(0.75))
+                    .foregroundStyle(EBPColor.onSurfaceVariant)
                     .padding(EBPSpacing.sm)
                     .background(Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: EBPRadius.sm))
             }
@@ -232,7 +232,7 @@ struct BidsView: View {
                 } label: {
                     Label(latestMeasurement == nil ? "New Bid" : "Build From Scan", systemImage: "doc.text.fill")
                         .font(.caption.weight(.semibold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(EBPColor.onSurface)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
                         .background(EBPColor.primaryGradient, in: RoundedRectangle(cornerRadius: EBPRadius.sm))
@@ -256,16 +256,16 @@ struct BidsView: View {
         return HStack(spacing: 0) {
             summaryCell(value: "\(allBids.count)", label: "Total")
             Divider().frame(height: 36)
-            summaryCell(value: "\(pending)", label: "Pending", color: .orange)
+            summaryCell(value: "\(pending)", label: "Pending", color: EBPColor.secondaryContainer)
             Divider().frame(height: 36)
-            summaryCell(value: "\(signed)", label: "Signed", color: .green)
+            summaryCell(value: "\(signed)", label: "Signed", color: EBPColor.success)
             Divider().frame(height: 36)
             summaryCell(value: total.formatted(.currency(code: "USD")), label: "Pipeline", color: EBPColor.accent)
         }
         .ebpGlassmorphism(cornerRadius: 0)
     }
 
-    private func summaryCell(value: String, label: String, color: Color = .white) -> some View {
+    private func summaryCell(value: String, label: String, color: Color = EBPColor.onSurface) -> some View {
         VStack(spacing: 2) {
             Text(value)
                 .font(.subheadline.weight(.bold))
@@ -274,7 +274,7 @@ struct BidsView: View {
                 .minimumScaleFactor(0.6)
             Text(label)
                 .font(.caption2)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(EBPColor.onSurfaceVariant)
         }
         .frame(maxWidth: .infinity)
     }
@@ -337,7 +337,7 @@ struct BidsView: View {
                         } label: {
                             Label("Clone", systemImage: "doc.on.doc")
                         }
-                        .tint(.blue)
+                        .tint(EBPColor.primary)
                     }
                     .swipeActions(edge: .leading, allowsFullSwipe: true) {
                         if bid.status == "DRAFT" {
@@ -467,7 +467,7 @@ struct FilterChip: View {
             .padding(.horizontal, EBPSpacing.md)
             .padding(.vertical, 9)
             .background(isSelected ? EBPColor.accent : EBPColor.surface)
-            .foregroundStyle(isSelected ? .black : .white)
+            .foregroundStyle(isSelected ? .black : EBPColor.onSurface)
             .clipShape(Capsule())
             .overlay(
                 Capsule().stroke(isSelected ? EBPColor.accent : EBPColor.silver.opacity(0.3), lineWidth: 1)

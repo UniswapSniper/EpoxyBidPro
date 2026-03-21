@@ -5,7 +5,7 @@ import UIKit
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // EBPComponents.swift
-// Reusable, polished components for EpoxyBidPro.
+// Industrial Precision design system components for EpoxyBidPro.
 // ═══════════════════════════════════════════════════════════════════════════════
 
 // ─── EBPButton ────────────────────────────────────────────────────────────────
@@ -70,7 +70,7 @@ struct EBPButton: View {
             .overlay {
                 if case .ghost = style {
                     RoundedRectangle(cornerRadius: EBPRadius.md)
-                        .strokeBorder(EBPColor.primary, lineWidth: 1.5)
+                        .stroke(EBPColor.outlineVariant.opacity(0.15), lineWidth: 0.5)
                 }
             }
         }
@@ -90,11 +90,11 @@ struct EBPButton: View {
         case .primary:
             EBPColor.primaryGradient
         case .secondary:
-            EBPColor.surface
+            Color(hex: "#fd6c00") // secondaryContainer — industrial orange
         case .ghost:
             Color.clear
         case .destructive:
-            Color.red.opacity(0.12)
+            EBPColor.error.opacity(0.12)
         case .tinted(let c):
             c.opacity(0.15)
         }
@@ -102,10 +102,10 @@ struct EBPButton: View {
 
     private var labelColor: Color {
         switch style {
-        case .primary:            return .white
-        case .secondary:          return .primary
+        case .primary:            return EBPColor.onPrimary
+        case .secondary:          return .white
         case .ghost:              return EBPColor.primary
-        case .destructive:        return .red
+        case .destructive:        return EBPColor.error
         case .tinted(let c):      return c
         }
     }
@@ -118,7 +118,7 @@ struct EBPCard<Content: View>: View {
     let shadow: Bool
     @ViewBuilder let content: Content
 
-    init(radius: CGFloat = EBPRadius.md, shadow: Bool = true, @ViewBuilder content: () -> Content) {
+    init(radius: CGFloat = EBPRadius.xl, shadow: Bool = false, @ViewBuilder content: () -> Content) {
         self.radius = radius
         self.shadow = shadow
         self.content = content()
@@ -127,7 +127,8 @@ struct EBPCard<Content: View>: View {
     var body: some View {
         content
             .padding(EBPSpacing.md)
-            .background(EBPColor.surface, in: RoundedRectangle(cornerRadius: radius))
+            .background(EBPColor.surfaceContainerHigh, in: RoundedRectangle(cornerRadius: radius))
+            .ebpGhostBorder(radius: radius)
             .if(shadow) { $0.ebpShadowSubtle() }
     }
 }
@@ -146,7 +147,9 @@ struct EBPBadge: View {
                     .font(.system(size: 9, weight: .bold))
             }
             Text(text)
-                .font(.caption.weight(.bold))
+                .font(EBPFont.labelSm)
+                .textCase(.uppercase)
+                .tracking(0.8)
         }
         .padding(.horizontal, EBPSpacing.sm)
         .padding(.vertical, EBPSpacing.xs)
@@ -157,7 +160,7 @@ struct EBPBadge: View {
 }
 
 // ─── EBPStatCard ──────────────────────────────────────────────────────────────
-// A polished metric card used on Dashboard, Analytics, and summary bars.
+// Industrial metric card — tonal elevation, ghost border, no drop shadow.
 
 struct EBPStatCard: View {
     let title: String
@@ -189,31 +192,31 @@ struct EBPStatCard: View {
                 if isAlert {
                     Image(systemName: "exclamationmark.circle.fill")
                         .font(.caption.bold())
-                        .foregroundStyle(.red)
+                        .foregroundStyle(EBPColor.error)
                 }
             }
 
             Text(value)
                 .font(EBPFont.statSm)
-                .foregroundStyle(.primary)
+                .foregroundStyle(EBPColor.onSurface)
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
 
             Text(title)
                 .font(EBPFont.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(EBPColor.onSurfaceVariant)
         }
         .padding(EBPSpacing.md)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(EBPColor.surface, in: RoundedRectangle(cornerRadius: EBPRadius.md))
-        .ebpShadowSubtle()
+        .background(EBPColor.surfaceContainerHigh, in: RoundedRectangle(cornerRadius: EBPRadius.xl))
+        .ebpGhostBorder(radius: EBPRadius.xl)
     }
 
     @ViewBuilder private func trendBadge(_ d: TrendDirection) -> some View {
         let (color, icon): (Color, String) = switch d {
         case .up:      (EBPColor.success, "arrow.up.right")
-        case .down:    (EBPColor.danger,  "arrow.down.right")
-        case .neutral: (.secondary,       "minus")
+        case .down:    (EBPColor.error,   "arrow.down.right")
+        case .neutral: (EBPColor.outline, "minus")
         }
         Image(systemName: icon)
             .font(.caption2.bold())
@@ -235,10 +238,11 @@ struct EBPSectionHeader: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(.headline)
+                    .foregroundStyle(EBPColor.onSurface)
                 if let subtitle {
                     Text(subtitle)
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(EBPColor.onSurfaceVariant)
                 }
             }
             Spacer()
@@ -263,14 +267,15 @@ struct EBPEmptyState: View {
         VStack(spacing: EBPSpacing.md) {
             Image(systemName: icon)
                 .font(.system(size: 52, weight: .thin))
-                .foregroundStyle(EBPColor.primary.opacity(0.35))
+                .foregroundStyle(EBPColor.primaryFixedDim.opacity(0.35))
 
             VStack(spacing: EBPSpacing.xs) {
                 Text(title)
                     .font(.headline)
+                    .foregroundStyle(EBPColor.onSurface)
                 Text(subtitle)
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(EBPColor.onSurfaceVariant)
                     .multilineTextAlignment(.center)
             }
 
@@ -293,6 +298,8 @@ struct EBPPillTag: View {
     var body: some View {
         Text(text)
             .font(.caption2.weight(.semibold))
+            .textCase(.uppercase)
+            .tracking(0.6)
             .padding(.horizontal, 8)
             .padding(.vertical, 3)
             .background(color.opacity(0.12))
@@ -302,17 +309,19 @@ struct EBPPillTag: View {
 }
 
 // ─── EBPDivider ───────────────────────────────────────────────────────────────
+// Deprecated: Industrial Precision prohibits horizontal dividers.
+// Use background shifts or spacing instead.
 
 struct EBPDivider: View {
     var body: some View {
         Rectangle()
-            .fill(Color(.separator).opacity(0.6))
+            .fill(EBPColor.outlineVariant.opacity(0.15))
             .frame(height: 0.5)
     }
 }
 
 // ─── EBPRevenueBanner ─────────────────────────────────────────────────────────
-// Gradient revenue card used on Dashboard.
+// Gradient revenue card for Dashboard.
 
 struct EBPRevenueBanner: View {
     let label: String
@@ -325,6 +334,8 @@ struct EBPRevenueBanner: View {
             Text(label)
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(.white.opacity(0.75))
+                .textCase(.uppercase)
+                .tracking(0.6)
             Text(amount)
                 .font(EBPFont.stat)
                 .foregroundStyle(.white)
@@ -336,8 +347,8 @@ struct EBPRevenueBanner: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(EBPSpacing.lg)
-        .background(gradient, in: RoundedRectangle(cornerRadius: EBPRadius.lg))
-        .ebpShadowMedium()
+        .background(gradient, in: RoundedRectangle(cornerRadius: EBPRadius.xl))
+        .ebpNeonGlow()
     }
 }
 
@@ -365,17 +376,18 @@ extension View {
         if condition { transform(self) } else { self }
     }
 
-    /// Apply standard card styling (background + corner radius + shadow).
-    func ebpCard(radius: CGFloat = EBPRadius.md, shadow: Bool = true) -> some View {
+    /// Apply standard Industrial Precision card styling.
+    func ebpCard(radius: CGFloat = EBPRadius.xl, shadow: Bool = false) -> some View {
         self
             .padding(EBPSpacing.md)
-            .background(EBPColor.surface, in: RoundedRectangle(cornerRadius: radius))
+            .background(EBPColor.surfaceContainerHigh, in: RoundedRectangle(cornerRadius: radius))
+            .ebpGhostBorder(radius: radius)
             .if(shadow) { $0.ebpShadowSubtle() }
     }
 
     /// Horizontal padding using the standard content margin.
     func ebpHPadding() -> some View {
-        self.padding(.horizontal, EBPSpacing.md)
+        self.padding(.horizontal, EBPSpacing.page)
     }
 }
 
@@ -390,29 +402,30 @@ extension Date {
 }
 
 // ─── EBPDynamicBackground ───────────────────────────────────────────────────
+// Industrial Precision ambient background with cyan neon orbs.
 
 struct EBPDynamicBackground: View {
     var body: some View {
         ZStack {
-            // Base gradient
+            // Base gradient — surface tiers
             LinearGradient(
                 colors: [
-                    Color(red: 0.05, green: 0.05, blue: 0.15),
-                    Color(red: 0.1, green: 0.1, blue: 0.2)
+                    EBPColor.surfaceContainerLowest,
+                    EBPColor.surface
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
             .ignoresSafeArea()
-            
+
             // Animated orbs
             GeometryReader { geo in
                 ZStack {
-                    // Cyan glow
+                    // Primary cyan glow
                     Circle()
                         .fill(
                             RadialGradient(
-                                colors: [Color.cyan.opacity(0.3), Color.clear],
+                                colors: [EBPColor.primaryContainer.opacity(0.2), Color.clear],
                                 center: .center,
                                 startRadius: 0,
                                 endRadius: 200
@@ -421,12 +434,12 @@ struct EBPDynamicBackground: View {
                         .frame(width: 400, height: 400)
                         .blur(radius: 60)
                         .offset(x: -100, y: -100)
-                    
-                    // Blue accent glow
+
+                    // Secondary blue glow
                     Circle()
                         .fill(
                             RadialGradient(
-                                colors: [Color.blue.opacity(0.25), Color.clear],
+                                colors: [EBPColor.primaryFixedDim.opacity(0.15), Color.clear],
                                 center: .center,
                                 startRadius: 0,
                                 endRadius: 150

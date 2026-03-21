@@ -3,50 +3,50 @@ import SwiftUI
 enum WorkflowStatusPalette {
     static func bid(_ status: String) -> Color {
         switch status {
-        case "DRAFT":    return Color(.systemGray3)
-        case "SENT":     return .blue
-        case "VIEWED":   return EBPColor.warning
+        case "DRAFT":    return EBPColor.outline
+        case "SENT":     return EBPColor.primary
+        case "VIEWED":   return EBPColor.tertiary
         case "SIGNED":   return EBPColor.success
-        case "DECLINED": return EBPColor.danger
-        case "EXPIRED":  return Color(.systemGray4)
-        default:          return EBPColor.primary
+        case "DECLINED": return EBPColor.error
+        case "EXPIRED":  return EBPColor.outline
+        default:          return EBPColor.onSurfaceVariant
         }
     }
 
     static func job(_ status: String) -> Color {
         switch status {
-        case "SCHEDULED":   return .blue
-        case "IN_PROGRESS": return EBPColor.accent
-        case "PUNCH_LIST":  return EBPColor.warning
+        case "SCHEDULED":   return EBPColor.primary
+        case "IN_PROGRESS": return EBPColor.secondary
+        case "PUNCH_LIST":  return EBPColor.secondary
         case "COMPLETE":    return EBPColor.success
-        case "INVOICED":    return .purple
-        case "PAID":        return .mint
-        default:             return .secondary
+        case "INVOICED":    return EBPColor.tertiary
+        case "PAID":        return EBPColor.success
+        default:             return EBPColor.onSurfaceVariant
         }
     }
 
     static func invoice(_ status: String, isOverdue: Bool) -> Color {
-        if isOverdue { return EBPColor.danger }
+        if isOverdue { return EBPColor.error }
         switch status {
-        case "DRAFT":   return .secondary
-        case "SENT":    return .blue
-        case "VIEWED":  return .indigo
-        case "PARTIAL": return EBPColor.warning
+        case "DRAFT":   return EBPColor.outline
+        case "SENT":    return EBPColor.primary
+        case "VIEWED":  return EBPColor.tertiary
+        case "PARTIAL": return EBPColor.secondary
         case "PAID":    return EBPColor.success
-        case "VOID":    return .gray
-        default:         return .secondary
+        case "VOID":    return EBPColor.outline
+        default:         return EBPColor.onSurfaceVariant
         }
     }
 
     static func lead(_ status: String) -> Color {
         switch status {
-        case "NEW":       return .blue
-        case "CONTACTED": return .indigo
-        case "SITE_VISIT": return EBPColor.warning
-        case "BID_SENT":  return EBPColor.accent
-        case "WON":       return EBPColor.success
-        case "LOST":      return EBPColor.danger
-        default:           return .secondary
+        case "NEW":        return EBPColor.primary
+        case "CONTACTED":  return EBPColor.primaryFixedDim
+        case "SITE_VISIT": return EBPColor.secondary
+        case "BID_SENT":   return EBPColor.primaryContainer
+        case "WON":        return EBPColor.success
+        case "LOST":       return EBPColor.error
+        default:            return EBPColor.onSurfaceVariant
         }
     }
 }

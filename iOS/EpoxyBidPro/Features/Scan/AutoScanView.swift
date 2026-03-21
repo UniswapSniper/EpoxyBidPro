@@ -23,9 +23,9 @@ struct AutoScanView: View {
                         } label: {
                             Image(systemName: "xmark")
                                 .font(.system(size: 17, weight: .semibold))
-                                .foregroundStyle(.white)
+                                .foregroundStyle(EBPColor.onSurface)
                                 .frame(width: 38, height: 38)
-                                .background(.ultraThinMaterial)
+                                .background(EBPColor.surfaceContainerHigh)
                                 .clipShape(Circle())
                         }
                         
@@ -40,7 +40,7 @@ struct AutoScanView: View {
                         .foregroundStyle(EBPColor.accent)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 5)
-                        .background(.ultraThinMaterial)
+                        .background(EBPColor.surfaceContainerHigh)
                         .clipShape(Capsule())
                     }
                     .padding(.horizontal, 16)
@@ -53,7 +53,7 @@ struct AutoScanView: View {
                                 .foregroundStyle(EBPColor.accent)
                             Text("AI Scan Coach")
                                 .font(.system(size: 12, weight: .bold))
-                                .foregroundStyle(.white)
+                                .foregroundStyle(EBPColor.onSurface)
                             Spacer()
                             Text("\(scanManager.scanQualityScore)%")
                                 .font(.system(size: 11, weight: .bold, design: .rounded))
@@ -74,12 +74,12 @@ struct AutoScanView: View {
 
                         Text(scanManager.aiCoachMessage)
                             .font(.system(size: 12, weight: .semibold))
-                            .foregroundStyle(.white)
+                            .foregroundStyle(EBPColor.onSurface)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     .padding(.horizontal, 12)
                     .padding(.vertical, 10)
-                    .background(.ultraThinMaterial)
+                    .background(EBPColor.surfaceContainerHigh)
                     .background(Color.black.opacity(0.30))
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                     .overlay(
@@ -92,12 +92,12 @@ struct AutoScanView: View {
                     if let statusMessage = scanManager.statusMessage {
                         Text(statusMessage)
                             .font(.system(size: 12, weight: .semibold))
-                            .foregroundStyle(.white)
+                            .foregroundStyle(EBPColor.onSurface)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 14)
                             .padding(.vertical, 10)
                             .frame(maxWidth: .infinity)
-                            .background(.ultraThinMaterial)
+                            .background(EBPColor.surfaceContainerHigh)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                             .padding(.horizontal, 16)
                             .padding(.top, 10)
@@ -118,7 +118,7 @@ struct AutoScanView: View {
                             .foregroundStyle(.white)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
-                            .background(Color.red)
+                            .background(EBPColor.error)
                             .clipShape(RoundedRectangle(cornerRadius: 16))
                             .shadow(radius: 8)
                             .padding(.horizontal, 24)
@@ -194,11 +194,11 @@ struct AutoScanView: View {
     private var scanQualityColor: Color {
         switch scanManager.scanQualityScore {
         case ..<45:
-            return .orange
+            return EBPColor.secondaryContainer
         case ..<75:
             return EBPColor.accent
         default:
-            return .green
+            return EBPColor.success
         }
     }
 }

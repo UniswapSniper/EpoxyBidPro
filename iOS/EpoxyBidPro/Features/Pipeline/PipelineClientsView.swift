@@ -25,11 +25,11 @@ struct PipelineClientsView: View {
             HStack {
                 Label("Clients", systemImage: "person.2.fill")
                     .font(.subheadline.weight(.bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(EBPColor.onSurface)
                 Spacer()
                 Text("\(allClients.count)")
                     .font(.caption.weight(.semibold))
-                    .foregroundStyle(.white.opacity(0.7))
+                    .foregroundStyle(EBPColor.onSurfaceVariant)
             }
             
             if allClients.isEmpty {
@@ -54,17 +54,17 @@ struct PipelineClientsView: View {
                                     Circle().fill(EBPColor.primaryGradient).frame(width: 36, height: 36)
                                     Text(String(client.displayName.prefix(1)).uppercased())
                                         .font(.caption.weight(.bold))
-                                        .foregroundStyle(.white)
+                                        .foregroundStyle(EBPColor.onSurface)
                                 }
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(client.displayName)
                                         .font(.caption.weight(.semibold))
-                                        .foregroundStyle(.white)
+                                        .foregroundStyle(EBPColor.onSurface)
                                         .lineLimit(1)
                                     if !client.company.isEmpty {
                                         Text(client.company)
                                             .font(.caption2)
-                                            .foregroundStyle(.white.opacity(0.6))
+                                            .foregroundStyle(EBPColor.onSurfaceVariant)
                                     }
                                 }
                                 Spacer()

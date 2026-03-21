@@ -2,29 +2,35 @@ import SwiftUI
 
 struct MainTabView: View {
     enum Tab: Hashable, CaseIterable {
-        case dashboard, crm, bids, jobs, more
+        case dashboard, jobs, scan, clients, settings
 
         var displayName: String {
             switch self {
-            case .dashboard: return "Dashboard"
-            case .crm: return "CRM"
-            case .bids: return "Bids"
-            case .jobs: return "Jobs"
-            case .more: return "More"
+            case .dashboard: return "DASHBOARD"
+            case .jobs:      return "JOBS"
+            case .scan:      return "SCAN"
+            case .clients:   return "CLIENTS"
+            case .settings:  return "SETTINGS"
+            }
+        }
+
+        var icon: String {
+            switch self {
+            case .dashboard: return "square.grid.2x2.fill"
+            case .jobs:      return "briefcase.fill"
+            case .scan:      return "viewfinder"
+            case .clients:   return "person.2.fill"
+            case .settings:  return "gearshape.fill"
             }
         }
     }
 
     enum DockHaptic {
-        case light
-        case medium
-        case heavy
-        case soft
-        case rigid
-        case success
+        case light, medium, heavy, soft, rigid, success
     }
 
-    @State private var selectedTab: Tab = .bids
+    @State private var selectedTab: Tab = .dashboard
+    @State private var previousTab: Tab = .dashboard
     @State private var presentingScan = false
     @State private var presentingBidBuilder = false
     @State private var presentingCreateJob = false
@@ -53,24 +59,24 @@ struct MainTabView: View {
                 message: "Use Quick Actions for your most common tasks and check the KPI banner before you begin your day."
             ),
             TooltipStep(
-                tab: .crm,
-                title: "Work Your Follow-Ups",
-                message: "Pipeline and AI Follow-Up Queue keep leads moving. Prioritize overdue follow-ups first."
+                tab: .jobs,
+                title: "Manage Your Work",
+                message: "Track all jobs, schedules, and crew assignments. Create jobs from signed bids and monitor progress."
             ),
             TooltipStep(
-                tab: .bids,
+                tab: .scan,
                 title: "Scan to Bid Fast",
                 message: "Run Scan Space, then Build From Scan to prefill pricing and scope in one flow."
             ),
             TooltipStep(
-                tab: .jobs,
-                title: "Execute Without Gaps",
-                message: "Create jobs from signed bids and use risk filters to catch schedule or margin issues early."
+                tab: .clients,
+                title: "Work Your Pipeline",
+                message: "Pipeline and AI Follow-Up Queue keep leads moving. Prioritize overdue follow-ups first."
             ),
             TooltipStep(
-                tab: .more,
+                tab: .settings,
                 title: "Configure Operations",
-                message: "Use More for invoicing, business profile, app language, and account settings."
+                message: "Manage invoicing, business profile, payments, app language, and account settings."
             ),
         ]
     }
@@ -82,10 +88,10 @@ struct MainTabView: View {
     private var activeRouteTab: WorkflowRouter.RouteTab {
         switch selectedTab {
         case .dashboard: return .dashboard
-        case .crm: return .crm
-        case .bids: return .bids
-        case .jobs: return .jobs
-        case .more: return .more
+        case .jobs:      return .jobs
+        case .scan:      return .scan
+        case .clients:   return .clients
+        case .settings:  return .settings
         }
     }
 
@@ -93,13 +99,13 @@ struct MainTabView: View {
         switch selectedTab {
         case .dashboard:
             return "Quick actions for your day are in the dock"
-        case .crm:
-            return "Tap Follow-Up to work your next AI priority"
-        case .bids:
-            return "Tap Scan to start LiDAR estimate flow"
         case .jobs:
             return "Tap Create Job to schedule execution faster"
-        case .more:
+        case .scan:
+            return "Tap Scan to start LiDAR estimate flow"
+        case .clients:
+            return "Tap Follow-Up to work your next AI priority"
+        case .settings:
             return "Tap Invoice to open billing in one step"
         }
     }
@@ -107,54 +113,49 @@ struct MainTabView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             // ── Tab content area ───────────────────────────────────────────
-            TabView(selection: $selectedTab) {
-                DashboardView()
-                    .environmentObject(workflowRouter)
-                    .tabItem { Label("Dashboard", systemImage: "house.fill") }
-                    .tag(Tab.dashboard)
-
-                CRMView()
-                    .environmentObject(workflowRouter)
-                    .tabItem { Label("CRM", systemImage: "person.2.fill") }
-                    .tag(Tab.crm)
-
-                BidsView()
-                    .environmentObject(workflowRouter)
-                    .tabItem { Label("Bids", systemImage: "doc.text.fill") }
-                    .tag(Tab.bids)
-
-                JobsView()
-                    .environmentObject(workflowRouter)
-                    .tabItem { Label("Jobs", systemImage: "briefcase.fill") }
-                    .tag(Tab.jobs)
-
-                MoreView()
-                    .environmentObject(workflowRouter)
-                    .tabItem { Label("More", systemImage: "ellipsis.circle.fill") }
-                    .tag(Tab.more)
+            ZStack {
+                Group {
+                    switch selectedTab {
+                    case .dashboard:
+                        DashboardView()
+                            .environmentObject(workflowRouter)
+                    case .jobs:
+                        JobsView()
+                            .environmentObject(workflowRouter)
+                    case .scan:
+                        // Scan tab shows dashboard; actual scan is presented as fullScreenCover
+                        DashboardView()
+                            .environmentObject(workflowRouter)
+                    case .clients:
+                        CRMView()
+                            .environmentObject(workflowRouter)
+                    case .settings:
+                        SettingsTabView()
+                            .environmentObject(workflowRouter)
+                    }
+                }
             }
-            .tint(EBPColor.accent)
             .scaleEffect(routeHandoffAnimating ? 0.996 : 1)
             .opacity(routeHandoffAnimating ? 0.985 : 1)
             .animation(EBPAnimation.smooth, value: routeHandoffAnimating)
-            .safeAreaInset(edge: .bottom) {
-                Color.clear
-                    .frame(height: selectedTab == .dashboard ? 0 : 112)
-            }
 
+            // ── Quick Action Dock (above tab bar) ──────────────────────────
             quickActionDock(isCompact: workflowRouter.isDockCompact(for: activeRouteTab))
                 .padding(.horizontal, EBPSpacing.md)
-                .padding(.bottom, dockBottomPadding())
+                .padding(.bottom, tabBarHeight() + 12)
+
+            // ── Custom Glassmorphic Tab Bar ────────────────────────────────
+            industrialTabBar
 
             if showCompactDockHint {
                 Text(compactHintText)
                     .font(.caption.weight(.semibold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(EBPColor.onSurface)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
                     .background(.ultraThinMaterial)
                     .clipShape(Capsule())
-                    .padding(.bottom, dockBottomPadding() + 62)
+                    .padding(.bottom, tabBarHeight() + 74)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
             }
 
@@ -180,13 +181,14 @@ struct MainTabView: View {
 
                 tooltipCoachCard
                     .padding(.horizontal, EBPSpacing.md)
-                    .padding(.bottom, dockBottomPadding() + 72)
+                    .padding(.bottom, tabBarHeight() + 80)
                     .frame(maxHeight: .infinity, alignment: .bottom)
                     .transition(.opacity.combined(with: .move(edge: .bottom)))
                     .zIndex(10)
             }
         }
-        .sheet(isPresented: $presentingScan) {
+        .ignoresSafeArea(.keyboard)
+        .fullScreenCover(isPresented: $presentingScan) {
             if #available(iOS 16.0, *) {
                 AutoScanView()
             } else {
@@ -221,8 +223,8 @@ struct MainTabView: View {
             }
         }
         .onChange(of: selectedTab) { _, newTab in
-            if newTab == .bids {
-                workflowRouter.setDockCompact(false, for: .bids)
+            if newTab == .jobs {
+                workflowRouter.setDockCompact(false, for: .jobs)
             }
         }
         .onChange(of: workflowRouter.compactDockTabs) { _, compactTabs in
@@ -248,6 +250,80 @@ struct MainTabView: View {
         }
     }
 
+    // MARK: - Industrial Glassmorphic Tab Bar
+
+    private var industrialTabBar: some View {
+        HStack(spacing: 0) {
+            ForEach(Tab.allCases, id: \.self) { tab in
+                tabBarItem(tab)
+            }
+        }
+        .padding(.horizontal, EBPSpacing.xs)
+        .padding(.top, 12)
+        .padding(.bottom, safeAreaBottom() + 8)
+        .background(
+            ZStack {
+                EBPColor.surface.opacity(0.6)
+                    .background(.ultraThinMaterial)
+            }
+        )
+        .overlay(alignment: .top) {
+            Rectangle()
+                .fill(EBPColor.primary.opacity(0.15))
+                .frame(height: 0.5)
+        }
+        .clipShape(
+            UnevenRoundedRectangle(topLeadingRadius: EBPRadius.xl, topTrailingRadius: EBPRadius.xl)
+        )
+        .shadow(color: EBPColor.primaryFixedDim.opacity(0.05), radius: 40, x: 0, y: -4)
+    }
+
+    private func tabBarItem(_ tab: Tab) -> some View {
+        Button {
+            AppHaptics.trigger(.light, compact: true)
+            if tab == .scan {
+                previousTab = selectedTab
+                presentingScan = true
+            } else {
+                withAnimation(EBPAnimation.snappy) {
+                    selectedTab = tab
+                }
+            }
+        } label: {
+            VStack(spacing: 4) {
+                Image(systemName: tab.icon)
+                    .font(.system(size: 22, weight: selectedTab == tab ? .semibold : .regular))
+
+                Text(tab.displayName)
+                    .font(EBPFont.micro)
+                    .tracking(0.5)
+            }
+            .foregroundStyle(tabColor(tab))
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 6)
+            .background {
+                if selectedTab == tab {
+                    RoundedRectangle(cornerRadius: EBPRadius.xl)
+                        .fill(EBPColor.primaryContainer.opacity(0.10))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: EBPRadius.xl)
+                                .stroke(EBPColor.primaryContainer.opacity(0.20), lineWidth: 0.5)
+                        )
+                        .padding(.horizontal, 4)
+                }
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func tabColor(_ tab: Tab) -> Color {
+        if selectedTab == tab {
+            return EBPColor.primaryContainer
+        }
+        return EBPColor.onSurfaceVariant
+    }
+
     // MARK: - Quick Action Dock
 
     private func quickActionDock(isCompact: Bool) -> some View {
@@ -260,40 +336,39 @@ struct MainTabView: View {
                         Text("Dock")
                             .font(.caption2.weight(.semibold))
                     }
-                    .foregroundStyle(.white.opacity(0.75))
+                    .foregroundStyle(EBPColor.onSurfaceVariant)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 8)
-                    .background(Color.white.opacity(0.08), in: Capsule())
+                    .background(EBPColor.surfaceContainerHigh, in: Capsule())
                 }
 
                 quickActionButton(
                     title: "Scan",
-                    icon: "ruler",
-                    color: EBPColor.accent,
-                    textColor: .black,
+                    icon: "viewfinder",
+                    color: EBPColor.primaryContainer,
+                    textColor: EBPColor.onPrimary,
                     compact: isCompact,
                     haptic: .heavy
                 ) {
-                    selectedTab = .bids
                     presentingScan = true
                 }
 
                 quickActionButton(
                     title: "Build Bid",
                     icon: "doc.text.fill",
-                    color: EBPColor.primary,
-                    textColor: .white,
+                    color: EBPColor.surfaceContainerHigh,
+                    textColor: EBPColor.onSurface,
                     compact: isCompact,
                     haptic: .medium
                 ) {
-                    selectedTab = .bids
+                    selectedTab = .jobs
                     presentingBidBuilder = true
                 }
 
                 quickActionButton(
                     title: "Create Job",
                     icon: "hammer.fill",
-                    color: .orange,
+                    color: EBPColor.secondaryContainer,
                     textColor: .white,
                     compact: isCompact,
                     haptic: .rigid
@@ -305,34 +380,29 @@ struct MainTabView: View {
                 quickActionButton(
                     title: "Invoice",
                     icon: "dollarsign.circle.fill",
-                    color: .green,
+                    color: EBPColor.success,
                     textColor: .white,
                     compact: isCompact,
                     haptic: .soft
                 ) {
-                    selectedTab = .more
+                    selectedTab = .settings
                     presentingCreateInvoice = true
                 }
 
                 quickActionButton(
                     title: "Follow-Up",
                     icon: "person.badge.clock",
-                    color: .blue,
-                    textColor: .white,
+                    color: EBPColor.primary,
+                    textColor: EBPColor.onPrimary,
                     compact: isCompact,
                     haptic: .success
                 ) {
-                    workflowRouter.navigate(to: .crm, handoffMessage: "Open AI Follow-Up Queue")
+                    workflowRouter.navigate(to: .clients, handoffMessage: "Open AI Follow-Up Queue")
                 }
             }
         }
         .padding(EBPSpacing.sm)
-        .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: EBPRadius.lg))
-        .overlay(
-            RoundedRectangle(cornerRadius: EBPRadius.lg)
-                .stroke(Color.white.opacity(0.12), lineWidth: 1)
-        )
+        .ebpGlassmorphism(cornerRadius: EBPRadius.lg)
         .animation(.easeInOut(duration: 0.2), value: isCompact)
     }
 
@@ -381,76 +451,67 @@ struct MainTabView: View {
 
     // MARK: - Helpers
 
-    private func dockBottomPadding() -> CGFloat {
-        let safeBottom = (UIApplication.shared.connectedScenes
+    private func safeAreaBottom() -> CGFloat {
+        (UIApplication.shared.connectedScenes
             .compactMap { $0 as? UIWindowScene }
             .first?.windows.first?.safeAreaInsets.bottom) ?? 0
-        return 49 + safeBottom + 8
+    }
+
+    private func tabBarHeight() -> CGFloat {
+        // Tab bar content + top padding + bottom safe area + bottom padding
+        return 56 + 12 + safeAreaBottom() + 8
     }
 
     private var offlineBanner: some View {
         HStack(spacing: 8) {
             Image(systemName: "wifi.slash")
                 .font(.caption.weight(.bold))
-                .foregroundStyle(.orange)
-            Text("Offline — changes will sync when connected")
+                .foregroundStyle(EBPColor.secondaryContainer)
+            Text("Offline \u{2014} changes will sync when connected")
                 .font(.caption.weight(.semibold))
-                .foregroundStyle(.white)
+                .foregroundStyle(EBPColor.onSurface)
                 .lineLimit(1)
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 8)
-        .background(Color.orange.opacity(0.18))
+        .background(EBPColor.secondaryContainer.opacity(0.18))
         .background(.ultraThinMaterial)
         .clipShape(Capsule())
-        .overlay(Capsule().stroke(Color.orange.opacity(0.35), lineWidth: 1))
+        .overlay(Capsule().stroke(EBPColor.secondaryContainer.opacity(0.35), lineWidth: 0.5))
     }
 
     private func handoffBanner(_ handoff: String) -> some View {
         HStack(spacing: 8) {
-            Image(systemName: tabIcon(routeHandoffTab ?? selectedTab))
+            Image(systemName: (routeHandoffTab ?? selectedTab).icon)
                 .font(.caption.weight(.bold))
-                .foregroundStyle(EBPColor.accent)
+                .foregroundStyle(EBPColor.primaryContainer)
 
             Text(handoff)
                 .font(.caption.weight(.semibold))
-                .foregroundStyle(.white)
+                .foregroundStyle(EBPColor.onSurface)
                 .lineLimit(1)
 
             Circle()
-                .fill(EBPColor.accent.opacity(routeHandoffAnimating ? 0.9 : 0.45))
+                .fill(EBPColor.primaryContainer.opacity(routeHandoffAnimating ? 0.9 : 0.45))
                 .frame(width: 6, height: 6)
                 .scaleEffect(routeHandoffAnimating ? 1.2 : 0.9)
                 .animation(.easeInOut(duration: 0.45).repeatForever(autoreverses: true), value: routeHandoffAnimating)
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 8)
-        .background(.ultraThinMaterial, in: Capsule())
-        .overlay(
-            Capsule()
-                .stroke(Color.white.opacity(0.15), lineWidth: 1)
-        )
+        .ebpGlassmorphism(cornerRadius: EBPRadius.pill)
         .scaleEffect(routeHandoffAnimating ? 1.01 : 1)
         .animation(EBPAnimation.fast, value: routeHandoffAnimating)
     }
 
     private func tab(for route: WorkflowRouter.RouteTab) -> Tab {
-        switch route {
+        switch route.canonical {
         case .dashboard: return .dashboard
-        case .crm: return .crm
-        case .bids: return .bids
-        case .jobs: return .jobs
-        case .more: return .more
-        }
-    }
-
-    private func tabIcon(_ tab: Tab) -> String {
-        switch tab {
-        case .dashboard: return "house.fill"
-        case .crm: return "person.2.fill"
-        case .bids: return "doc.text.fill"
-        case .jobs: return "briefcase.fill"
-        case .more: return "ellipsis.circle.fill"
+        case .jobs:      return .jobs
+        case .scan:      return .scan
+        case .clients:   return .clients
+        case .settings:  return .settings
+        default:         return .dashboard
         }
     }
 
@@ -459,38 +520,38 @@ struct MainTabView: View {
             HStack {
                 Text("Quick App Tour")
                     .font(.caption.weight(.bold))
-                    .foregroundStyle(.white.opacity(0.75))
+                    .foregroundStyle(EBPColor.onSurfaceVariant)
 
                 Spacer()
 
                 Text("\(tooltipIndex + 1)/\(tooltipSteps.count)")
                     .font(.caption2.weight(.semibold))
-                    .foregroundStyle(.white.opacity(0.65))
+                    .foregroundStyle(EBPColor.onSurfaceVariant.opacity(0.65))
                     .contentTransition(.numericText())
             }
 
             HStack(spacing: 6) {
                 ForEach(Array(tooltipSteps.indices), id: \.self) { idx in
                     Capsule()
-                        .fill(idx <= tooltipIndex ? EBPColor.accent : Color.white.opacity(0.2))
+                        .fill(idx <= tooltipIndex ? EBPColor.primaryContainer : EBPColor.surfaceContainerHighest)
                         .frame(height: 4)
                 }
             }
 
             Text(currentTooltipStep.title)
                 .font(.headline.weight(.bold))
-                .foregroundStyle(.white)
+                .foregroundStyle(EBPColor.onSurface)
 
             Text(currentTooltipStep.message)
                 .font(.subheadline)
-                .foregroundStyle(.white.opacity(0.85))
+                .foregroundStyle(EBPColor.onSurfaceVariant)
 
             HStack(spacing: EBPSpacing.sm) {
                 Button("Skip") {
                     dismissTooltips()
                 }
                 .font(.caption.weight(.semibold))
-                .foregroundStyle(.white.opacity(0.85))
+                .foregroundStyle(EBPColor.onSurfaceVariant)
 
                 Spacer()
 
@@ -502,28 +563,24 @@ struct MainTabView: View {
                         }
                     }
                     .font(.caption.weight(.semibold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(EBPColor.onSurface)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 8)
-                    .background(Color.white.opacity(0.12), in: Capsule())
+                    .background(EBPColor.surfaceContainerHigh, in: Capsule())
                 }
 
                 Button(tooltipIndex == tooltipSteps.count - 1 ? "Done" : "Next") {
                     advanceTooltip()
                 }
                 .font(.caption.weight(.bold))
-                .foregroundStyle(.black)
+                .foregroundStyle(EBPColor.onPrimary)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
-                .background(EBPColor.accent, in: Capsule())
+                .background(EBPColor.primaryContainer, in: Capsule())
             }
         }
         .padding(EBPSpacing.md)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: EBPRadius.lg))
-        .overlay(
-            RoundedRectangle(cornerRadius: EBPRadius.lg)
-                .stroke(Color.white.opacity(0.12), lineWidth: 1)
-        )
+        .ebpGlassmorphism(cornerRadius: EBPRadius.lg)
         .id(tooltipIndex)
         .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity),
                                 removal: .move(edge: .leading).combined(with: .opacity)))
@@ -549,4 +606,10 @@ struct MainTabView: View {
     }
 }
 
+// MARK: - Settings Tab View (wraps SettingsSheet as a full tab)
 
+struct SettingsTabView: View {
+    var body: some View {
+        SettingsSheet()
+    }
+}

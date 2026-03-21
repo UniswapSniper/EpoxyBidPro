@@ -13,6 +13,7 @@ struct SettingsSheet: View {
     @EnvironmentObject private var authStore: AuthStore
     @EnvironmentObject private var workflowRouter: WorkflowRouter
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.isPresented) private var isPresented
 
     private var selectedLanguage: Binding<AppLanguage> {
         Binding(
@@ -217,7 +218,7 @@ struct SettingsSheet: View {
                     Button {
                         hasSeenFirstTimeTabTooltips = false
                         dismiss()
-                        workflowRouter.navigate(to: .home, handoffMessage: "App tour will replay on next launch")
+                        workflowRouter.navigate(to: .dashboard, handoffMessage: "App tour will replay on next launch")
                     } label: {
                         Label("Replay App Tips", systemImage: "lightbulb")
                     }
@@ -261,9 +262,11 @@ struct SettingsSheet: View {
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") { dismiss() }
-                        .font(.subheadline.weight(.semibold))
+                if isPresented {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Done") { dismiss() }
+                            .font(.subheadline.weight(.semibold))
+                    }
                 }
             }
         }

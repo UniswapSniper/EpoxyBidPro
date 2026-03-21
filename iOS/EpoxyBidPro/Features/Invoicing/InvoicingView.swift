@@ -43,10 +43,10 @@ struct InvoicingView: View {
             switch self {
             case .all:     return EBPColor.primary
             case .draft:   return .secondary
-            case .sent:    return .blue
-            case .overdue: return EBPColor.danger
+            case .sent:    return EBPColor.primary
+            case .overdue: return EBPColor.error
             case .paid:    return EBPColor.success
-            case .partial: return EBPColor.warning
+            case .partial: return EBPColor.secondary
             }
         }
     }
@@ -265,13 +265,13 @@ struct InvoicingView: View {
             summaryCell(
                 value: totalOutstanding.formatted(.currency(code: "USD")),
                 label: "Outstanding",
-                color: .blue
+                color: EBPColor.primary
             )
             Divider().frame(height: 36)
             summaryCell(
                 value: overdueAmount.formatted(.currency(code: "USD")),
                 label: "Overdue",
-                color: EBPColor.danger
+                color: EBPColor.error
             )
             Divider().frame(height: 36)
             summaryCell(
@@ -290,12 +290,12 @@ struct InvoicingView: View {
         HStack(spacing: EBPSpacing.sm) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.title3)
-                .foregroundStyle(EBPColor.danger)
+                .foregroundStyle(EBPColor.error)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text("\(count) overdue invoice\(count == 1 ? "" : "s")")
                     .font(.subheadline.weight(.bold))
-                    .foregroundStyle(EBPColor.danger)
+                    .foregroundStyle(EBPColor.error)
                 Text("Follow up to collect outstanding payments")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -311,14 +311,14 @@ struct InvoicingView: View {
                     .foregroundStyle(.white)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 6)
-                    .background(EBPColor.danger, in: Capsule())
+                    .background(EBPColor.error, in: Capsule())
             }
         }
         .padding(EBPSpacing.md)
-        .background(EBPColor.danger.opacity(0.06), in: RoundedRectangle(cornerRadius: EBPRadius.md))
+        .background(EBPColor.error.opacity(0.06), in: RoundedRectangle(cornerRadius: EBPRadius.md))
         .overlay(
             RoundedRectangle(cornerRadius: EBPRadius.md)
-                .strokeBorder(EBPColor.danger.opacity(0.2), lineWidth: 1)
+                .strokeBorder(EBPColor.error.opacity(0.2), lineWidth: 1)
         )
     }
 
@@ -336,7 +336,7 @@ struct InvoicingView: View {
                             .foregroundStyle(statusColor(invoice))
                         Text(invoice.client?.displayName ?? "No Client")
                             .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(.primary)
+                            .foregroundStyle(EBPColor.onSurface)
                     }
 
                     Spacer()
@@ -355,7 +355,7 @@ struct InvoicingView: View {
                     Spacer()
                     Label("Due: \(invoice.dueDate.formatted(date: .abbreviated, time: .omitted))", systemImage: "clock")
                         .font(.caption)
-                        .foregroundStyle(invoice.isOverdue ? EBPColor.danger : .secondary)
+                        .foregroundStyle(invoice.isOverdue ? EBPColor.error : .secondary)
                 }
 
                 // Balance due
@@ -367,7 +367,7 @@ struct InvoicingView: View {
                         Spacer()
                         Text("Balance: \(invoice.balanceDue, format: .currency(code: "USD"))")
                             .font(.caption.weight(.bold))
-                            .foregroundStyle(invoice.isOverdue ? EBPColor.danger : EBPColor.primary)
+                            .foregroundStyle(invoice.isOverdue ? EBPColor.error : EBPColor.primary)
                     }
                 }
 
@@ -375,7 +375,7 @@ struct InvoicingView: View {
                     let risk = EpoxyAIWorkflowAdvisor.invoiceCollectionRisk(invoice)
                     Text("Collection risk: \(risk)")
                         .font(.caption2.weight(.semibold))
-                        .foregroundStyle(risk >= 60 ? EBPColor.warning : EBPColor.success)
+                        .foregroundStyle(risk >= 60 ? EBPColor.secondary : EBPColor.success)
                     Spacer()
                 }
 
@@ -384,10 +384,10 @@ struct InvoicingView: View {
                     HStack(spacing: EBPSpacing.xs) {
                         Image(systemName: "link")
                             .font(.caption)
-                            .foregroundStyle(.purple)
+                            .foregroundStyle(EBPColor.tertiary)
                         Text("Payment link active")
                             .font(.caption2)
-                            .foregroundStyle(.purple)
+                            .foregroundStyle(EBPColor.tertiary)
                     }
                 }
             }
@@ -397,7 +397,7 @@ struct InvoicingView: View {
             .overlay(
                 invoice.isOverdue
                     ? RoundedRectangle(cornerRadius: EBPRadius.md)
-                        .strokeBorder(EBPColor.danger.opacity(0.3), lineWidth: 1)
+                        .strokeBorder(EBPColor.error.opacity(0.3), lineWidth: 1)
                     : nil
             )
         }
@@ -473,6 +473,6 @@ struct InvoicingView: View {
         modelContext.insert(invoice)
         try? modelContext.save()
         selectedInvoice = invoice
-        workflowRouter.navigate(to: .more, handoffMessage: "Invoice drafted from signed bid")
+        workflowRouter.navigate(to: .settings, handoffMessage: "Invoice drafted from signed bid")
     }
 }

@@ -67,7 +67,7 @@ struct SignatureView: View {
                                 Spacer()
                                 Button("Clear") { showClearAlert = true }
                                     .font(.subheadline)
-                                    .foregroundStyle(lines.isEmpty ? Color.secondary : Color.red)
+                                    .foregroundStyle(lines.isEmpty ? Color.secondary : EBPColor.error)
                                     .disabled(lines.isEmpty)
                             }
 

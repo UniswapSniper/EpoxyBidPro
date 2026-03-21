@@ -8,26 +8,26 @@ struct WorkflowKPIBanner: View {
             HStack {
                 Label("Live Workflow", systemImage: "waveform.path.ecg.rectangle")
                     .font(.caption.weight(.bold))
-                    .foregroundStyle(EBPColor.accent)
+                    .foregroundStyle(EBPColor.primaryContainer)
                 Spacer()
                 Text("Scans 7d: \(snapshot.scansThisWeek)")
                     .font(.caption2.weight(.semibold))
-                    .foregroundStyle(.white.opacity(0.75))
+                    .foregroundStyle(EBPColor.onSurfaceVariant)
             }
 
             Text(snapshot.headline)
                 .font(.caption)
-                .foregroundStyle(.white.opacity(0.85))
+                .foregroundStyle(EBPColor.onSurface.opacity(0.85))
 
             HStack(spacing: EBPSpacing.xs) {
-                item(label: "Leads", value: snapshot.readyLeads, color: EBPColor.warning)
-                item(label: "Bids", value: snapshot.bidsNeedingAction, color: EBPColor.accent)
-                item(label: "Jobs", value: snapshot.atRiskJobs, color: EBPColor.danger)
+                item(label: "Leads", value: snapshot.readyLeads, color: EBPColor.secondary)
+                item(label: "Bids", value: snapshot.bidsNeedingAction, color: EBPColor.primaryContainer)
+                item(label: "Jobs", value: snapshot.atRiskJobs, color: EBPColor.error)
                 item(label: "AR", value: snapshot.collectionRisks, color: EBPColor.primary)
             }
         }
         .padding(EBPSpacing.md)
-        .ebpGlassmorphism(cornerRadius: EBPRadius.md)
+        .ebpGlassmorphism(cornerRadius: EBPRadius.xl)
     }
 
     private func item(label: String, value: Int, color: Color) -> some View {
@@ -37,10 +37,10 @@ struct WorkflowKPIBanner: View {
                 .foregroundStyle(color)
             Text(label)
                 .font(.caption2)
-                .foregroundStyle(.white.opacity(0.65))
+                .foregroundStyle(EBPColor.onSurfaceVariant)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 6)
-        .background(Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: EBPRadius.sm))
+        .background(EBPColor.surfaceContainerHighest.opacity(0.6), in: RoundedRectangle(cornerRadius: EBPRadius.sm))
     }
 }

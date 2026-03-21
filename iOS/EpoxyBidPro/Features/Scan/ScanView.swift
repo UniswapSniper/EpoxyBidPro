@@ -47,7 +47,7 @@ struct ScanView: View {
                 if scanManager.phase == .placingStart || scanManager.phase == .walking {
                     Image(systemName: "plus")
                         .font(.system(size: 24, weight: .light))
-                        .foregroundStyle(scanManager.isNearStartPoint ? .green : .white)
+                        .foregroundStyle(scanManager.isNearStartPoint ? EBPColor.success : EBPColor.onSurface)
                         .shadow(color: .black.opacity(0.5), radius: 2)
                 }
             }
@@ -80,9 +80,9 @@ struct ScanView: View {
             Button { dismiss() } label: {
                 Image(systemName: "xmark")
                     .font(.system(size: 17, weight: .semibold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(EBPColor.onSurface)
                     .frame(width: 38, height: 38)
-                    .background(.ultraThinMaterial)
+                    .background(EBPColor.surfaceContainerHigh)
                     .clipShape(Circle())
             }
 
@@ -98,7 +98,7 @@ struct ScanView: View {
                 .foregroundStyle(EBPColor.accent)
                 .padding(.horizontal, 10)
                 .padding(.vertical, 5)
-                .background(.ultraThinMaterial)
+                .background(EBPColor.surfaceContainerHigh)
                 .clipShape(Capsule())
             }
 
@@ -106,9 +106,9 @@ struct ScanView: View {
                 Button { showResetConfirm = true } label: {
                     Image(systemName: "arrow.counterclockwise")
                         .font(.system(size: 15, weight: .semibold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(EBPColor.onSurface)
                         .frame(width: 38, height: 38)
-                        .background(.ultraThinMaterial)
+                        .background(EBPColor.surfaceContainerHigh)
                         .clipShape(Circle())
                 }
             }
@@ -147,7 +147,7 @@ struct ScanView: View {
             }
             .padding(.vertical, 10)
             .frame(maxWidth: .infinity)
-            .background(.ultraThinMaterial)
+            .background(EBPColor.surfaceContainerHigh)
             .background(Color.black.opacity(0.25))
             .clipShape(RoundedRectangle(cornerRadius: 14))
             .overlay(
@@ -168,11 +168,11 @@ struct ScanView: View {
                     .foregroundStyle(EBPColor.accent)
                 Text(value)
                     .font(.system(size: 18, weight: .bold, design: .rounded))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(EBPColor.onSurface)
             }
             Text(label)
                 .font(.system(size: 10, weight: .medium))
-                .foregroundStyle(.white.opacity(0.55))
+                .foregroundStyle(EBPColor.onSurfaceVariant)
         }
         .frame(maxWidth: .infinity)
     }
@@ -187,7 +187,7 @@ struct ScanView: View {
                     .foregroundStyle(EBPColor.accent)
                 Text("AI Scan Coach")
                     .font(.system(size: 12, weight: .bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(EBPColor.onSurface)
                 Spacer()
                 Text("\(scanManager.scanQualityScore)%")
                     .font(.system(size: 11, weight: .bold, design: .rounded))
@@ -208,12 +208,12 @@ struct ScanView: View {
 
             Text(scanManager.aiCoachMessage)
                 .font(.system(size: 12, weight: .semibold))
-                .foregroundStyle(.white.opacity(0.92))
+                .foregroundStyle(EBPColor.onSurface)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
-        .background(.ultraThinMaterial)
+        .background(EBPColor.surfaceContainerHigh)
         .background(Color.black.opacity(0.28))
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .overlay(
@@ -229,7 +229,7 @@ struct ScanView: View {
         VStack(spacing: 4) {
             Text(scanManager.guidanceMessage)
                 .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(.white.opacity(0.85))
+                .foregroundStyle(EBPColor.onSurface)
                 .multilineTextAlignment(.center)
 
             if scanManager.phase == .walking && scanManager.currentWallLengthFt > 0.3 {
@@ -245,11 +245,11 @@ struct ScanView: View {
     private var scanQualityColor: Color {
         switch scanManager.scanQualityScore {
         case ..<45:
-            return .orange
+            return EBPColor.secondaryContainer
         case ..<75:
             return EBPColor.accent
         default:
-            return .green
+            return EBPColor.success
         }
     }
 
@@ -280,12 +280,12 @@ struct ScanView: View {
                     Image(systemName: "arrow.uturn.backward")
                         .font(.system(size: 18, weight: .semibold))
                         .frame(width: 48, height: 48)
-                        .foregroundStyle(.white.opacity(0.8))
-                        .background(.ultraThinMaterial)
+                        .foregroundStyle(EBPColor.onSurface.opacity(0.8))
+                        .background(EBPColor.surfaceContainerHigh)
                         .clipShape(Circle())
                     Text("Undo")
                         .font(.system(size: 10, weight: .medium))
-                        .foregroundStyle(.white.opacity(0.5))
+                        .foregroundStyle(EBPColor.onSurfaceVariant)
                 }
             }
             .disabled(scanManager.perimeterPoints.count < 2)
@@ -310,7 +310,7 @@ struct ScanView: View {
                         Circle()
                             .fill(
                                 scanManager.isNearStartPoint
-                                    ? LinearGradient(colors: [Color.green, Color.green.opacity(0.7)],
+                                    ? LinearGradient(colors: [EBPColor.success, EBPColor.success.opacity(0.7)],
                                                      startPoint: .top, endPoint: .bottom)
                                     : EBPColor.primaryGradient
                             )
@@ -321,13 +321,13 @@ struct ScanView: View {
                                     .font(.system(size: 26, weight: .bold))
                                     .foregroundStyle(.white)
                             )
-                            .shadow(color: (scanManager.isNearStartPoint ? Color.green : EBPColor.accent).opacity(0.5),
+                            .shadow(color: (scanManager.isNearStartPoint ? EBPColor.success : EBPColor.accent).opacity(0.5),
                                     radius: 12, x: 0, y: 4)
                     }
 
                     Text(scanManager.isNearStartPoint ? "CLOSE" : "CORNER")
                         .font(.system(size: 11, weight: .bold))
-                        .foregroundStyle(scanManager.isNearStartPoint ? .green : EBPColor.accent)
+                        .foregroundStyle(scanManager.isNearStartPoint ? EBPColor.success : EBPColor.accent)
                 }
             }
 
@@ -337,16 +337,16 @@ struct ScanView: View {
                     Image(systemName: "checkmark.circle")
                         .font(.system(size: 18, weight: .semibold))
                         .frame(width: 48, height: 48)
-                        .foregroundStyle(canClose ? .green : .white.opacity(0.35))
-                        .background(.ultraThinMaterial)
+                        .foregroundStyle(canClose ? EBPColor.success : EBPColor.onSurface.opacity(0.35))
+                        .background(EBPColor.surfaceContainerHigh)
                         .clipShape(Circle())
                         .overlay(
                             Circle()
-                                .stroke(Color.green.opacity(canClose ? 0.6 : 0), lineWidth: 2)
+                                .stroke(EBPColor.success.opacity(canClose ? 0.6 : 0), lineWidth: 2)
                         )
                     Text("Done")
                         .font(.system(size: 10, weight: .medium))
-                        .foregroundStyle(.white.opacity(canClose ? 0.9 : 0.35))
+                        .foregroundStyle(EBPColor.onSurface.opacity(canClose ? 0.9 : 0.35))
                 }
             }
             .disabled(!canClose)
@@ -395,15 +395,15 @@ struct ScanView: View {
 
                 Text("Scanning for floor…")
                     .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(EBPColor.onSurface)
 
                 Text("Point your device downward\nand move slowly")
                     .font(.system(size: 13, weight: .medium))
-                    .foregroundStyle(.white.opacity(0.55))
+                    .foregroundStyle(EBPColor.onSurfaceVariant)
                     .multilineTextAlignment(.center)
             }
             .padding(32)
-            .background(.ultraThinMaterial)
+            .background(EBPColor.surfaceContainerHigh)
             .background(Color.black.opacity(0.3))
             .clipShape(RoundedRectangle(cornerRadius: 20))
             .overlay(
@@ -432,11 +432,11 @@ struct ScanView: View {
 
                 Text("Aim at a Corner")
                     .font(.system(size: 20, weight: .bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(EBPColor.onSurface)
 
                 Text("Point your camera at any corner of the room,\nthen tap below to place your start point.")
                     .font(.system(size: 14, weight: .medium))
-                    .foregroundStyle(.white.opacity(0.6))
+                    .foregroundStyle(EBPColor.onSurfaceVariant)
                     .multilineTextAlignment(.center)
 
                 Button { scanManager.placeStartPoint() } label: {
@@ -456,7 +456,7 @@ struct ScanView: View {
                 .padding(.top, 6)
             }
             .padding(28)
-            .background(.ultraThinMaterial)
+            .background(EBPColor.surfaceContainerHigh)
             .background(Color.black.opacity(0.35))
             .clipShape(RoundedRectangle(cornerRadius: 22))
             .overlay(
